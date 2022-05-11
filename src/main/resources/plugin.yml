@@ -1,0 +1,7 @@
+name: Metaverseplugin
+version: '${version}'
+main: tech.inudev.metaverseplugin.Metaverseplugin
+api-version: 1.18
+authors: [ kumitatepazuru ]
+description: めたばーすぷらぐいん（仮）
+website: https://www.inu-dev.tech/
