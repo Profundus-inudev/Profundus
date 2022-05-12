@@ -1,5 +1,6 @@
 package tech.inudev.metaverseplugin.config;
 
+import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 
@@ -13,6 +14,7 @@ public class ConfigHandler {
     private final Plugin plugin;
     private final FileConfiguration config;
 
+    @Getter
     private int configVersion;
 
     public ConfigHandler(Plugin plugin) {
@@ -24,14 +26,6 @@ public class ConfigHandler {
 
     private void init() {
         configVersion = config.getInt("config_version");
-    }
-
-    /**
-     * コンフィグのバージョンを取得する
-     * @return コンフィグのバージョン
-     */
-    public int getConfigVersion() {
-        return configVersion;
     }
 
     /**

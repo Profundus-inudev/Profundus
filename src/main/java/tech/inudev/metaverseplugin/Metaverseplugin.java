@@ -9,8 +9,10 @@ import java.util.logging.Logger;
 public final class Metaverseplugin extends JavaPlugin {
     @Getter
     private static Logger logger;
+    @Getter
     private static Metaverseplugin instance;
 
+    @Getter
     private ConfigHandler configHandler;
 
     @Override
@@ -29,22 +31,6 @@ public final class Metaverseplugin extends JavaPlugin {
         // Plugin shutdown logic
 
         logger.info("Metaverseplugin disabled!");
-    }
-
-    /**
-     * メインクラスをインスタンスを取得する
-     * @return メインクラスのインスタンス
-     */
-    public static Metaverseplugin getInstance() {
-        return instance;
-    }
-
-    /**
-     * ConfigHandlerのインスタンスを取得する
-     * @return ConfigHandlerのインスタンス
-     */
-    public ConfigHandler getConfigHandler() {
-        return configHandler;
     }
 
 }
