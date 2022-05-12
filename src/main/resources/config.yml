@@ -1,1 +1,6 @@
 config_version: 1
+database:
+  address: 'localhost:3306'
+  database: 'database_name'
+  username: 'username'
+  password: 'password'
