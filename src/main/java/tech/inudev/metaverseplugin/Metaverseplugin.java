@@ -7,13 +7,11 @@ import tech.inudev.metaverseplugin.config.ConfigHandler;
 import java.util.logging.Logger;
 
 public final class Metaverseplugin extends JavaPlugin {
-    @Getter
-    private static Logger logger;
-    @Getter
-    private static Metaverseplugin instance;
 
-    @Getter
-    private ConfigHandler configHandler;
+    @Getter private static Logger logger;
+    @Getter private static Metaverseplugin instance;
+
+    @Getter private ConfigHandler configHandler;
 
     @Override
     public void onEnable() {
