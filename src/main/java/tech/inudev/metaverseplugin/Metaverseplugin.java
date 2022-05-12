@@ -31,10 +31,18 @@ public final class Metaverseplugin extends JavaPlugin {
         logger.info("Metaverseplugin disabled!");
     }
 
+    /**
+     * メインクラスをインスタンスを取得する
+     * @return メインクラスのインスタンス
+     */
     public static Metaverseplugin getInstance() {
         return instance;
     }
 
+    /**
+     * ConfigHandlerのインスタンスを取得する
+     * @return ConfigHandlerのインスタンス
+     */
     public ConfigHandler getConfigHandler() {
         return configHandler;
     }
