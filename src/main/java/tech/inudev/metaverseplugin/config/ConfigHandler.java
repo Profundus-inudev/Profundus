@@ -14,8 +14,11 @@ public class ConfigHandler {
     private final Plugin plugin;
     private final FileConfiguration config;
 
-    @Getter
-    private int configVersion;
+    @Getter private int configVersion;
+    @Getter private String databaseAddress;
+    @Getter private String databaseName;
+    @Getter private String databaseUsername;
+    @Getter private String databasePassword;
 
     public ConfigHandler(Plugin plugin) {
         plugin.saveDefaultConfig();
@@ -26,6 +29,12 @@ public class ConfigHandler {
 
     private void init() {
         configVersion = config.getInt("config_version");
+
+        String databasePath = "database.";
+        databaseAddress = config.getString(databasePath + "address");
+        databaseName = config.getString(databasePath + "database");
+        databaseUsername = config.getString(databasePath + "username");
+        databasePassword = config.getString(databasePath + "password");
     }
 
     /**
