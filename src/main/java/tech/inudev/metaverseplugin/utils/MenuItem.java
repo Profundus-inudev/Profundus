@@ -40,6 +40,10 @@ public class MenuItem {
         this.close = close;
         this.x = x;
         this.y = y;
+
+        if(shiny) {
+            icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
+        }
     }
 
     /**
