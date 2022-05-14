@@ -13,13 +13,17 @@ public class Money {
     private long amount;
     private int playerUUID;
     private String bankName;
+    private boolean isBankMoney;
 
     /**
      * プレイヤーの所持金を使用する場合のコンストラクタ
      * @param playerUUID プレイヤーのUUID
      */
     public Money(int playerUUID) {
-        init(playerUUID, "");
+        // データベースよりプレイヤ(playerUUIDの所持金の取得
+        long mock = 1000;
+
+        init(mock, playerUUID, "", false);
     }
 
     /**
@@ -27,19 +31,19 @@ public class Money {
      * @param playerUUID プレイヤーのUUID
      * @param bankName 口座の名前
      */
-    public Money(int playerUUID, String bankName) {
-        init(playerUUID, bankName);
+    public Money(int playerUUID, String bankName, boolean isBankMoney) {
+        // データベースよりプレイヤ(playerUUID)の口座(bankName)上の金額の取得
+        long mock = 100000;
+
+        init(mock, playerUUID, bankName, true);
     }
 
 
-    private void init (int playerUUID, String bankName) {
-        long mock = bankName.isEmpty()
-            ? 1000 // データベースよりプレイヤ(playerUUIDの所持金の取得
-            : 100000; // データベースよりプレイヤ(playerUUID)の口座(bankName)上の金額の取得
-
-        this.amount = mock;
+    private void init (long amount, int playerUUID, String bankName, boolean isBankMoney) {
+        this.amount = amount;
         this.playerUUID = playerUUID;
         this.bankName = bankName;
+        this.isBankMoney = isBankMoney;
     }
 
     /**
@@ -66,15 +70,11 @@ public class Money {
      * 取引後の金額をDatabaseへ反映する
      */
     public void push() {
-        if (isBankMoney()) {
+        if (this.isBankMoney) {
             logging("取引後の口座の金額をDatabaseへ反映します");
         } else {
             logging("取引後の所持金をDatabaseへ反映します");
         }
-    }
-
-    private boolean isBankMoney() {
-        return bankName.isEmpty();
     }
 
     private void logging(String message) {
