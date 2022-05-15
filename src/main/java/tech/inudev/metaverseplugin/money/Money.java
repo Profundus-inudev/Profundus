@@ -1,7 +1,12 @@
 package tech.inudev.metaverseplugin.money;
 
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import tech.inudev.metaverseplugin.Metaverseplugin;
+
+import java.util.UUID;
 
 /**
  * お金の取引を処理するためのクラス
@@ -11,7 +16,7 @@ import tech.inudev.metaverseplugin.Metaverseplugin;
 public class Money {
     @Getter
     private long amount;
-    private int playerUUID;
+    private UUID playerUUID;
     private String bankName;
     private boolean isBankMoney;
 
@@ -19,7 +24,7 @@ public class Money {
      * プレイヤーの所持金を使用する場合のコンストラクタ
      * @param playerUUID プレイヤーのUUID
      */
-    public Money(int playerUUID) {
+    public Money(UUID playerUUID) {
         // データベースよりプレイヤ(playerUUIDの所持金の取得
         long mock = 1000;
 
@@ -31,7 +36,7 @@ public class Money {
      * @param playerUUID プレイヤーのUUID
      * @param bankName 口座の名前
      */
-    public Money(int playerUUID, String bankName, boolean isBankMoney) {
+    public Money(UUID playerUUID, String bankName) {
         // データベースよりプレイヤ(playerUUID)の口座(bankName)上の金額の取得
         long mock = 100000;
 
@@ -39,7 +44,7 @@ public class Money {
     }
 
 
-    private void init (long amount, int playerUUID, String bankName, boolean isBankMoney) {
+    private void init (long amount, UUID playerUUID, String bankName, boolean isBankMoney) {
         this.amount = amount;
         this.playerUUID = playerUUID;
         this.bankName = bankName;
@@ -60,7 +65,12 @@ public class Money {
      */
     public void remove(long value) {
         if (this.amount < value) {
-            logging("取引するためのお金が足りません");
+            String mes = "取引するためのお金が足りません";
+            logging(mes);
+            Player player = Bukkit.getPlayer(playerUUID);
+            if (player.isOnline()) {
+                player.sendMessage(Component.text(mes));
+            }
         } else {
             this.amount -= value;
         }
