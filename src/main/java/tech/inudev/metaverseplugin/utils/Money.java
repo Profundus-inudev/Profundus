@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.money;
+package tech.inudev.metaverseplugin.utils;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
