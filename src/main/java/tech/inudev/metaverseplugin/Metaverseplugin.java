@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public final class Metaverseplugin extends JavaPlugin {
 
-    @Getter private Logger logger;
+    @Getter private static Logger logger;
     @Getter private static Metaverseplugin instance;
 
     @Getter private ConfigHandler configHandler;
