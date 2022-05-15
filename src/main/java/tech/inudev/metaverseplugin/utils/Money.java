@@ -59,15 +59,18 @@ public class Money {
      * @param value 減算する金額
      */
     public void remove(long value) {
-        if (!this.isBankMoney && this.amount < value) {
+        if (this.amount >= value) {
+            this.amount -= value;
+        } else {
             String mes = "取引するためのお金が足りません";
             logging(mes);
-            Player player = Bukkit.getPlayer(playerUUID);
-            if (player.isOnline()) {
-                player.sendMessage(Component.text(mes));
+            // 所持金による取引の場合プレイヤーにも通知
+            if (!this.isBankMoney && playerUUID != null) {
+                Player player = Bukkit.getPlayer(playerUUID);
+                if (player.isOnline()) {
+                    player.sendMessage(Component.text(mes));
+                }
             }
-        } else {
-            this.amount -= value;
         }
     }
 
