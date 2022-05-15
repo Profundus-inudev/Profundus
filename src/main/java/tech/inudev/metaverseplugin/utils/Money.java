@@ -28,27 +28,22 @@ public class Money {
         // データベースよりプレイヤ(playerUUIDの所持金の取得
         long mock = 1000;
 
-        init(mock, playerUUID, "", false);
+        this.amount = mock;
+        this.playerUUID = playerUUID;
+        this.isBankMoney = false;
     }
 
     /**
      * プレイヤーの口座上のお金を使用する場合のコンストラクタ
-     * @param playerUUID プレイヤーのUUID
      * @param bankName 口座の名前
      */
-    public Money(UUID playerUUID, String bankName) {
+    public Money(String bankName) {
         // データベースよりプレイヤ(playerUUID)の口座(bankName)上の金額の取得
         long mock = 100000;
 
-        init(mock, playerUUID, bankName, true);
-    }
-
-
-    private void init (long amount, UUID playerUUID, String bankName, boolean isBankMoney) {
-        this.amount = amount;
-        this.playerUUID = playerUUID;
+        this.amount = mock;
         this.bankName = bankName;
-        this.isBankMoney = isBankMoney;
+        this.isBankMoney = true;
     }
 
     /**
@@ -64,7 +59,7 @@ public class Money {
      * @param value 減算する金額
      */
     public void remove(long value) {
-        if (this.amount < value) {
+        if (!this.isBankMoney && this.amount < value) {
             String mes = "取引するためのお金が足りません";
             logging(mes);
             Player player = Bukkit.getPlayer(playerUUID);
