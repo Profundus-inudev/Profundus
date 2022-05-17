@@ -19,6 +19,7 @@ public class ConfigHandler {
     @Getter private String databaseName;
     @Getter private String databaseUsername;
     @Getter private String databasePassword;
+    @Getter private String databaseType;
 
     public ConfigHandler(Plugin plugin) {
         plugin.saveDefaultConfig();
@@ -31,6 +32,7 @@ public class ConfigHandler {
         configVersion = config.getInt("config_version");
 
         String databasePath = "database.";
+        databaseType = config.getString(databasePath + "type");
         databaseAddress = config.getString(databasePath + "address");
         databaseName = config.getString(databasePath + "database");
         databaseUsername = config.getString(databasePath + "username");
