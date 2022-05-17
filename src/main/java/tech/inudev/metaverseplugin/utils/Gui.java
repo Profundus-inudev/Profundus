@@ -29,7 +29,7 @@ public class Gui implements Listener {
         this.title = title;
     }
 
-    public void add(MenuItem menuItem) {
+    public void addItem(MenuItem menuItem) {
         menuItems.add(menuItem);
     }
 

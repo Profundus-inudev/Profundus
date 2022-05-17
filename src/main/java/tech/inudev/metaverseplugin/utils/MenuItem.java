@@ -1,6 +1,7 @@
 package tech.inudev.metaverseplugin.utils;
 
 import lombok.Getter;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -21,10 +22,12 @@ public class MenuItem {
     private final int x;
     @Getter
     private final int y;
+    @Getter private final String title;
 
     /**
      * メニューのアイテム。
      *
+     * @param title      アイテムのタイトル
      * @param onClick    クリック時のイベント
      * @param close      クリック時にGUIを閉じるか
      * @param icon       アイテムのブロック
@@ -33,7 +36,7 @@ public class MenuItem {
      * @param x          アイテムの場所(x軸)。左上が0
      * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, int x, int y) {
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, int x, int y) {
         this.onClick = onClick;
         this.icon = icon;
         this.customData = customData;
@@ -41,6 +44,7 @@ public class MenuItem {
         this.close = close;
         this.x = x;
         this.y = y;
+        this.title = title;
 
         if(shiny) {
             icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
@@ -57,8 +61,8 @@ public class MenuItem {
      * @param x          アイテムの場所(x軸)。左上が0
      * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, int x, int y) {
-        this(onClick, icon, customData, shiny, true, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, int x, int y) {
+        this(title,onClick, icon, customData, shiny, true, x, y);
     }
 
     /**
@@ -70,8 +74,8 @@ public class MenuItem {
      * @param x          アイテムの場所(x軸)。左上が0
      * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, int x, int y) {
-        this(onClick, icon, customData, false, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, int x, int y) {
+        this(title,onClick, icon, customData, false, x, y);
     }
 
     /**
@@ -82,8 +86,8 @@ public class MenuItem {
      * @param x       アイテムの場所(x軸)。左上が0
      * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, int x, int y) {
-        this(onClick, icon, null, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, int x, int y) {
+        this(title,onClick, icon, null, x, y);
     }
 
     /**
@@ -93,8 +97,8 @@ public class MenuItem {
      * @param x       アイテムの場所(x軸)。左上が0
      * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(BiConsumer<MenuItem, Player> onClick, int x, int y) {
-        this(onClick, null, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, int x, int y) {
+        this(title,onClick, new ItemStack(Material.STONE), x, y);
     }
 
     /**
@@ -107,7 +111,16 @@ public class MenuItem {
      * @param x       アイテムの場所(x軸)。左上が0
      * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close, int x, int y) {
-        this(onClick, icon, null, shiny, close, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close, int x, int y) {
+        this(title,onClick, icon, null, shiny, close, x, y);
+    }
+
+    /**
+     * メニューのアイテム。
+     *
+     * @param title アイテムのタイトル
+     */
+    public MenuItem(String title, int x, int y) {
+        this(title, null, new ItemStack(Material.STONE), null, x, y);
     }
 }
