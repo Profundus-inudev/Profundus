@@ -3,6 +3,7 @@ package tech.inudev.metaverseplugin;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
+import tech.inudev.metaverseplugin.listener.testListener;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 
@@ -26,12 +27,17 @@ public final class Metaverseplugin extends JavaPlugin {
         DatabaseUtil.connect();
 
         registerSchedulers();
+        registerListeners();
 
         getLogger().info("Metaverseplugin enabled!");
     }
 
     private void registerSchedulers() {
         this.databasePingRunnable.runTaskTimer(this, 0, 20 * 60 * 60);
+    }
+
+    private void registerListeners() {
+        getServer().getPluginManager().registerEvents(new testListener(), this);
     }
 
     @Override
