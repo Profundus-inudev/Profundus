@@ -23,9 +23,15 @@ public class DatabaseUtil {
 
     static {
         ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
-        databaseUrl = "jdbc:mysql://$address/$name?useUnicode=true&characterEncoding=utf8&autoReconnect=true&maxReconnects=10&useSSL=false"
-                .replace("$address", configHandler.getDatabaseAddress())
-                .replace("$name", configHandler.getDatabaseName());
+        if(configHandler.getDatabaseType().equals("mysql")) {
+            databaseUrl = "jdbc:mysql://$address/$name?useUnicode=true&characterEncoding=utf8&autoReconnect=true&maxReconnects=10&useSSL=false"
+                    .replace("$address", configHandler.getDatabaseAddress())
+                    .replace("$name", configHandler.getDatabaseName());
+        } else if (configHandler.getDatabaseType().equals("sqlite")) {
+            databaseUrl = "jdbc:sqlite:$path".replace("$path", Metaverseplugin.getInstance().getDataFolder().getPath() + "/database.db");
+        } else {
+            throw new IllegalArgumentException("Invalid database type");
+        }
     }
 
     /**
