@@ -9,6 +9,7 @@ import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 import java.util.logging.Logger;
 
 public final class Metaverseplugin extends JavaPlugin {
+
     @Getter private static Metaverseplugin instance;
 
     @Getter private ConfigHandler configHandler;
