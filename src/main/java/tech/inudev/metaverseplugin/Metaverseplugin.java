@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 
 public final class Metaverseplugin extends JavaPlugin {
 
-    @Getter private Logger logger;
     @Getter private static Metaverseplugin instance;
 
     @Getter private ConfigHandler configHandler;
@@ -20,7 +19,6 @@ public final class Metaverseplugin extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         instance = this;
-        logger = getLogger();
 
         this.configHandler = new ConfigHandler(instance);
         this.databasePingRunnable = new DatabasePingRunnable();
@@ -29,7 +27,7 @@ public final class Metaverseplugin extends JavaPlugin {
 
         registerSchedulers();
 
-        logger.info("Metaverseplugin enabled!");
+        getLogger().info("Metaverseplugin enabled!");
     }
 
     private void registerSchedulers() {
@@ -42,7 +40,7 @@ public final class Metaverseplugin extends JavaPlugin {
 
         DatabaseUtil.disconnect();
 
-        logger.info("Metaverseplugin disabled!");
+        getLogger().info("Metaverseplugin disabled!");
     }
 
 }
