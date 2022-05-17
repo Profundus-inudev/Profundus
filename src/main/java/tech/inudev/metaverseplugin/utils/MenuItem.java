@@ -1,13 +1,14 @@
 package tech.inudev.metaverseplugin.utils;
 
 import lombok.Getter;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class MenuItem {
     @Getter
-    private final Consumer<MenuItem> onClick;
+    private final BiConsumer<MenuItem, Player> onClick;
     @Getter
     private final ItemStack icon;
     @Getter
@@ -32,7 +33,7 @@ public class MenuItem {
      * @param x          アイテムの場所(x軸)。左上が0
      * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(Consumer<MenuItem> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, int x, int y) {
+    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, int x, int y) {
         this.onClick = onClick;
         this.icon = icon;
         this.customData = customData;
@@ -56,7 +57,7 @@ public class MenuItem {
      * @param x          アイテムの場所(x軸)。左上が0
      * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(Consumer<MenuItem> onClick, ItemStack icon, Object customData, boolean shiny, int x, int y) {
+    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, int x, int y) {
         this(onClick, icon, customData, shiny, true, x, y);
     }
 
@@ -69,7 +70,7 @@ public class MenuItem {
      * @param x          アイテムの場所(x軸)。左上が0
      * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(Consumer<MenuItem> onClick, ItemStack icon, Object customData, int x, int y) {
+    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, int x, int y) {
         this(onClick, icon, customData, false, x, y);
     }
 
@@ -81,7 +82,7 @@ public class MenuItem {
      * @param x       アイテムの場所(x軸)。左上が0
      * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(Consumer<MenuItem> onClick, ItemStack icon, int x, int y) {
+    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, int x, int y) {
         this(onClick, icon, null, x, y);
     }
 
@@ -92,7 +93,7 @@ public class MenuItem {
      * @param x       アイテムの場所(x軸)。左上が0
      * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(Consumer<MenuItem> onClick, int x, int y) {
+    public MenuItem(BiConsumer<MenuItem, Player> onClick, int x, int y) {
         this(onClick, null, x, y);
     }
 
@@ -106,7 +107,7 @@ public class MenuItem {
      * @param x       アイテムの場所(x軸)。左上が0
      * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(Consumer<MenuItem> onClick, ItemStack icon, boolean shiny, boolean close, int x, int y) {
+    public MenuItem(BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close, int x, int y) {
         this(onClick, icon, null, shiny, close, x, y);
     }
 }
