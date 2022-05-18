@@ -21,6 +21,10 @@ public class ConfigHandler {
     @Getter private String databasePassword;
     @Getter private String databaseType;
 
+    /**
+     * コンストラクタ
+     * @param plugin プラグイン
+     */
     public ConfigHandler(Plugin plugin) {
         plugin.saveDefaultConfig();
         this.plugin = plugin;
