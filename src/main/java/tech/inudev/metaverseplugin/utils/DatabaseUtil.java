@@ -81,6 +81,7 @@ public class DatabaseUtil {
                     PRIMARY KEY ('name'))
                 """);
             preparedStatement.execute();
+            preparedStatement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -91,10 +92,15 @@ public class DatabaseUtil {
             createMoneyTable();
 
             PreparedStatement preparedStatement = connection.prepareStatement("""
-                SELECT amount FROM money WHERE name=?
+                SELECT * FROM money WHERE name=?
                 """);
             preparedStatement.setString(1, name);
-            return preparedStatement.executeQuery().getInt(1);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            int result = resultSet.isClosed() ? 0 : resultSet.getInt("amount");
+            resultSet.close();
+            preparedStatement.close();
+            return result;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -119,9 +125,10 @@ public class DatabaseUtil {
             } else {
                 throw new SQLException();
             }
-            preparedStatement.setInt(1, amount);
-            preparedStatement.setString(2, name);
+            preparedStatement.setString(1, name);
+            preparedStatement.setInt(2, amount);
             preparedStatement.execute();
+            preparedStatement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
