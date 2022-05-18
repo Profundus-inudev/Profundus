@@ -1,10 +1,8 @@
 package tech.inudev.metaverseplugin;
 
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
-import tech.inudev.metaverseplugin.listener.TestMoneyCommand;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 
@@ -43,7 +41,6 @@ public final class Metaverseplugin extends JavaPlugin {
     }
 
     private void registerListeners() {
-        getCommand("money").setExecutor(new TestMoneyCommand());
     }
 
     @Override

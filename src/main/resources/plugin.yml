@@ -5,11 +5,3 @@ api-version: 1.18
 authors: [ kumitatepazuru ]
 description: めたばーすぷらぐいん（仮）
 website: https://www.inu-dev.tech/
-
-commands:
-  money:
-    description: This is test money command
-permissions:
-  money:
-    description: test money command permission
-    default: true
