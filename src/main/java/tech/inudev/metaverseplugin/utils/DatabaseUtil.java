@@ -3,9 +3,7 @@ package tech.inudev.metaverseplugin.utils;
 import tech.inudev.metaverseplugin.Metaverseplugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
 
-import javax.xml.transform.Result;
 import java.sql.*;
-import java.util.UUID;
 
 /**
  * Databaseを管理するためのクラス
@@ -87,7 +85,12 @@ public class DatabaseUtil {
         }
     }
 
-    public static int loadMoney(String name) {
+    /**
+     * Databaseのnameに対応する金額データを取得する
+     * @param name Databaseの検索に使用する金額データの名前
+     * @return 金額。Database上にデータが存在しなければ0を返す
+     */
+    public static int loadMoneyAmount(String name) {
         try {
             createMoneyTable();
 
@@ -106,7 +109,13 @@ public class DatabaseUtil {
         }
     }
 
-    public static void updateMoney(String name, int amount) {
+    /**
+     * Databaseのnameに対応する金額データを更新する
+     * データが存在しなければ新規作成する
+     * @param name 金額データの名前
+     * @param amount 金額データの金額
+     */
+    public static void updateMoneyAmount(String name, int amount) {
         try {
             createMoneyTable();
 

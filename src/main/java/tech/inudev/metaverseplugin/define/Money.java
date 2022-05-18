@@ -25,7 +25,7 @@ public class Money {
      * @param playerUUID プレイヤーのUUID
      */
     public Money(UUID playerUUID) {
-        this.amount = DatabaseUtil.loadMoney(playerUUID.toString());
+        this.amount = DatabaseUtil.loadMoneyAmount(playerUUID.toString());
         this.playerUUID = playerUUID;
         this.isBankMoney = false;
     }
@@ -35,7 +35,7 @@ public class Money {
      * @param bankName 口座の名前
      */
     public Money(String bankName) {
-        this.amount = DatabaseUtil.loadMoney(bankName);
+        this.amount = DatabaseUtil.loadMoneyAmount(bankName);
         this.bankName = bankName;
         this.isBankMoney = true;
     }
@@ -74,12 +74,12 @@ public class Money {
             if (this.bankName.isEmpty()) {
                 return;
             }
-            DatabaseUtil.updateMoney(this.bankName, this.amount);
+            DatabaseUtil.updateMoneyAmount(this.bankName, this.amount);
         } else {
             if (this.playerUUID == null) {
                 return;
             }
-            DatabaseUtil.updateMoney(this.playerUUID.toString(), this.amount);
+            DatabaseUtil.updateMoneyAmount(this.playerUUID.toString(), this.amount);
         }
     }
 }
