@@ -3,10 +3,9 @@ package tech.inudev.metaverseplugin.utils;
 import tech.inudev.metaverseplugin.Metaverseplugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import javax.xml.transform.Result;
+import java.sql.*;
+import java.util.UUID;
 
 /**
  * Databaseを管理するためのクラス
@@ -72,4 +71,59 @@ public class DatabaseUtil {
         }
     }
 
+
+    private static void createMoneyTable() {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                CREATE TABLE IF NOT EXISTS 'money' (
+                    'name' VARCHAR(36) NOT NULL,
+                    'amount' INT NOT NULL,
+                    PRIMARY KEY ('name'))
+                """);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int loadPlayerMoney(UUID playerUUID) {
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                SELECT amount FROM money WHERE name=?
+                """);
+            preparedStatement.setString(1, playerUUID.toString());
+            return preparedStatement.executeQuery().getInt(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void updatePlayerMoney(UUID playerUUID, int amount) {
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement;
+            ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
+
+            if (configHandler.getDatabaseType().equals("mysql")) {
+                preparedStatement = connection.prepareStatement("""
+                    INSERT INTO money (name, amount) VALUES (?, ?)
+                        ON DUPRICATE KEY UPDATE amount=VALUES(amount);
+                    """);
+            } else if (configHandler.getDatabaseType().equals("sqlite")){
+                preparedStatement = connection.prepareStatement("""
+                    INSERT OR REPLACE INTO money VALUES (?, ?);
+                    """);
+            } else {
+                throw new SQLException();
+            }
+            preparedStatement.setInt(1, amount);
+            preparedStatement.setString(2, playerUUID.toString());
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
