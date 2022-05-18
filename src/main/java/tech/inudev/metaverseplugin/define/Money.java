@@ -67,7 +67,7 @@ public class Money {
             // 所持金による取引の場合プレイヤーにも通知
             if (!this.isBankMoney && playerUUID != null) {
                 Player player = Bukkit.getPlayer(playerUUID);
-                if (player.isOnline()) {
+                if (player != null && player.isOnline()) {
                     player.sendMessage(Component.text(mes));
                 }
             }
