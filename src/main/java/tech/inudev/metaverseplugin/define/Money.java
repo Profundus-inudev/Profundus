@@ -1,11 +1,9 @@
 package tech.inudev.metaverseplugin.define;
 
-import lombok.Data;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import tech.inudev.metaverseplugin.Metaverseplugin;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 
 import java.util.UUID;
@@ -52,20 +50,18 @@ public class Money {
 
     /**
      * 金額への減算
+     * 減算するお金が足りない場合、プレイヤーへ通知する
      * @param value 減算する金額
      */
     public void remove(int value) {
         if (this.amount >= value) {
             this.amount -= value;
-        } else {
-            String mes = "取引するためのお金が足りません";
-            logging(mes);
-            // 所持金による取引の場合プレイヤーにも通知
-            if (!this.isBankMoney && playerUUID != null) {
-                Player player = Bukkit.getPlayer(playerUUID);
-                if (player != null && player.isOnline()) {
-                    player.sendMessage(Component.text(mes));
-                }
+        } else if (!this.isBankMoney && playerUUID != null) {
+            // 所持金による取引の場合、プレイヤーへお金不足を通知
+            Player player = Bukkit.getPlayer(playerUUID);
+            if (player != null && player.isOnline()) {
+                player.sendMessage(Component.text(
+                    "取引するためのお金が足りません"));
             }
         }
     }
@@ -78,18 +74,12 @@ public class Money {
             if (this.bankName.isEmpty()) {
                 return;
             }
-            logging("取引後の口座の金額をDatabaseへ反映します");
             DatabaseUtil.updateMoney(this.bankName, this.amount);
         } else {
             if (this.playerUUID == null) {
                 return;
             }
-            logging("取引後の所持金をDatabaseへ反映します");
             DatabaseUtil.updateMoney(this.playerUUID.toString(), this.amount);
         }
-    }
-
-    private void logging(String message) {
-        Metaverseplugin.getInstance().getLogger().info(message);
     }
 }
