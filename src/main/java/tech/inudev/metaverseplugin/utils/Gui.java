@@ -34,9 +34,9 @@ public class Gui implements Listener {
     }
 
     public void open(Player player) {
-        inventory = Bukkit.createInventory(null, menuItems.stream().map(MenuItem::getY).mapToInt(Integer::intValue).max().orElseThrow(), Component.text(title));
+        inventory = Bukkit.createInventory(null, menuItems.stream().map(MenuItem::getY).mapToInt(Integer::intValue).max().orElseThrow()*9, Component.text(title));
         for (MenuItem menuItem : menuItems) {
-            inventory.setItem(menuItem.getX() + menuItem.getY() * 9, menuItem.getIcon());
+            inventory.setItem(menuItem.getX()-1 + (menuItem.getY()-1) * 9, menuItem.getIcon());
         }
 
         Bukkit.getPluginManager().registerEvents(this, Metaverseplugin.getInstance());
@@ -54,10 +54,16 @@ public class Gui implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e){
         if(e.getInventory().equals(inventory)){
+            e.setCancelled(true);
             // Handle click
             for(MenuItem menuItem : menuItems){
-                if(e.getSlot() == menuItem.getX() + menuItem.getY() * 9){
-                    menuItem.getOnClick().accept(menuItem, (Player) e.getWhoClicked());
+                if(e.getSlot() == menuItem.getX()-1 + (menuItem.getY()-1) * 9){
+                    if(menuItem.getOnClick() != null) {
+                        menuItem.getOnClick().accept(menuItem, (Player) e.getWhoClicked());
+                    }
+                    if(menuItem.isClose()){
+                        inventory.close();
+                    }
                 }
             }
         }

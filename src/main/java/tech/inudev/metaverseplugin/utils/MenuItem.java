@@ -17,7 +17,7 @@ public class MenuItem {
     @Getter
     private final boolean shiny;
     @Getter
-    private final Boolean close;
+    private final boolean close;
     @Getter
     private final int x;
     @Getter
