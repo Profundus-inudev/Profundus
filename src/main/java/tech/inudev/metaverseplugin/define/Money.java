@@ -1,10 +1,12 @@
 package tech.inudev.metaverseplugin.define;
 
+import lombok.Data;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import tech.inudev.metaverseplugin.Metaverseplugin;
+import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 
 import java.util.UUID;
 
@@ -18,17 +20,14 @@ public class Money {
     private int amount;
     private UUID playerUUID;
     private String bankName;
-    private boolean isBankMoney;
+    private final boolean isBankMoney;
 
     /**
      * プレイヤーの所持金を使用する場合のコンストラクタ
      * @param playerUUID プレイヤーのUUID
      */
     public Money(UUID playerUUID) {
-        // データベースよりプレイヤ(playerUUIDの所持金の取得
-        int mock = 1000;
-
-        this.amount = mock;
+        this.amount = DatabaseUtil.loadMoney(playerUUID.toString());
         this.playerUUID = playerUUID;
         this.isBankMoney = false;
     }
@@ -38,10 +37,7 @@ public class Money {
      * @param bankName 口座の名前
      */
     public Money(String bankName) {
-        // データベースよりプレイヤ(playerUUID)の口座(bankName)上の金額の取得
-        int mock = 100000;
-
-        this.amount = mock;
+        this.amount = DatabaseUtil.loadMoney(bankName);
         this.bankName = bankName;
         this.isBankMoney = true;
     }
@@ -79,9 +75,17 @@ public class Money {
      */
     public void push() {
         if (this.isBankMoney) {
+            if (this.bankName.isEmpty()) {
+                return;
+            }
             logging("取引後の口座の金額をDatabaseへ反映します");
+            DatabaseUtil.updateMoney(this.bankName, this.amount);
         } else {
+            if (this.playerUUID == null) {
+                return;
+            }
             logging("取引後の所持金をDatabaseへ反映します");
+            DatabaseUtil.updateMoney(this.playerUUID.toString(), this.amount);
         }
     }
 

@@ -86,21 +86,21 @@ public class DatabaseUtil {
         }
     }
 
-    public static int loadPlayerMoney(UUID playerUUID) {
+    public static int loadMoney(String name) {
         try {
             createMoneyTable();
 
             PreparedStatement preparedStatement = connection.prepareStatement("""
                 SELECT amount FROM money WHERE name=?
                 """);
-            preparedStatement.setString(1, playerUUID.toString());
+            preparedStatement.setString(1, name);
             return preparedStatement.executeQuery().getInt(1);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void updatePlayerMoney(UUID playerUUID, int amount) {
+    public static void updateMoney(String name, int amount) {
         try {
             createMoneyTable();
 
@@ -120,7 +120,7 @@ public class DatabaseUtil {
                 throw new SQLException();
             }
             preparedStatement.setInt(1, amount);
-            preparedStatement.setString(2, playerUUID.toString());
+            preparedStatement.setString(2, name);
             preparedStatement.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
