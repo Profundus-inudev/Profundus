@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public class Money {
     @Getter
-    private long amount;
+    private int amount;
     private UUID playerUUID;
     private String bankName;
     private boolean isBankMoney;
@@ -26,7 +26,7 @@ public class Money {
      */
     public Money(UUID playerUUID) {
         // データベースよりプレイヤ(playerUUIDの所持金の取得
-        long mock = 1000;
+        int mock = 1000;
 
         this.amount = mock;
         this.playerUUID = playerUUID;
@@ -39,7 +39,7 @@ public class Money {
      */
     public Money(String bankName) {
         // データベースよりプレイヤ(playerUUID)の口座(bankName)上の金額の取得
-        long mock = 100000;
+        int mock = 100000;
 
         this.amount = mock;
         this.bankName = bankName;
@@ -50,7 +50,7 @@ public class Money {
      * 金額への加算
      * @param value 加算する金額
      */
-    public void add(long value) {
+    public void add(int value) {
         this.amount += value;
     }
 
@@ -58,7 +58,7 @@ public class Money {
      * 金額への減算
      * @param value 減算する金額
      */
-    public void remove(long value) {
+    public void remove(int value) {
         if (this.amount >= value) {
             this.amount -= value;
         } else {
