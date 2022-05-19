@@ -4,6 +4,8 @@ import tech.inudev.metaverseplugin.Metaverseplugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Databaseを管理するためのクラス
@@ -88,9 +90,9 @@ public class DatabaseUtil {
     /**
      * Databaseのnameに対応する金額データを取得する
      * @param name Databaseの検索に使用する金額データの名前
-     * @return 金額。Database上にデータが存在しなければ0を返す
+     * @return 金額。Database上にデータが存在しなければnullを返す
      */
-    public static int loadMoneyAmount(String name) {
+    public static Integer loadMoneyAmount(String name) {
         try {
             createMoneyTable();
 
@@ -100,10 +102,16 @@ public class DatabaseUtil {
             preparedStatement.setString(1, name);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            int result = resultSet.isClosed() ? 0 : resultSet.getInt("amount");
+            List<Integer> list = new ArrayList<Integer>();
+            while (resultSet.next()) {
+                list.add(resultSet.getInt("amount"));
+            }
+            if (list.isEmpty()) {
+                return null;
+            }
             resultSet.close();
             preparedStatement.close();
-            return result;
+            return list.get(0);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

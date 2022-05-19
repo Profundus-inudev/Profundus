@@ -25,7 +25,8 @@ public class Money {
      * @param playerUUID プレイヤーのUUID
      */
     public Money(UUID playerUUID) {
-        this.amount = DatabaseUtil.loadMoneyAmount(playerUUID.toString());
+        Integer amount = DatabaseUtil.loadMoneyAmount(playerUUID.toString());
+        this.amount = amount != null ? amount : 0;
         this.playerUUID = playerUUID;
         this.isBankMoney = false;
     }
@@ -35,7 +36,13 @@ public class Money {
      * @param bankName 口座の名前
      */
     public Money(String bankName) {
-        this.amount = DatabaseUtil.loadMoneyAmount(bankName);
+        String regex = "[a-f0-9]{8}-[a-f0-9]{4}-[0-9][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}";
+        if (bankName.toLowerCase().matches(regex)) {
+            throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
+        }
+
+        Integer amount = DatabaseUtil.loadMoneyAmount(bankName);
+        this.amount = amount != null ? amount : 0;
         this.bankName = bankName;
         this.isBankMoney = true;
     }
@@ -53,33 +60,39 @@ public class Money {
      * 減算するお金が足りない場合、プレイヤーへ通知する
      * @param value 減算する金額
      */
-    public void remove(int value) {
+    public boolean remove(int value) {
         if (this.amount >= value) {
             this.amount -= value;
-        } else if (!this.isBankMoney && playerUUID != null) {
+            return true;
+        } else {
+            if (this.isBankMoney || playerUUID == null) {
+                return false;
+            }
             // 所持金による取引の場合、プレイヤーへお金不足を通知
             Player player = Bukkit.getPlayer(playerUUID);
             if (player != null && player.isOnline()) {
                 player.sendMessage(Component.text(
                     "取引するためのお金が足りません"));
             }
+            return false;
         }
     }
 
     /**
      * 取引後の金額をDatabaseへ反映する
      */
-    public void push() {
+    public boolean push() {
         if (this.isBankMoney) {
             if (this.bankName.isEmpty()) {
-                return;
+                return false;
             }
             DatabaseUtil.updateMoneyAmount(this.bankName, this.amount);
         } else {
             if (this.playerUUID == null) {
-                return;
+                return false;
             }
             DatabaseUtil.updateMoneyAmount(this.playerUUID.toString(), this.amount);
         }
+        return true;
     }
 }
