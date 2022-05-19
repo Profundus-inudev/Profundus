@@ -161,7 +161,7 @@ public class DatabaseUtil {
 
     public static Integer loadPriceItemCount(String type) {
         try {
-            createMoneyTable();
+            createPriceTable();
 
             PreparedStatement preparedStatement = connection.prepareStatement("""
                 SELECT * FROM price WHERE type=?
@@ -179,7 +179,7 @@ public class DatabaseUtil {
 
     public static void updatePriceItemCount(String type, int count) {
         try {
-            createMoneyTable();
+            createPriceTable();
 
             PreparedStatement preparedStatement;
             ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
@@ -191,7 +191,7 @@ public class DatabaseUtil {
                     """);
             } else if (configHandler.getDatabaseType().equals("sqlite")){
                 preparedStatement = connection.prepareStatement("""
-                    INSERT OR REPLACE INTO count VALUES (?, ?);
+                    INSERT OR REPLACE INTO price VALUES (?, ?);
                     """);
             } else {
                 throw new SQLException();
