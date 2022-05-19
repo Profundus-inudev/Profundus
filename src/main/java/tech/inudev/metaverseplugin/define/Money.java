@@ -52,6 +52,9 @@ public class Money {
      * @param value 加算する金額
      */
     public void add(int value) {
+        if (value < 0) {
+            throw new IllegalArgumentException("負の値は引数に指定できません。");
+        }
         this.amount += value;
     }
 
@@ -61,6 +64,9 @@ public class Money {
      * @param value 減算する金額
      */
     public boolean remove(int value) {
+        if (value < 0) {
+            throw new IllegalArgumentException("負の値は引数に指定できません。");
+        }
         if (this.amount >= value) {
             this.amount -= value;
             return true;
