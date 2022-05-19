@@ -22,6 +22,7 @@ public class Money {
 
     /**
      * プレイヤーの所持金を使用する場合のコンストラクタ
+     *
      * @param playerUUID プレイヤーのUUID
      */
     public Money(UUID playerUUID) {
@@ -36,6 +37,7 @@ public class Money {
 
     /**
      * プレイヤーの口座上のお金を使用する場合のコンストラクタ
+     *
      * @param bankName 口座の名前
      */
     public Money(String bankName) {
@@ -55,6 +57,7 @@ public class Money {
 
     /**
      * 金額への加算
+     *
      * @param value 加算する金額
      */
     public void add(int value) {
@@ -67,7 +70,9 @@ public class Money {
     /**
      * 金額への減算
      * 減算するお金が足りない場合、プレイヤーへ通知する
+     *
      * @param value 減算する金額
+     * @return 正常に処理できたかどうか
      */
     public boolean remove(int value) {
         if (value < 0) {
@@ -84,7 +89,7 @@ public class Money {
             Player player = Bukkit.getPlayer(playerUUID);
             if (player != null && player.isOnline()) {
                 player.sendMessage(Component.text(
-                    "取引するためのお金が足りません"));
+                        "取引するためのお金が足りません"));
             }
             return false;
         }
@@ -92,6 +97,8 @@ public class Money {
 
     /**
      * 取引後の金額をDatabaseへ反映する
+     *
+     * @return 正常終了したかどうか
      */
     public boolean push() {
         if (this.isBankMoney) {
