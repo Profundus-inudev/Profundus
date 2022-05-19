@@ -3,6 +3,7 @@ package tech.inudev.metaverseplugin.config;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
+import tech.inudev.metaverseplugin.Metaverseplugin;
 
 /**
  * config.ymlファイルを扱いやすくするために作られたHandler
@@ -23,6 +24,7 @@ public class ConfigHandler {
 
     /**
      * コンストラクタ
+     *
      * @param plugin プラグイン
      */
     public ConfigHandler(Plugin plugin) {
@@ -57,4 +59,9 @@ public class ConfigHandler {
         plugin.reloadConfig();
     }
 
+
+    public Integer getBasicPrice(String type) {
+        String path = "prices." + type;
+        return config.isInt(path) ? config.getInt(path) : null;
+    }
 }
