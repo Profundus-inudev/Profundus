@@ -3,10 +3,7 @@ package tech.inudev.metaverseplugin.utils;
 import tech.inudev.metaverseplugin.Metaverseplugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 /**
  * Databaseを管理するためのクラス
@@ -72,4 +69,76 @@ public class DatabaseUtil {
         }
     }
 
+
+    private static void createMoneyTable() {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                CREATE TABLE IF NOT EXISTS 'money' (
+                    'name' VARCHAR(36) NOT NULL,
+                    'amount' INT NOT NULL,
+                    PRIMARY KEY ('name'))
+                """);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Databaseのnameに対応する金額データを取得する
+     * @param name Databaseの検索に使用する金額データの名前
+     * @return 金額。Database上にデータが存在しなければnullを返す
+     */
+    public static Integer loadMoneyAmount(String name) {
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                SELECT * FROM money WHERE name=?
+                """);
+            preparedStatement.setString(1, name);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            Integer result = resultSet.next() ? resultSet.getInt("amount") : null;
+            preparedStatement.close();
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Databaseのnameに対応する金額データを更新する
+     * データが存在しなければ新規作成する
+     * @param name 金額データの名前
+     * @param amount 金額データの金額
+     */
+    public static void updateMoneyAmount(String name, int amount) {
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement;
+            ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
+
+            if (configHandler.getDatabaseType().equals("mysql")) {
+                preparedStatement = connection.prepareStatement("""
+                    INSERT INTO money (name, amount) VALUES (?, ?)
+                        ON DUPRICATE KEY UPDATE amount=VALUES(amount);
+                    """);
+            } else if (configHandler.getDatabaseType().equals("sqlite")){
+                preparedStatement = connection.prepareStatement("""
+                    INSERT OR REPLACE INTO money VALUES (?, ?);
+                    """);
+            } else {
+                throw new SQLException();
+            }
+            preparedStatement.setString(1, name);
+            preparedStatement.setInt(2, amount);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
