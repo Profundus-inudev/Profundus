@@ -87,6 +87,7 @@ public class DatabaseUtil {
 
     /**
      * Databaseのnameに対応する金額データを取得する
+     *
      * @param name Databaseの検索に使用する金額データの名前
      * @return 金額。Database上にデータが存在しなければnullを返す
      */
@@ -111,6 +112,7 @@ public class DatabaseUtil {
     /**
      * Databaseのnameに対応する金額データを更新する
      * データが存在しなければ新規作成する
+     *
      * @param name 金額データの名前
      * @param amount 金額データの金額
      */
@@ -135,6 +137,67 @@ public class DatabaseUtil {
             }
             preparedStatement.setString(1, name);
             preparedStatement.setInt(2, amount);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void createPriceTable() {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                CREATE TABLE IF NOT EXISTS 'price' (
+                    'type' VARCHAR(100) NOT NULL,
+                    'count' INT NOT NULL,
+                    PRIMARY KEY ('type'))
+                """);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Integer loadPriceItemCount(String type) {
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                SELECT * FROM price WHERE type=?
+                """);
+            preparedStatement.setString(1, type);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            Integer result = resultSet.next() ? resultSet.getInt("count") : null;
+            preparedStatement.close();
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void updatePriceItemCount(String type, int count) {
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement;
+            ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
+
+            if (configHandler.getDatabaseType().equals("mysql")) {
+                preparedStatement = connection.prepareStatement("""
+                    INSERT INTO price (type, count) VALUES (?, ?)
+                        ON DUPRICATE KEY UPDATE count=VALUES(count);
+                    """);
+            } else if (configHandler.getDatabaseType().equals("sqlite")){
+                preparedStatement = connection.prepareStatement("""
+                    INSERT OR REPLACE INTO count VALUES (?, ?);
+                    """);
+            } else {
+                throw new SQLException();
+            }
+            preparedStatement.setString(1, type);
+            preparedStatement.setInt(2, count);
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
