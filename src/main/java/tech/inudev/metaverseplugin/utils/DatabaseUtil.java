@@ -4,8 +4,6 @@ import tech.inudev.metaverseplugin.Metaverseplugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Databaseを管理するためのクラス
@@ -102,16 +100,9 @@ public class DatabaseUtil {
             preparedStatement.setString(1, name);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            List<Integer> list = new ArrayList<Integer>();
-            while (resultSet.next()) {
-                list.add(resultSet.getInt("amount"));
-            }
-            if (list.isEmpty()) {
-                return null;
-            }
-            resultSet.close();
+            Integer result = resultSet.next() ? resultSet.getInt("amount") : null;
             preparedStatement.close();
-            return list.get(0);
+            return result;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

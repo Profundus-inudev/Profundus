@@ -26,7 +26,10 @@ public class Money {
      */
     public Money(UUID playerUUID) {
         Integer amount = DatabaseUtil.loadMoneyAmount(playerUUID.toString());
-        this.amount = amount != null ? amount : 0;
+        if (amount == null) {
+            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
+        }
+        this.amount = amount;
         this.playerUUID = playerUUID;
         this.isBankMoney = false;
     }
@@ -36,13 +39,16 @@ public class Money {
      * @param bankName 口座の名前
      */
     public Money(String bankName) {
-        String regex = "[a-f0-9]{8}-[a-f0-9]{4}-[0-9][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}";
+        String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
         if (bankName.toLowerCase().matches(regex)) {
             throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
         }
 
         Integer amount = DatabaseUtil.loadMoneyAmount(bankName);
-        this.amount = amount != null ? amount : 0;
+        if (amount == null) {
+            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
+        }
+        this.amount = amount;
         this.bankName = bankName;
         this.isBankMoney = true;
     }
