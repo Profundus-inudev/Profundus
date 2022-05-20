@@ -9,5 +9,10 @@ database:
   password: 'password'
 
 prices:
-  iron: 1000
-  diamond: 100000
+  coal: 100
+  raw-iron: 1000
+  raw-copper: 1500
+  raw-gold: 5000000
+  lapis-lazuli: 1750
+  redstone-dust: 2000
+  diamond: 10000
