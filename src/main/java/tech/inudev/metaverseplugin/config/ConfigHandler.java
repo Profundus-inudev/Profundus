@@ -25,7 +25,7 @@ public class ConfigHandler {
     @Getter private String databasePassword;
     @Getter private String databaseType;
 
-    @Getter private List<String> priceTypes;
+    @Getter private HashMap<String, Integer> priceMap;
 
     /**
      * コンストラクタ
@@ -49,8 +49,11 @@ public class ConfigHandler {
         databaseUsername = config.getString(databasePath + "username");
         databasePassword = config.getString(databasePath + "password");
 
-        priceTypes = new ArrayList<>(
-                config.getConfigurationSection("prices").getKeys(false));
+        String pricesSection = "prices";
+        priceMap = new HashMap<>();
+        for (String type : config.getConfigurationSection(pricesSection).getKeys(false)) {
+            priceMap.put(type, config.getInt(pricesSection + "." + type));
+        }
     }
 
     /**
@@ -69,7 +72,6 @@ public class ConfigHandler {
 
 
     public Integer getBasicPrice(String type) {
-        String path = "prices." + type;
-        return config.isInt(path) ? config.getInt(path) : null;
+        return priceMap.get(type);
     }
 }

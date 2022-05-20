@@ -191,7 +191,6 @@ public class DatabaseUtil {
                         .toList();
 
                 if (types.size() == 0) {
-                    Metaverseplugin.getInstance().getLogger().info("新規価格情報はありません。");
                     return;
                 }
             }

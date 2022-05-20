@@ -17,8 +17,10 @@ public class PriceUtil {
     }
 
     public static void initPrices() {
-        List<String> priceTypes = Metaverseplugin.getInstance().getConfigHandler().getPriceTypes();
-        if (priceTypes != null && priceTypes.size() > 0) {
+        List<String> priceTypes = new ArrayList<>(
+                Metaverseplugin.getInstance().getConfigHandler().getPriceMap().keySet());
+
+        if (priceTypes.size() > 0) {
             DatabaseUtil.insertPriceValues(priceTypes);
         }
     }
