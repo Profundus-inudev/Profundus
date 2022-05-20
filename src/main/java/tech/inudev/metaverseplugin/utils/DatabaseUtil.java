@@ -73,10 +73,10 @@ public class DatabaseUtil {
     private static void createMoneyTable() {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("""
-                CREATE TABLE IF NOT EXISTS 'money' (
-                    'name' VARCHAR(36) NOT NULL,
-                    'amount' INT NOT NULL,
-                    PRIMARY KEY ('name'))
+                CREATE TABLE IF NOT EXISTS money (
+                    name VARCHAR(36) NOT NULL,
+                    amount INT NOT NULL,
+                    PRIMARY KEY (name))
                 """);
             preparedStatement.execute();
             preparedStatement.close();
@@ -147,10 +147,10 @@ public class DatabaseUtil {
     private static void createPriceTable() {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("""
-                CREATE TABLE IF NOT EXISTS 'price' (
-                    'type' VARCHAR(100) NOT NULL,
-                    'count' INT NOT NULL,
-                    PRIMARY KEY ('type'))
+                CREATE TABLE IF NOT EXISTS price (
+                    type VARCHAR(100) NOT NULL,
+                    count INT NOT NULL,
+                    PRIMARY KEY (type))
                 """);
             preparedStatement.execute();
             preparedStatement.close();
