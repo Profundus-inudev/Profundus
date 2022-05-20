@@ -123,14 +123,14 @@ public class DatabaseUtil {
             createMoneyTable();
 
             PreparedStatement preparedStatement;
-            ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
+            String databaseType = Metaverseplugin.getInstance().getConfigHandler().getDatabaseType();
 
-            if (configHandler.getDatabaseType().equals("mysql")) {
+            if (databaseType.equals("mysql")) {
                 preparedStatement = connection.prepareStatement("""
                     INSERT INTO money (name, amount) VALUES (?, ?)
                         ON DUPRICATE KEY UPDATE amount=VALUES(amount);
                     """);
-            } else if (configHandler.getDatabaseType().equals("sqlite")){
+            } else if (databaseType.equals("sqlite")){
                 preparedStatement = connection.prepareStatement("""
                     INSERT OR REPLACE INTO money VALUES (?, ?);
                     """);
