@@ -162,6 +162,9 @@ public class DatabaseUtil {
     }
 
     public static void insertPriceValues(List<String> types) {
+        if (types == null || types.size() == 0){
+            throw new IllegalArgumentException();
+        }
         try {
             createPriceTable();
 
@@ -186,6 +189,11 @@ public class DatabaseUtil {
                 types = types.stream()
                         .filter(t -> !existingTypes.contains(t))
                         .toList();
+
+                if (types.size() == 0) {
+                    Metaverseplugin.getInstance().getLogger().info("新規価格情報はありません。");
+                    return;
+                }
             }
 
             for (String type : types) {
