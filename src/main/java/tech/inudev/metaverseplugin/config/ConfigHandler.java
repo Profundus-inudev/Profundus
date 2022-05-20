@@ -5,6 +5,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import tech.inudev.metaverseplugin.Metaverseplugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * config.ymlファイルを扱いやすくするために作られたHandler
  *
@@ -21,6 +24,8 @@ public class ConfigHandler {
     @Getter private String databaseUsername;
     @Getter private String databasePassword;
     @Getter private String databaseType;
+
+    @Getter private List<String> priceTypes;
 
     /**
      * コンストラクタ
@@ -43,6 +48,9 @@ public class ConfigHandler {
         databaseName = config.getString(databasePath + "database");
         databaseUsername = config.getString(databasePath + "username");
         databasePassword = config.getString(databasePath + "password");
+
+        priceTypes = new ArrayList<>(
+                config.getConfigurationSection("prices").getKeys(false));
     }
 
     /**

@@ -19,8 +19,9 @@ public class PriceUtil {
         return 1000 / count + basicPrice;
     }
 
-    public static void setPrice(String type, int count) {
-        DatabaseUtil.updatePriceItemCount(type, count);
+    public static void initPrices() {
+        DatabaseUtil.insertPriceValues(
+                Metaverseplugin.getInstance().getConfigHandler().getPriceTypes());
     }
 
     public static void addPrice(String type, int count) {

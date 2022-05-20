@@ -4,6 +4,8 @@ import tech.inudev.metaverseplugin.Metaverseplugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Databaseを管理するためのクラス
@@ -152,6 +154,51 @@ public class DatabaseUtil {
                     count INT NOT NULL,
                     PRIMARY KEY (type))
                 """);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void insertPriceValues(List<String> types) {
+        try {
+            createPriceTable();
+
+            StringBuilder sql = new StringBuilder("INSERT INTO price (type, count) VALUES");
+
+            String databaseType = Metaverseplugin.getInstance().getConfigHandler().getDatabaseType();
+            if (databaseType.equals("sqlite")) {
+                // sqliteではINSERT ... ON DUPLICATE KEY UPDATEが使えないので対処
+                // 既存のデータを検索
+                PreparedStatement preparedStatement0 = connection.prepareStatement("""
+                        Select * from price;
+                        """);
+                ResultSet resultSet = preparedStatement0.executeQuery();
+
+                List<String> existingTypes = new ArrayList<>();
+                while(resultSet.next()) {
+                    existingTypes.add(resultSet.getString("type"));
+                }
+                preparedStatement0.close();
+
+                // 既存のデータをINSERTする項目から外す
+                types = types.stream()
+                        .filter(t -> !existingTypes.contains(t))
+                        .toList();
+            }
+
+            for (String type : types) {
+                sql.append("('$type', 0),".replace("$type", type));
+            }
+            sql = new StringBuilder(sql.substring(0, sql.length() - 1));
+
+            if (databaseType.equals("mysql")) {
+                sql.append("ON DUPLICATE KEY UPDATE count=count");
+            }
+            sql.append(";");
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {

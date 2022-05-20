@@ -6,6 +6,7 @@ import tech.inudev.metaverseplugin.config.ConfigHandler;
 import tech.inudev.metaverseplugin.listener.TestPriceCommand;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
+import tech.inudev.metaverseplugin.utils.PriceUtil;
 
 /**
  * メタバースプラグイン（仮）
@@ -33,6 +34,8 @@ public final class Metaverseplugin extends JavaPlugin {
 
         registerSchedulers();
         registerListeners();
+
+        PriceUtil.initPrices();
 
         getLogger().info("Metaverseplugin enabled!");
     }
