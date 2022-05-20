@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.utils;
+package tech.inudev.metaverseplugin.define;
 
 import lombok.Getter;
 import lombok.Setter;
