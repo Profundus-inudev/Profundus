@@ -5,11 +5,3 @@ api-version: 1.18
 authors: [ kumitatepazuru ]
 description: めたばーすぷらぐいん（仮）
 website: https://www.inu-dev.tech/
-
-commands:
-  price:
-    description: This is test price command
-  permissions:
-    price:
-      description: test price command permission
-      default: true

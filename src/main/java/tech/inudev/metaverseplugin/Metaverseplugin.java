@@ -3,7 +3,6 @@ package tech.inudev.metaverseplugin;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
-import tech.inudev.metaverseplugin.listener.TestPriceCommand;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 import tech.inudev.metaverseplugin.utils.PriceUtil;
@@ -45,7 +44,6 @@ public final class Metaverseplugin extends JavaPlugin {
     }
 
     private void registerListeners() {
-        getCommand("price").setExecutor(new TestPriceCommand());
     }
 
     @Override
