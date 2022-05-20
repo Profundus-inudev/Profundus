@@ -161,6 +161,12 @@ public class DatabaseUtil {
         }
     }
 
+    /**
+     * Databaseに存在しない商品データを新規保存する
+     * 販売個数の初期値は0
+     *
+     * @param types 商品タイプのリスト
+     */
     public static void insertPriceValues(List<String> types) {
         if (types == null || types.size() == 0){
             throw new IllegalArgumentException();
@@ -213,6 +219,12 @@ public class DatabaseUtil {
         }
     }
 
+    /**
+     * Databaseのtypeに対応する商品の販売個数を取得する
+     *
+     * @param type 商品タイプ
+     * @return 商品の販売個数
+     */
     public static Integer loadPriceItemCount(String type) {
         try {
             createPriceTable();
@@ -231,6 +243,12 @@ public class DatabaseUtil {
         }
     }
 
+    /**
+     * Databaseのtypeに対応する商品の販売個数を更新する
+     *
+     * @param type 商品タイプ
+     * @param count 商品の販売個数
+     */
     public static void updatePriceItemCount(String type, int count) {
         try {
             createPriceTable();

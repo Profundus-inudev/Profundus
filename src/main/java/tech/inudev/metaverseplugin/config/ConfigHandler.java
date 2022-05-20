@@ -5,8 +5,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import tech.inudev.metaverseplugin.Metaverseplugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * config.ymlファイルを扱いやすくするために作られたHandler
@@ -70,7 +69,12 @@ public class ConfigHandler {
         plugin.reloadConfig();
     }
 
-
+    /**
+     * 販売商品の基本価格を取得する
+     *
+     * @param type 商品タイプ
+     * @return 基本価格
+     */
     public Integer getBasicPrice(String type) {
         return priceMap.get(type);
     }
