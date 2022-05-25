@@ -3,6 +3,7 @@ package tech.inudev.metaverseplugin;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
+import tech.inudev.metaverseplugin.listener.StairSittingListener;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 
@@ -41,6 +42,8 @@ public final class Metaverseplugin extends JavaPlugin {
     }
 
     private void registerListeners() {
+        getServer().getPluginManager()
+                .registerEvents(new StairSittingListener(), this);
     }
 
     @Override
