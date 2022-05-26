@@ -50,6 +50,8 @@ public final class Metaverseplugin extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
 
+        StairSittingListener.removeSeatEntities();
+
         DatabaseUtil.disconnect();
 
         getLogger().info("Metaverseplugin disabled!");

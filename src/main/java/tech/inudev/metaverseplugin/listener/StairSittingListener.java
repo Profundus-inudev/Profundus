@@ -11,24 +11,48 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
+import tech.inudev.metaverseplugin.Metaverseplugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class StairSittingListener implements Listener {
+    static List<Entity> seatEntityList = new ArrayList<>();
+
+    public static void removeSeatEntities() {
+        for (Entity entity : seatEntityList) {
+            for (Entity passenger : entity.getPassengers()) {
+                passenger.teleport(passenger.getLocation().add(0, 1.0, 0));
+            }
+            entity.remove();
+        }
+    }
+
     @EventHandler
     public void onPlayerInteractEvent(PlayerInteractEvent e) {
         Block stair = e.getClickedBlock();
         if (stair == null
                 || !isTargetStair(stair, e.getAction())
                 || !hasEnoughSpace(stair)) {
+            logging(StairSittingListener.seatEntityList.size() + ", not mount");
             return;
         }
         e.setCancelled(true);
         LivingEntity seatEntity = createSeatEntity(e.getPlayer(), getSeatLocation(stair));
         seatEntity.addPassenger(e.getPlayer());
+        StairSittingListener.seatEntityList.add(seatEntity);
+        logging(StairSittingListener.seatEntityList.size() + ", mount");
     }
+
+//    @EventHandler
+//    public void onEntityMount(EntityMountEvent e) {
+//        logging("これがマウント！");
+//        logging("" + e.getMount().getUniqueId());
+//    }
 
     private boolean isTargetStair(Block stair, Action action) {
         // 指定の階段ブロックでなければ座れない
@@ -74,7 +98,7 @@ public class StairSittingListener implements Listener {
         Bat bat = (Bat) player.getWorld().spawnEntity(seatLoc, EntityType.BAT);
         Objects.requireNonNull(bat.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(1);
         bat.setSilent(true);
-        bat.setInvisible(true);
+        bat.setInvisible(false);
         bat.setPersistent(true);
         bat.setInvulnerable(true);
         bat.setAwake(true);
@@ -84,8 +108,43 @@ public class StairSittingListener implements Listener {
 
     @EventHandler
     public void onEntityDismount(EntityDismountEvent e) {
+        logging("" + e.getDismounted().getUniqueId());
+        logging("" + e.getEntity().getName());
+
+        if (!StairSittingListener.seatEntityList.contains(e.getDismounted())) {
+            logging(StairSittingListener.seatEntityList.size() + ", not unmount");
+            return;
+        }
+        e.setCancelled(true);
         Player player = ((Player) e.getEntity());
         player.teleport(player.getLocation().add(0, 1.0, 0));
+
+        logging("" + e.getDismounted().getUniqueId());
+
+        boolean b = StairSittingListener.seatEntityList.remove(e.getDismounted());
+
         e.getDismounted().remove();
+
+        logging(StairSittingListener.seatEntityList.size() + ", " + b + ", unmount");
+
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        // プレイヤーが退出するときにはdismount eventで乗り物のremoveができない
+        // （おそらく退出したプレイヤーはテレポートできないため）のでこちらで退出前に処理
+        Entity seatEntity = e.getPlayer().getVehicle();
+        if (seatEntity == null || !StairSittingListener.seatEntityList.contains(seatEntity)) {
+            logging(StairSittingListener.seatEntityList.size() + ", not unmount");
+            return;
+        }
+        e.getPlayer().teleport(e.getPlayer().getLocation().add(0, 1.0, 0));
+        boolean b = StairSittingListener.seatEntityList.remove(seatEntity);
+        seatEntity.remove();
+        logging(StairSittingListener.seatEntityList.size() + ", " + b + ", unmount");
+    }
+
+    private void logging(String msg) {
+        Metaverseplugin.getInstance().getLogger().info(msg);
     }
 }
