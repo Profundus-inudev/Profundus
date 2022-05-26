@@ -45,6 +45,7 @@ public class StairSittingListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractEvent(PlayerInteractEvent e) {
+        logging("" + StairSittingListener.seatEntityList.size());
         logging("" + e.getEventName());
 
         Block stair = e.getClickedBlock();
@@ -75,7 +76,8 @@ public class StairSittingListener implements Listener {
 
     private boolean isTargetStair(Block stair) {
         // 指定の階段ブロックでなければ座れない
-        return stair.getType() == Material.OAK_STAIRS;
+        return Metaverseplugin.getInstance().getStairsHandler()
+                .getStairList().contains(stair.getType().toString());
     }
 
     private boolean hasEnoughSpace(Block stair) {
@@ -120,7 +122,7 @@ public class StairSittingListener implements Listener {
         Bat bat = (Bat) player.getWorld().spawnEntity(seatLoc, EntityType.BAT);
         Objects.requireNonNull(bat.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(1);
         bat.setSilent(true);
-        bat.setInvisible(false);
+        bat.setInvisible(true);
         bat.setPersistent(true);
         bat.setInvulnerable(true);
         bat.setAwake(true);
