@@ -51,6 +51,7 @@ public class StairSittingListener implements Listener {
 
         if (stair == null
                 || e.getAction() != Action.RIGHT_CLICK_BLOCK
+                || e.getPlayer().isSneaking()
                 || !isTargetStair(stair)
                 || !hasEnoughSpace(stair)
                 || !isNoOneSitting(stair)) {
