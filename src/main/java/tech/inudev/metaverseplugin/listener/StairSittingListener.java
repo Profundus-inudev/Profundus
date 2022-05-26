@@ -10,6 +10,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
@@ -139,6 +140,19 @@ public class StairSittingListener implements Listener {
             return;
         }
         e.getPlayer().teleport(e.getPlayer().getLocation().add(0, 1.0, 0));
+        boolean b = StairSittingListener.seatEntityList.remove(seatEntity);
+        seatEntity.remove();
+        logging(StairSittingListener.seatEntityList.size() + ", " + b + ", unmount");
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent e) {
+        Entity seatEntity = e.getPlayer().getVehicle();
+//        logging("" + seatEntity.getUniqueId());
+        if (seatEntity == null || !StairSittingListener.seatEntityList.contains(seatEntity)) {
+            logging(StairSittingListener.seatEntityList.size() + ", not unmount");
+            return;
+        }
         boolean b = StairSittingListener.seatEntityList.remove(seatEntity);
         seatEntity.remove();
         logging(StairSittingListener.seatEntityList.size() + ", " + b + ", unmount");
