@@ -20,16 +20,21 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import tech.inudev.metaverseplugin.Metaverseplugin;
+import tech.inudev.metaverseplugin.scheduler.StairSeatElimination;
 
 import java.util.*;
 
 public class StairSittingListener implements Listener {
     private static final List<Entity> seatEntityList = new ArrayList<>();
     private static final HashMap<UUID, Block> entityToBlockMap = new HashMap<>();
+    private static final HashMap<UUID, BukkitTask> eliminationTaskMap = new HashMap<>();
     private static final String metadataKey = "SEAT_ENTITY_UUID";
+    private static final long eliminationDelay = 20 * 3600 * 2;
+
 
     public static void removeSeatEntities() {
         for (Entity entity : seatEntityList) {
@@ -66,12 +71,17 @@ public class StairSittingListener implements Listener {
         seatEntity.addPassenger(e.getPlayer());
         StairSittingListener.seatEntityList.add(seatEntity);
         StairSittingListener.entityToBlockMap.put(seatEntity.getUniqueId(), stair);
-
         stair.setMetadata(metadataKey, new FixedMetadataValue(
                 Metaverseplugin.getInstance(),
                 seatEntity.getUniqueId().toString()));
 
         logging(StairSittingListener.seatEntityList.size() + ", mount");
+
+        // 座席Entityがバグで永続しないようにタスクを設定
+        BukkitTask task = new StairSeatElimination(seatEntity).runTaskLater(
+                Metaverseplugin.getInstance(),
+                StairSittingListener.eliminationDelay);
+        eliminationTaskMap.put(seatEntity.getUniqueId(), task);
     }
 
     private boolean isTargetStair(Block stair) {
@@ -122,7 +132,7 @@ public class StairSittingListener implements Listener {
         Bat bat = (Bat) player.getWorld().spawnEntity(seatLoc, EntityType.BAT);
         Objects.requireNonNull(bat.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(1);
         bat.setSilent(true);
-        bat.setInvisible(true);
+        bat.setInvisible(false);
         bat.setPersistent(true);
         bat.setInvulnerable(true);
         bat.setAwake(true);
@@ -265,6 +275,9 @@ public class StairSittingListener implements Listener {
         StairSittingListener.seatEntityList.remove(seatEntity);
         seatEntity.remove();
         logging(StairSittingListener.seatEntityList.size() + ", " + ", unmount");
+
+        eliminationTaskMap.get(seatEntity.getUniqueId()).cancel();
+        eliminationTaskMap.remove(seatEntity.getUniqueId());
     }
 
     private void logging(String msg) {
