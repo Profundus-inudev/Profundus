@@ -24,6 +24,7 @@ import tech.inudev.metaverseplugin.utils.StairSittingUtil;
  * - 階段に座ったプレイヤーがデスした場合
  * - 階段ブロックが破壊された場合
  * - サーバーが停止された場合
+ * - 何らかの理由で座席用エンティティが消滅した場合。
  *
  * @author toru-toruto
  */

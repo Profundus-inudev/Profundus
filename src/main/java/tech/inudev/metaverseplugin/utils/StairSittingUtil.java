@@ -24,18 +24,17 @@ import java.util.*;
  * @author toru-toruto
  */
 public class StairSittingUtil {
+    // 座席エンティティの管理用。
     @Getter
     private static final List<Entity> seatEntityList = new ArrayList<>();
-    @Getter
+    // 階段ブロックのメタデータ削除用。座席用エンティティが消去される時に階段ブロックのメタデータを削除する。
     private static final HashMap<UUID, Block> entityToBlockMap = new HashMap<>();
-    @Getter
+    // 座席用エンティティ永続化防止のためのタスクのキャンセル用。座席エンティティが消去される時にキャンセルする。
     private static final HashMap<UUID, BukkitTask> eliminationTaskMap = new HashMap<>();
-    @Getter
+
     private static final String metadataKey = "SEAT_ENTITY_UUID";
 
-    @Getter
     private static final Vector standUpOffset = new Vector(0, 1.0, 0);
-    @Getter
     private static final long eliminationDelay = 20 * 3600 * 2;
 
     /**
@@ -120,7 +119,7 @@ public class StairSittingUtil {
         }
 
         String finalSeatEntityUUID = seatEntityUUID;
-        Optional<Entity> entityOpt = StairSittingUtil.seatEntityList.stream()
+        Optional<Entity> entityOpt = seatEntityList.stream()
                 .filter(ent -> ent.getUniqueId().toString().equalsIgnoreCase(finalSeatEntityUUID))
                 .findFirst();
         return entityOpt.orElse(null);
@@ -139,18 +138,18 @@ public class StairSittingUtil {
         LivingEntity seatEntity = createSeatEntity(player, getSeatLocation(stair));
         seatEntity.addPassenger(player);
 
-        // 参照用データの保存
-        StairSittingUtil.getSeatEntityList().add(seatEntity);
-        StairSittingUtil.getEntityToBlockMap().put(seatEntity.getUniqueId(), stair);
-        stair.setMetadata(StairSittingUtil.getMetadataKey(), new FixedMetadataValue(
+        // 参照用データの保存S
+        seatEntityList.add(seatEntity);
+        entityToBlockMap.put(seatEntity.getUniqueId(), stair);
+        stair.setMetadata(metadataKey, new FixedMetadataValue(
                 Metaverseplugin.getInstance(),
                 seatEntity.getUniqueId().toString()));
 
         // 座席Entity永続化防止のタスクを設定
         BukkitTask task = new StairSeatElimination(seatEntity).runTaskLater(
                 Metaverseplugin.getInstance(),
-                StairSittingUtil.getEliminationDelay());
-        StairSittingUtil.getEliminationTaskMap().put(seatEntity.getUniqueId(), task);
+                eliminationDelay);
+        eliminationTaskMap.put(seatEntity.getUniqueId(), task);
     }
 
     private static Location getSeatLocation(Block stair) {
