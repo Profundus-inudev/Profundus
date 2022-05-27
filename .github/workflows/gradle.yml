@@ -32,3 +32,7 @@ jobs:
       uses: gradle/gradle-build-action@26ea4afa082ddf7e3e5bcf6d12283111b6f3f837
       with:
         arguments: build
+
+    - name: Check Javadoc
+      # warning: [deprecation] 以外で発生しているwarningとerrorを取得し、ヒットした場合は終了コード1で終了
+      run: "! ./gradlew javadoc 2>&1 | grep -v 'warning: \\[deprecation\\]' | grep -A 2 -e warning: -e error: ; exit $?"
