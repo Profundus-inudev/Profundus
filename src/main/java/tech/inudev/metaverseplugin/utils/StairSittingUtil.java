@@ -20,6 +20,8 @@ import java.util.*;
 
 /**
  * 階段への座る・立ち上がる処理を管理するクラス
+ *
+ * @author toru-toruto
  */
 public class StairSittingUtil {
     @Getter

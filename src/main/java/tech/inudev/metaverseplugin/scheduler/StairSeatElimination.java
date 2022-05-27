@@ -2,7 +2,6 @@ package tech.inudev.metaverseplugin.scheduler;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
-import tech.inudev.metaverseplugin.Metaverseplugin;
 
 /**
  * バグっても座席用Entityが永続化しないように、一定時間後に消滅させるためのスケジューラ

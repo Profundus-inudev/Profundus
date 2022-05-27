@@ -4,11 +4,15 @@ import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
-import tech.inudev.metaverseplugin.Metaverseplugin;
 
 import java.io.File;
 import java.util.List;
 
+/**
+ * stairs.ymlファイルを扱いやすくするために作られたHandler
+ *
+ * @author toru-toruto
+ */
 public class StairsHandler {
     private final Plugin plugin;
     private final FileConfiguration config;
