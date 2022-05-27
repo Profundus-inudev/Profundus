@@ -1,16 +1,10 @@
 package tech.inudev.metaverseplugin.listener;
 
 import com.destroystokyo.paper.event.block.BlockDestroyEvent;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.Bisected;
-import org.bukkit.block.data.type.Stairs;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFadeEvent;
@@ -18,269 +12,119 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
-import tech.inudev.metaverseplugin.Metaverseplugin;
-import tech.inudev.metaverseplugin.scheduler.StairSeatElimination;
+import tech.inudev.metaverseplugin.utils.StairSittingUtil;
 
-import java.util.*;
-
+/**
+ * 階段ブロックへ座る、階段ブロックから立ち上がる処理を行うためのリスナー
+ * 主に以下の場合の処理を行う
+ * - プレイヤーが階段ブロックに座ろうとする場合
+ * - プレイヤーが自分の意志で立ち上がる場合
+ * - プレイヤーがサーバーから退出する場合
+ * - 階段ブロックが破壊された場合
+ * - サーバーが停止された場合
+ *
+ * @author toru-toruto
+ */
 public class StairSittingListener implements Listener {
-    private static final List<Entity> seatEntityList = new ArrayList<>();
-    private static final HashMap<UUID, Block> entityToBlockMap = new HashMap<>();
-    private static final HashMap<UUID, BukkitTask> eliminationTaskMap = new HashMap<>();
-    private static final String metadataKey = "SEAT_ENTITY_UUID";
-    private static final long eliminationDelay = 20 * 3600 * 2;
-
-
-    public static void removeSeatEntities() {
-        for (Entity entity : seatEntityList) {
-            for (Entity passenger : entity.getPassengers()) {
-                passenger.teleport(passenger.getLocation().add(0, 1.0, 0));
-            }
-            entityToBlockMap.get(entity.getUniqueId()).removeMetadata(
-                    StairSittingListener.metadataKey, Metaverseplugin.getInstance());
-            entity.remove();
-        }
-    }
-
-
+    // 座るときのリスナー
     @EventHandler
     public void onPlayerInteractEvent(PlayerInteractEvent e) {
-        logging("" + StairSittingListener.seatEntityList.size());
-        logging("" + e.getEventName());
-
         Block stair = e.getClickedBlock();
-
-        if (stair == null
-                || e.getAction() != Action.RIGHT_CLICK_BLOCK
-                || e.getPlayer().isSneaking()
-                || !isTargetStair(stair)
-                || !hasEnoughSpace(stair)
-                || !isNoOneSitting(stair)) {
-            logging(StairSittingListener.seatEntityList.size() + ", not mount");
+        if (!StairSittingUtil.isAbleToSit(stair, e.getAction(), e.getPlayer())) {
             return;
         }
         e.setCancelled(true);
 
-
-        LivingEntity seatEntity = createSeatEntity(e.getPlayer(), getSeatLocation(stair));
-        seatEntity.addPassenger(e.getPlayer());
-        StairSittingListener.seatEntityList.add(seatEntity);
-        StairSittingListener.entityToBlockMap.put(seatEntity.getUniqueId(), stair);
-        stair.setMetadata(metadataKey, new FixedMetadataValue(
-                Metaverseplugin.getInstance(),
-                seatEntity.getUniqueId().toString()));
-
-        logging(StairSittingListener.seatEntityList.size() + ", mount");
-
-        // 座席Entityがバグで永続しないようにタスクを設定
-        BukkitTask task = new StairSeatElimination(seatEntity).runTaskLater(
-                Metaverseplugin.getInstance(),
-                StairSittingListener.eliminationDelay);
-        eliminationTaskMap.put(seatEntity.getUniqueId(), task);
+        StairSittingUtil.sitDown(stair, e.getPlayer());
     }
 
-    private boolean isTargetStair(Block stair) {
-        // 指定の階段ブロックでなければ座れない
-        return Metaverseplugin.getInstance().getStairsHandler()
-                .getStairList().contains(stair.getType().toString());
-    }
 
-    private boolean hasEnoughSpace(Block stair) {
-        Bisected.Half dir = ((Stairs) stair.getBlockData()).getHalf();
-        if (dir == Bisected.Half.TOP) {
-            // 階段ブロックが逆さならば座れない
-            return false;
-        }
-
-        Location upLoc = stair.getLocation().clone().add(0, 1.0, 0);
-        if (upLoc.getBlock().getType() != Material.AIR) {
-            // 上が開いてなければ座れない
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isNoOneSitting(Block stair) {
-        return findSeatEntity(stair) == null;
-    }
-
-    private Location getSeatLocation(Block stair) {
-        // 階段ブロックの中心位置へ（すこしだけ下へ）
-        Vector offsetToCenter = new Vector(0.5, -0.4, 0.5);
-        // 階段ブロック中心から少しだけ前方へ
-        double forwardOffset = 0.2;
-
-        Location seatLoc = stair.getLocation().clone();
-        // 階段ブロックは椅子の背もたれ方向が前方
-        Vector seatDir = ((Stairs) stair.getBlockData()).getFacing().getDirection().clone();
-        seatDir = new Vector(-seatDir.getX(), 0, -seatDir.getZ());
-
-        seatLoc.add(
-                offsetToCenter.getX() + forwardOffset * seatDir.getX(),
-                offsetToCenter.getY() + forwardOffset * seatDir.getY(),
-                offsetToCenter.getZ() + forwardOffset * seatDir.getZ());
-        seatLoc.setDirection(seatDir);
-        return seatLoc;
-    }
-
-    private LivingEntity createSeatEntity(Player player, Location seatLoc) {
-        Bat bat = (Bat) player.getWorld().spawnEntity(seatLoc, EntityType.BAT);
-        Objects.requireNonNull(bat.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(1);
-        bat.setSilent(true);
-        bat.setInvisible(false);
-        bat.setPersistent(true);
-        bat.setInvulnerable(true);
-        bat.setAwake(true);
-        bat.setAI(false);
-        return bat;
-    }
-
+    // 何らかの理由で降りたときのリスナー
     @EventHandler
     public void onEntityDismount(EntityDismountEvent e) {
-        logging("" + e.getEventName());
-
-        if (!StairSittingListener.seatEntityList.contains(e.getDismounted())) {
-            logging("dismount, return");
+        if (!StairSittingUtil.getSeatEntityList().contains(e.getDismounted())) {
             return;
         }
         e.setCancelled(true);
 
-        Player player = ((Player) e.getEntity());
-        player.teleport(player.getLocation().add(0, 1.0, 0));
-        removeSeat(e.getDismounted());
+        StairSittingUtil.standUp(e.getDismounted(), (Player) e.getEntity());
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         // プレイヤーが退出するときにはdismount eventで乗り物のremoveができない
         // （おそらく退出したプレイヤーはテレポートできないため）のでこちらで退出前に処理
-        logging("" + e.getEventName());
         Entity seatEntity = e.getPlayer().getVehicle();
-        if (seatEntity == null || !StairSittingListener.seatEntityList.contains(seatEntity)) {
-            logging("quit, return");
+        if (seatEntity == null || !StairSittingUtil.getSeatEntityList().contains(seatEntity)) {
             return;
         }
-        e.getPlayer().teleport(e.getPlayer().getLocation().add(0, 1.0, 0));
-        removeSeat(seatEntity);
+        StairSittingUtil.standUp(seatEntity, e.getPlayer());
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
-//        logging("" + seatEntity.getUniqueId());
-        logging("" + e.getEventName());
-
         Entity seatEntity = e.getPlayer().getVehicle();
-        if (seatEntity == null || !StairSittingListener.seatEntityList.contains(seatEntity)) {
-            logging(StairSittingListener.seatEntityList.size() + ", not unmount");
+        if (seatEntity == null || !StairSittingUtil.getSeatEntityList().contains(seatEntity)) {
             return;
         }
-        removeSeat(seatEntity);
+        StairSittingUtil.standUpInAccident(seatEntity);
     }
 
 
+    // 階段ブロックの破壊に関するリスナー
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        logging("" + e.getEventName());
-        Entity brokenSeatEntity = findSeatEntity(e.getBlock());
-        if (brokenSeatEntity != null) {
-            removeSeat(brokenSeatEntity);
+        Entity brokenSeatEntity = StairSittingUtil.findSeatEntity(e.getBlock());
+        if (brokenSeatEntity == null) {
+            return;
         }
+        StairSittingUtil.standUpInAccident(brokenSeatEntity);
     }
 
     @EventHandler
     public void onBlockDestroy(BlockDestroyEvent e) {
-        logging("" + e.getEventName());
-        Entity brokenSeatEntity = findSeatEntity(e.getBlock());
-        if (brokenSeatEntity != null) {
-            removeSeat(brokenSeatEntity);
+        Entity brokenSeatEntity = StairSittingUtil.findSeatEntity(e.getBlock());
+        if (brokenSeatEntity == null) {
+            return;
         }
+        StairSittingUtil.standUpInAccident(brokenSeatEntity);
     }
 
     @EventHandler
     public void onBlockFadeEvent(BlockFadeEvent e) {
-        logging("" + e.getEventName());
-        Entity brokenSeatEntity = findSeatEntity(e.getBlock());
-        if (brokenSeatEntity != null) {
-            removeSeat(brokenSeatEntity);
+        Entity brokenSeatEntity = StairSittingUtil.findSeatEntity(e.getBlock());
+        if (brokenSeatEntity == null) {
+            return;
         }
+        StairSittingUtil.standUpInAccident(brokenSeatEntity);
     }
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-        logging("" + e.getEventName());
         for (Block block : e.blockList()) {
-            if (!isTargetStair(block)) {
+            if (!StairSittingUtil.isTargetStair(block)) {
                 continue;
             }
-            Entity brokenSeatEntity = findSeatEntity(block);
-            if (brokenSeatEntity != null) {
-                removeSeat(brokenSeatEntity);
+            Entity brokenSeatEntity = StairSittingUtil.findSeatEntity(block);
+            if (brokenSeatEntity == null) {
+                return;
             }
+            StairSittingUtil.standUpInAccident(brokenSeatEntity);
         }
     }
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
-        logging("" + e.getEventName());
         for (Block block : e.blockList()) {
-            if (!isTargetStair(block)) {
+            if (!StairSittingUtil.isTargetStair(block)) {
                 continue;
             }
-            Entity brokenSeatEntity = findSeatEntity(block);
-            if (brokenSeatEntity != null) {
-                removeSeat(brokenSeatEntity);
+            Entity brokenSeatEntity = StairSittingUtil.findSeatEntity(block);
+            if (brokenSeatEntity == null) {
+                return;
             }
+            StairSittingUtil.standUpInAccident(brokenSeatEntity);
         }
-    }
-
-    private Entity findSeatEntity(Block block) {
-        String seatEntityUUID = "";
-        for (MetadataValue v : block.getMetadata(metadataKey)) {
-            if (v.getOwningPlugin() == null) {
-                return null;
-            }
-            if (v.getOwningPlugin().getName().equals(Metaverseplugin.getInstance().getName())) {
-                seatEntityUUID = v.asString();
-                break;
-            }
-        }
-        if (seatEntityUUID.isEmpty()) {
-            logging("seatEntityUUID is empty");
-            return null;
-        }
-        logging("seatEntityUUID: " + seatEntityUUID);
-
-        String finalSeatEntityUUID = seatEntityUUID;
-        Optional<Entity> entityOpt = seatEntityList.stream()
-                .filter(ent -> ent.getUniqueId().toString().equalsIgnoreCase(finalSeatEntityUUID))
-                .findFirst();
-        return entityOpt.orElse(null);
-    }
-
-    private void removeSeat(Entity seatEntity) {
-        logging("remove");
-        Block stair = StairSittingListener.entityToBlockMap.get(seatEntity.getUniqueId());
-        if (stair == null) {
-            logging("stair is null");
-            return;
-        }
-//        logging("" + findBrokenSeatEntity(stair).getUniqueId().toString());
-        stair.removeMetadata(StairSittingListener.metadataKey, Metaverseplugin.getInstance());
-        StairSittingListener.entityToBlockMap.remove(seatEntity.getUniqueId());
-        StairSittingListener.seatEntityList.remove(seatEntity);
-        seatEntity.remove();
-        logging(StairSittingListener.seatEntityList.size() + ", " + ", unmount");
-
-        eliminationTaskMap.get(seatEntity.getUniqueId()).cancel();
-        eliminationTaskMap.remove(seatEntity.getUniqueId());
-    }
-
-    private void logging(String msg) {
-        Metaverseplugin.getInstance().getLogger().info(msg);
     }
 }

@@ -7,6 +7,7 @@ import tech.inudev.metaverseplugin.config.StairsHandler;
 import tech.inudev.metaverseplugin.listener.StairSittingListener;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
+import tech.inudev.metaverseplugin.utils.StairSittingUtil;
 
 /**
  * メタバースプラグイン（仮）
@@ -54,7 +55,7 @@ public final class Metaverseplugin extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
 
-        StairSittingListener.removeSeatEntities();
+        StairSittingUtil.removeSeatsOnServerDisable();
 
         DatabaseUtil.disconnect();
 

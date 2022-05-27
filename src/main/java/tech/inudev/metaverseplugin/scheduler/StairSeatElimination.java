@@ -4,6 +4,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
 import tech.inudev.metaverseplugin.Metaverseplugin;
 
+/**
+ * バグっても座席用Entityが永続化しないように、一定時間後に消滅させるためのスケジューラ
+ *
+ * @author toru-toruto
+ */
 public class StairSeatElimination extends BukkitRunnable {
     private final Entity seatEntity;
 
@@ -14,12 +19,8 @@ public class StairSeatElimination extends BukkitRunnable {
     @Override
     public void run() {
         if (seatEntity == null || seatEntity.isDead()) {
-            Metaverseplugin.getInstance().getLogger().info(
-                    "already eliminated");
             return;
         }
-        Metaverseplugin.getInstance().getLogger().info(
-                "elimination!");
         seatEntity.remove();
     }
 }
