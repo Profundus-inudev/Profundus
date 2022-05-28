@@ -159,9 +159,44 @@ public class StairSittingListener implements Listener {
         if (brokenSeatEntity == null) {
             return;
         }
-        StairSittingUtil.standUpInAccident(brokenSeatEntity);
+        Player player = (Player) brokenSeatEntity.getPassengers()
+                .stream().findFirst().orElse(null);
+        if (player == null) {
+            StairSittingUtil.standUpInAccident(brokenSeatEntity);
+        } else {
+            StairSittingUtil.standUp(brokenSeatEntity, player);
+        }
     }
 
+    /**
+     * ブロックが燃え尽きるときに呼び出される
+     * プレイヤーが座っているブロックが燃え尽きたとき、正常な場合は通常の立ち上がる処理を実行する。
+     * 座席用エンティティがあるにもかかわらず、座っているプレイヤーが存在しない場合は、
+     * 外的要因によって立たされる場合と同じ処理を実行する。
+     *
+     * @param e BlockBurnEventのデータ
+     */
+    @EventHandler
+    public void onBlockBurn(BlockBurnEvent e) {
+        Entity brokenSeatEntity = StairSittingUtil.findSeatEntity(e.getBlock());
+        if (brokenSeatEntity == null) {
+            return;
+        }
+        Player player = (Player) brokenSeatEntity.getPassengers()
+                .stream().findFirst().orElse(null);
+        if (player == null) {
+            StairSittingUtil.standUpInAccident(brokenSeatEntity);
+        } else {
+            StairSittingUtil.standUp(brokenSeatEntity, player);
+        }
+    }
+
+    /**
+     * エンティティが爆発したときに呼び出される。
+     * プレイヤーが座っているブロックが爆発に巻き込まれ消滅したとき、外的要因によって立たされる場合の処理を実行する。
+     *
+     * @param e EntityExplodeEventのデータ
+     */
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
         for (Block block : e.blockList()) {
