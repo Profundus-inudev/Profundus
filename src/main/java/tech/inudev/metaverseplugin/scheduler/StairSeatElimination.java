@@ -11,6 +11,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class StairSeatElimination extends BukkitRunnable {
     private final Entity seatEntity;
 
+    /**
+     * コンストラクタ
+     *
+     * @param entity 一定時間後に消滅させる座席用Entity
+     */
     public StairSeatElimination(Entity entity) {
         seatEntity = entity;
     }

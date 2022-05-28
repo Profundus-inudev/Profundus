@@ -20,6 +20,11 @@ public class StairsHandler {
     @Getter
     private List<String> stairList;
 
+    /**
+     * コンストラクタ
+     *
+     * @param plugin プラグイン
+     */
     public StairsHandler(Plugin plugin) {
         plugin.saveResource("stairs.yml", false);
         this.plugin = plugin;

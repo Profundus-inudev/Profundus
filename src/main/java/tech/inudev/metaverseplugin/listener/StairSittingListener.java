@@ -6,6 +6,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -29,7 +30,12 @@ import tech.inudev.metaverseplugin.utils.StairSittingUtil;
  * @author toru-toruto
  */
 public class StairSittingListener implements Listener {
-    // 座るときのリスナー
+    /**
+     * プレイヤーがクリックによって他の何かに影響を与えるときに呼び出される。
+     * 着席可能なブロックへ、座る処理を実行する。
+     *
+     * @param e PlayerInteractEventのデータ
+     */
     @EventHandler
     public void onPlayerInteractEvent(PlayerInteractEvent e) {
         Block stair = e.getClickedBlock();
@@ -41,8 +47,18 @@ public class StairSittingListener implements Listener {
         StairSittingUtil.sitDown(stair, e.getPlayer());
     }
 
-
     // 何らかの理由で降りたときのリスナー
+
+    /**
+     * エンティティが乗っているエンティティから降りるときに呼び出される。
+     * 着席可能なブロックから、立ち上がる処理を実行する。
+     * <p>
+     * 何らかの出来事の結果として乗り物から降りる場合、他のイベントと共に発火される場合があるが、
+     * こちらのイベントはタイミングとして後で発火されるので、
+     * 処理内容が全く同一である場合を除いて、他のそれぞれのイベントで処理は実行される。
+     *
+     * @param e EntityDismountEventのデータ
+     */
     @EventHandler
     public void onEntityDismount(EntityDismountEvent e) {
         if (!StairSittingUtil.getSeatEntityList().contains(e.getDismounted())) {
@@ -53,10 +69,21 @@ public class StairSittingListener implements Listener {
         StairSittingUtil.standUp(e.getDismounted(), (Player) e.getEntity());
     }
 
+    /**
+     * プレイヤーがサーバーから退出する直前に呼び出される。
+     * 着席可能なブロックから、立ち上がる処理を実行する。
+     * <p>
+     * プレイヤー退出時にはEntityDismountEventも実行されるが、
+     * そちらのイベントではプレイヤーのテレポートが許されていないので、
+     * 退出時の処理はこちらのイベントで実行する
+     * （おそらくEntityDismountEventはプレイヤー退出後に発火されるため）。
+     * <p>
+     * また、EntityDismountEventよりも、こちらのイベントの方が先に実行される。
+     *
+     * @param e PlayerQuitEventのデータ
+     */
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
-        // プレイヤーが退出するときにはdismount eventで乗り物のremoveができない
-        // （おそらく退出したプレイヤーはテレポートできないため）のでこちらで退出前に処理
         Entity seatEntity = e.getPlayer().getVehicle();
         if (seatEntity == null || !StairSittingUtil.getSeatEntityList().contains(seatEntity)) {
             return;
@@ -64,6 +91,18 @@ public class StairSittingListener implements Listener {
         StairSittingUtil.standUp(seatEntity, e.getPlayer());
     }
 
+    /**
+     * プレイヤーがデスしたときに呼び出される。
+     * 着席可能なブロックから、外的要因によって立たされる場合の処理を実行する。
+     * <p>
+     * プレイヤーデス時にはEntityDismountEventも実行されるが、
+     * デスしたプレイヤーがテレポートされるのは不自然なので、
+     * デス時の処理はこちらのイベントで実行する。
+     * <p>
+     * EntityDismountEventよりも、こちらのイベントの方が先に実行される。
+     *
+     * @param e PlayerDeathEventのデータ
+     */
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
         Entity seatEntity = e.getPlayer().getVehicle();
@@ -75,6 +114,13 @@ public class StairSittingListener implements Listener {
 
 
     // 階段ブロックの破壊に関するリスナー
+
+    /**
+     * ブロックが破壊されたときに呼び出される。
+     * プレイヤーが座っているブロックが破壊されたとき、外的要因によって立たされる場合の処理を実行する。
+     *
+     * @param e BlockBreakEventのデータ
+     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         Entity brokenSeatEntity = StairSittingUtil.findSeatEntity(e.getBlock());
@@ -84,6 +130,12 @@ public class StairSittingListener implements Listener {
         StairSittingUtil.standUpInAccident(brokenSeatEntity);
     }
 
+    /**
+     * ブロックがサーバーによって破棄されるときに呼び出される。
+     * プレイヤーが座っているブロックが破棄されたとき、外的要因によって立たされる場合の処理を実行する。
+     *
+     * @param e BlockDestroyEventのデータ
+     */
     @EventHandler
     public void onBlockDestroy(BlockDestroyEvent e) {
         Entity brokenSeatEntity = StairSittingUtil.findSeatEntity(e.getBlock());
@@ -93,6 +145,14 @@ public class StairSittingListener implements Listener {
         StairSittingUtil.standUpInAccident(brokenSeatEntity);
     }
 
+    /**
+     * ブロックが自然に消滅するときに呼び出される。
+     * プレイヤーが座っているブロックが自然消滅したとき、正常な場合は通常の立ち上がる処理を実行する。
+     * 座席用エンティティがあるにもかかわらず、座っているプレイヤーが存在しない場合は、
+     * 外的要因によって立たされる場合と同じ処理を実行する。
+     *
+     * @param e BlockFadeEventのデータ
+     */
     @EventHandler
     public void onBlockFadeEvent(BlockFadeEvent e) {
         Entity brokenSeatEntity = StairSittingUtil.findSeatEntity(e.getBlock());
@@ -116,6 +176,12 @@ public class StairSittingListener implements Listener {
         }
     }
 
+    /**
+     * ブロックが爆発したときに呼び出される。
+     * プレイヤーが座っているブロックが爆発に巻き込まれ消滅したとき、外的要因によって立たされる場合の処理を実行する。
+     *
+     * @param e BlockExplodeEventのデータ
+     */
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
         for (Block block : e.blockList()) {
