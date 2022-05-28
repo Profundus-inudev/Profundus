@@ -14,6 +14,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import tech.inudev.metaverseplugin.Metaverseplugin;
+import tech.inudev.metaverseplugin.scheduler.SittingCooldownCancellation;
 import tech.inudev.metaverseplugin.scheduler.StairSeatElimination;
 
 import java.util.*;
@@ -32,10 +33,12 @@ public class StairSittingUtil {
     // 座席用エンティティ永続化防止のためのタスクのキャンセル用。座席エンティティが消去される時にキャンセルする。
     private static final HashMap<UUID, BukkitTask> eliminationTaskMap = new HashMap<>();
 
-    private static final String metadataKey = "SEAT_ENTITY_UUID";
+    private static final String SEAT_METADATA_KEY = "SEAT_ENTITY_UUID";
+    private static final String COOLDOWN_METADATA_KEY = "SITTING_COOLDOWN";
 
-    private static final Vector standUpOffset = new Vector(0, 1.0, 0);
-    private static final long eliminationDelay = 20 * 3600 * 2;
+    private static final Vector STAND_UP_OFFSET = new Vector(0, 1.0, 0);
+    private static final long ELIMINATION_DELAY = 20 * 3600 * 2;
+    private static final long COOLDOWN_TIME = 10;
 
     /**
      * 指定されたブロックに座れるかどうかのチェック
@@ -73,7 +76,11 @@ public class StairSittingUtil {
             return false;
         }
         // だれかが先に座っていたら座れない
-        if (StairSittingUtil.findSeatEntity(block) != null) {
+        if (findSeatEntity(block) != null) {
+            return false;
+        }
+        // クールダウン中なら座れない
+        if (isCoolDown(player)) {
             return false;
         }
         return true;
@@ -105,7 +112,7 @@ public class StairSittingUtil {
             throw new IllegalArgumentException();
         }
         String seatEntityUUID = "";
-        for (MetadataValue v : block.getMetadata(metadataKey)) {
+        for (MetadataValue v : block.getMetadata(SEAT_METADATA_KEY)) {
             if (v.getOwningPlugin() == null) {
                 continue;
             }
@@ -125,6 +132,21 @@ public class StairSittingUtil {
         return entityOpt.orElse(null);
     }
 
+    private static boolean isCoolDown(Player player) {
+        if (player == null) {
+            throw new IllegalArgumentException();
+        }
+        for (MetadataValue v : player.getMetadata(COOLDOWN_METADATA_KEY)) {
+            if (v.getOwningPlugin() == null) {
+                continue;
+            }
+            if (v.getOwningPlugin().getName().equals(Metaverseplugin.getInstance().getName())) {
+                return v.asBoolean();
+            }
+        }
+        return false;
+    }
+
     /**
      * 座る処理
      *
@@ -141,14 +163,14 @@ public class StairSittingUtil {
         // 参照用データの保存S
         seatEntityList.add(seatEntity);
         entityToBlockMap.put(seatEntity.getUniqueId(), stair);
-        stair.setMetadata(metadataKey, new FixedMetadataValue(
+        stair.setMetadata(SEAT_METADATA_KEY, new FixedMetadataValue(
                 Metaverseplugin.getInstance(),
                 seatEntity.getUniqueId().toString()));
 
         // 座席Entity永続化防止のタスクを設定
         BukkitTask task = new StairSeatElimination(seatEntity).runTaskLater(
                 Metaverseplugin.getInstance(),
-                eliminationDelay);
+                ELIMINATION_DELAY);
         eliminationTaskMap.put(seatEntity.getUniqueId(), task);
     }
 
@@ -200,7 +222,8 @@ public class StairSittingUtil {
             throw new IllegalArgumentException();
         }
         removeSeat(seatEntity);
-        player.teleport(player.getLocation().add(standUpOffset));
+        player.teleport(player.getLocation().add(STAND_UP_OFFSET));
+        setCoolDown(player);
     }
 
     /**
@@ -208,11 +231,12 @@ public class StairSittingUtil {
      *
      * @param seatEntity 座席用エンティティ
      */
-    public static void standUpInAccident(Entity seatEntity) {
-        if (seatEntity == null) {
+    public static void standUpInAccident(Entity seatEntity, Player player) {
+        if (seatEntity == null || player == null) {
             throw new IllegalArgumentException();
         }
         removeSeat(seatEntity);
+        setCoolDown(player);
     }
 
     private static void removeSeat(Entity seatEntity) {
@@ -223,7 +247,7 @@ public class StairSittingUtil {
         if (stair == null) {
             throw new IllegalArgumentException();
         }
-        stair.removeMetadata(metadataKey, Metaverseplugin.getInstance());
+        stair.removeMetadata(SEAT_METADATA_KEY, Metaverseplugin.getInstance());
         entityToBlockMap.remove(seatEntity.getUniqueId());
         seatEntityList.remove(seatEntity);
         seatEntity.remove();
@@ -232,13 +256,34 @@ public class StairSittingUtil {
         eliminationTaskMap.remove(seatEntity.getUniqueId());
     }
 
+    private static void setCoolDown(Player player) {
+        player.setMetadata(COOLDOWN_METADATA_KEY, new FixedMetadataValue(
+                Metaverseplugin.getInstance(),
+                true));
+
+        new SittingCooldownCancellation(player).runTaskLater(
+                Metaverseplugin.getInstance(),
+                COOLDOWN_TIME);
+    }
+
+    /**
+     * 階段ブロックからプレイヤーが立ち上がった後、再度座れるようになるまでのクールダウンの終了
+     *
+     * @param player クールダウン中のプレイヤー
+     */
+    public static void cancelCoolDown(Player player) {
+        player.removeMetadata(
+                COOLDOWN_METADATA_KEY,
+                Metaverseplugin.getInstance());
+    }
+
     /**
      * リストに保存される座席用Entityをすべてremoveする。サーバー停止時に使用。
      */
     public static void removeSeatsOnServerDisable() {
         for (Entity entity : new ArrayList<>(seatEntityList)) {
             entityToBlockMap.get(entity.getUniqueId()).removeMetadata(
-                    metadataKey, Metaverseplugin.getInstance());
+                    SEAT_METADATA_KEY, Metaverseplugin.getInstance());
             Player player = (Player) entity.getPassengers().stream().findFirst().orElse(null);
             if (player != null) {
                 standUp(entity, player);

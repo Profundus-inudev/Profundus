@@ -109,7 +109,7 @@ public class StairSittingListener implements Listener {
         if (seatEntity == null || !StairSittingUtil.getSeatEntityList().contains(seatEntity)) {
             return;
         }
-        StairSittingUtil.standUpInAccident(seatEntity);
+        StairSittingUtil.standUpInAccident(seatEntity, e.getPlayer());
     }
 
 
@@ -117,7 +117,7 @@ public class StairSittingListener implements Listener {
 
     /**
      * ブロックが破壊されたときに呼び出される。
-     * プレイヤーが座っているブロックが破壊されたとき、外的要因によって立たされる場合の処理を実行する。
+     * プレイヤーが座っているブロックが破壊されたとき、立ち上がる場合の処理を実行する。
      *
      * @param e BlockBreakEventのデータ
      */
@@ -127,12 +127,17 @@ public class StairSittingListener implements Listener {
         if (brokenSeatEntity == null) {
             return;
         }
-        StairSittingUtil.standUpInAccident(brokenSeatEntity);
+        Player player = (Player) brokenSeatEntity.getPassengers()
+                .stream().findFirst().orElse(null);
+        if (player == null) {
+            return;
+        }
+        StairSittingUtil.standUp(brokenSeatEntity, player);
     }
 
     /**
      * ブロックがサーバーによって破棄されるときに呼び出される。
-     * プレイヤーが座っているブロックが破棄されたとき、外的要因によって立たされる場合の処理を実行する。
+     * プレイヤーが座っているブロックが破棄されたとき、立ち上がる場合の処理を実行する。
      *
      * @param e BlockDestroyEventのデータ
      */
@@ -142,14 +147,17 @@ public class StairSittingListener implements Listener {
         if (brokenSeatEntity == null) {
             return;
         }
-        StairSittingUtil.standUpInAccident(brokenSeatEntity);
+        Player player = (Player) brokenSeatEntity.getPassengers()
+                .stream().findFirst().orElse(null);
+        if (player == null) {
+            return;
+        }
+        StairSittingUtil.standUp(brokenSeatEntity, player);
     }
 
     /**
      * ブロックが自然に消滅するときに呼び出される。
-     * プレイヤーが座っているブロックが自然消滅したとき、正常な場合は通常の立ち上がる処理を実行する。
-     * 座席用エンティティがあるにもかかわらず、座っているプレイヤーが存在しない場合は、
-     * 外的要因によって立たされる場合と同じ処理を実行する。
+     * プレイヤーが座っているブロックが自然消滅したとき、立ち上がる処理を実行する。
      *
      * @param e BlockFadeEventのデータ
      */
@@ -162,17 +170,14 @@ public class StairSittingListener implements Listener {
         Player player = (Player) brokenSeatEntity.getPassengers()
                 .stream().findFirst().orElse(null);
         if (player == null) {
-            StairSittingUtil.standUpInAccident(brokenSeatEntity);
-        } else {
-            StairSittingUtil.standUp(brokenSeatEntity, player);
+            return;
         }
+        StairSittingUtil.standUp(brokenSeatEntity, player);
     }
 
     /**
      * ブロックが燃え尽きるときに呼び出される
-     * プレイヤーが座っているブロックが燃え尽きたとき、正常な場合は通常の立ち上がる処理を実行する。
-     * 座席用エンティティがあるにもかかわらず、座っているプレイヤーが存在しない場合は、
-     * 外的要因によって立たされる場合と同じ処理を実行する。
+     * プレイヤーが座っているブロックが燃え尽きたとき、立ち上がる処理を実行する。
      *
      * @param e BlockBurnEventのデータ
      */
@@ -185,10 +190,9 @@ public class StairSittingListener implements Listener {
         Player player = (Player) brokenSeatEntity.getPassengers()
                 .stream().findFirst().orElse(null);
         if (player == null) {
-            StairSittingUtil.standUpInAccident(brokenSeatEntity);
-        } else {
-            StairSittingUtil.standUp(brokenSeatEntity, player);
+            return;
         }
+        StairSittingUtil.standUp(brokenSeatEntity, player);
     }
 
     /**
@@ -207,7 +211,12 @@ public class StairSittingListener implements Listener {
             if (brokenSeatEntity == null) {
                 return;
             }
-            StairSittingUtil.standUpInAccident(brokenSeatEntity);
+            Player player = (Player) brokenSeatEntity.getPassengers()
+                    .stream().findFirst().orElse(null);
+            if (player == null) {
+                return;
+            }
+            StairSittingUtil.standUpInAccident(brokenSeatEntity, player);
         }
     }
 
@@ -227,7 +236,12 @@ public class StairSittingListener implements Listener {
             if (brokenSeatEntity == null) {
                 return;
             }
-            StairSittingUtil.standUpInAccident(brokenSeatEntity);
+            Player player = (Player) brokenSeatEntity.getPassengers()
+                    .stream().findFirst().orElse(null);
+            if (player == null) {
+                return;
+            }
+            StairSittingUtil.standUpInAccident(brokenSeatEntity, player);
         }
     }
 }
