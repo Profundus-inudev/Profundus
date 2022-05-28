@@ -24,10 +24,6 @@ public class MenuItem {
     @Getter
     private final boolean close;
     @Getter
-    private final int x;
-    @Getter
-    private final int y;
-    @Getter
     private final String title;
 
     /**
@@ -39,17 +35,13 @@ public class MenuItem {
      * @param icon       アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param shiny      ブロックをキラキラさせるか
-     * @param x          アイテムの場所(x軸)。左上が0
-     * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, int x, int y) {
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close) {
         this.onClick = onClick;
         this.icon = icon;
         this.customData = customData;
         this.shiny = shiny;
         this.close = close;
-        this.x = x;
-        this.y = y;
         this.title = title;
 
         if (shiny) {
@@ -65,11 +57,9 @@ public class MenuItem {
      * @param icon       アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param shiny      ブロックをキラキラさせるか
-     * @param x          アイテムの場所(x軸)。左上が0
-     * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, int x, int y) {
-        this(title, onClick, icon, customData, shiny, true, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny) {
+        this(title, onClick, icon, customData, shiny, true);
     }
 
     /**
@@ -79,11 +69,9 @@ public class MenuItem {
      * @param onClick    クリック時のイベント
      * @param icon       アイテムのブロック
      * @param customData Itemにつける任意のデータ
-     * @param x          アイテムの場所(x軸)。左上が0
-     * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, int x, int y) {
-        this(title, onClick, icon, customData, false, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData) {
+        this(title, onClick, icon, customData, false);
     }
 
     /**
@@ -92,11 +80,9 @@ public class MenuItem {
      * @param title   アイテムのタイトル
      * @param onClick クリック時のイベント
      * @param icon    アイテムのブロック
-     * @param x       アイテムの場所(x軸)。左上が0
-     * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, int x, int y) {
-        this(title, onClick, icon, null, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon) {
+        this(title, onClick, icon, null);
     }
 
     /**
@@ -104,11 +90,9 @@ public class MenuItem {
      *
      * @param title   アイテムのタイトル
      * @param onClick クリック時のイベント
-     * @param x       アイテムの場所(x軸)。左上が0
-     * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, int x, int y) {
-        this(title, onClick, new ItemStack(Material.STONE), x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick) {
+        this(title, onClick, new ItemStack(Material.STONE));
     }
 
     /**
@@ -119,21 +103,17 @@ public class MenuItem {
      * @param icon    アイテムのブロック
      * @param shiny   ブロックをキラキラさせるか
      * @param close   クリック時にGUIを閉じるか
-     * @param x       アイテムの場所(x軸)。左上が0
-     * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close, int x, int y) {
-        this(title, onClick, icon, null, shiny, close, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close) {
+        this(title, onClick, icon, null, shiny, close);
     }
 
     /**
      * メニューのアイテム。
      *
      * @param title アイテムのタイトル
-     * @param x     アイテムの場所(x軸)。左上が0
-     * @param y     アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, int x, int y) {
-        this(title, null, new ItemStack(Material.STONE), null, x, y);
+    public MenuItem(String title) {
+        this(title, null, new ItemStack(Material.STONE), null);
     }
 }
