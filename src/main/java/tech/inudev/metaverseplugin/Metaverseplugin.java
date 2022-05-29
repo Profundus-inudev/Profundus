@@ -4,8 +4,11 @@ import lombok.Getter;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
+import tech.inudev.metaverseplugin.config.StairsHandler;
+import tech.inudev.metaverseplugin.listener.StairSittingListener;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
+import tech.inudev.metaverseplugin.utils.StairSittingUtil;
 
 /**
  * メタバースプラグイン（仮）
@@ -19,6 +22,8 @@ public final class Metaverseplugin extends JavaPlugin {
 
     @Getter
     private ConfigHandler configHandler;
+    @Getter
+    private StairsHandler stairsHandler;
     private DatabasePingRunnable databasePingRunnable;
 
     @Override
@@ -27,6 +32,7 @@ public final class Metaverseplugin extends JavaPlugin {
         instance = this;
 
         this.configHandler = new ConfigHandler(instance);
+        this.stairsHandler = new StairsHandler(instance);
         this.databasePingRunnable = new DatabasePingRunnable();
 
         DatabaseUtil.connect();
@@ -43,11 +49,14 @@ public final class Metaverseplugin extends JavaPlugin {
 
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new StairSittingListener(), this);
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+
+        StairSittingUtil.removeSeatsOnServerDisable();
 
         DatabaseUtil.disconnect();
 
