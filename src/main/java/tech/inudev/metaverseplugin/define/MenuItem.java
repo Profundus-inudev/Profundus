@@ -1,10 +1,13 @@
 package tech.inudev.metaverseplugin.define;
 
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -24,11 +27,10 @@ public class MenuItem {
     @Getter
     private final boolean close;
     @Getter
-    private final int x;
+    private final Component title;
+
     @Getter
-    private final int y;
-    @Getter
-    private final String title;
+    private final List<Component> lore;
 
     /**
      * メニューのアイテム。
@@ -39,64 +41,69 @@ public class MenuItem {
      * @param icon       アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param shiny      ブロックをキラキラさせるか
-     * @param x          アイテムの場所(x軸)。左上が0
-     * @param y          アイテムの場所(y軸)。左上が0
+     * @param lore       アイテムの説明
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, int x, int y) {
+    public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close) {
         this.onClick = onClick;
         this.icon = icon;
         this.customData = customData;
         this.shiny = shiny;
         this.close = close;
-        this.x = x;
-        this.y = y;
         this.title = title;
+        this.lore = lore;
 
         if (shiny) {
             icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
         }
+
+        ItemMeta meta = icon.getItemMeta();
+        if(title != null) {
+            meta.displayName(title);
+        }
+
+        if(lore != null) {
+            meta.lore(lore);
+        }
+        icon.setItemMeta(meta);
     }
 
     /**
      * メニューのアイテム。
      *
      * @param title      アイテムのタイトル
+     * @param lore       アイテムの説明
      * @param onClick    クリック時のイベント
      * @param icon       アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param shiny      ブロックをキラキラさせるか
-     * @param x          アイテムの場所(x軸)。左上が0
-     * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, int x, int y) {
-        this(title, onClick, icon, customData, shiny, true, x, y);
+    public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny) {
+        this(Component.text(title), lore, onClick, icon, customData, shiny, true);
     }
 
     /**
      * メニューのアイテム。
      *
      * @param title      アイテムのタイトル
+     * @param lore       アイテムの説明
      * @param onClick    クリック時のイベント
      * @param icon       アイテムのブロック
      * @param customData Itemにつける任意のデータ
-     * @param x          アイテムの場所(x軸)。左上が0
-     * @param y          アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, int x, int y) {
-        this(title, onClick, icon, customData, false, x, y);
+    public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData) {
+        this(title, lore, onClick, icon, customData, false);
     }
 
     /**
      * メニューのアイテム。
      *
      * @param title   アイテムのタイトル
+     * @param lore    アイテムの説明
      * @param onClick クリック時のイベント
      * @param icon    アイテムのブロック
-     * @param x       アイテムの場所(x軸)。左上が0
-     * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, int x, int y) {
-        this(title, onClick, icon, null, x, y);
+    public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon) {
+        this(title, lore, onClick, icon, null);
     }
 
     /**
@@ -104,11 +111,9 @@ public class MenuItem {
      *
      * @param title   アイテムのタイトル
      * @param onClick クリック時のイベント
-     * @param x       アイテムの場所(x軸)。左上が0
-     * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, int x, int y) {
-        this(title, onClick, new ItemStack(Material.STONE), x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick) {
+        this(title, null, onClick, new ItemStack(Material.STONE));
     }
 
     /**
@@ -119,21 +124,28 @@ public class MenuItem {
      * @param icon    アイテムのブロック
      * @param shiny   ブロックをキラキラさせるか
      * @param close   クリック時にGUIを閉じるか
-     * @param x       アイテムの場所(x軸)。左上が0
-     * @param y       アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close, int x, int y) {
-        this(title, onClick, icon, null, shiny, close, x, y);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close) {
+        this(Component.text(title), null, onClick, icon, null, shiny, close);
     }
 
     /**
      * メニューのアイテム。
      *
      * @param title アイテムのタイトル
-     * @param x     アイテムの場所(x軸)。左上が0
-     * @param y     アイテムの場所(y軸)。左上が0
      */
-    public MenuItem(String title, int x, int y) {
-        this(title, null, new ItemStack(Material.STONE), null, x, y);
+    public MenuItem(String title) {
+        this(title, null, null, new ItemStack(Material.STONE));
+    }
+
+    /**
+     * メニューのアイテム。
+     *
+     * @param title   アイテムのタイトル
+     * @param lore    アイテムの説明
+     * @param onClick クリック時のイベント
+     */
+    public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick) {
+        this(title, lore, onClick, new ItemStack(Material.STONE));
     }
 }
