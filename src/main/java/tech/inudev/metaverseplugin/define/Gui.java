@@ -3,8 +3,6 @@ package tech.inudev.metaverseplugin.define;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -79,21 +77,13 @@ public class Gui implements Listener {
         for (PosMenuItem posItem : menuItems) {
             MenuItem item = posItem.menuItem();
             List<String> buttonText = new ArrayList<>();
-            Component text = item.getIcon().getItemMeta().displayName();
-            if (text == null) {
-                text = item.getIcon().displayName();
-            }
+            String text = item.getIcon().getItemMeta().getDisplayName();
             if (item.isShiny()) {
-                text = text.color(NamedTextColor.GREEN);
+                text = text + "§a";
             }
-            if (text instanceof TextComponent) buttonText.add(((TextComponent) text).content());
-            else buttonText.add(item.getIcon().getI18NDisplayName());
+            buttonText.add(text);
             if (item.getIcon().lore() != null) {
-                for (Component i : Objects.requireNonNull(item.getIcon().lore())) {
-                    if (i instanceof TextComponent) {
-                        buttonText.add(((TextComponent) i).content());
-                    }
-                }
+                buttonText.addAll(Objects.requireNonNull(item.getIcon().getLore()));
             }
             if (item.isClose()) {
                 builder.button(String.join("\n", buttonText));
