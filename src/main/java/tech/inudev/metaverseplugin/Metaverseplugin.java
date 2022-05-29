@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
-import tech.inudev.metaverseplugin.listener.test;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 
@@ -44,7 +43,6 @@ public final class Metaverseplugin extends JavaPlugin {
 
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new test(),this);
     }
 
     @Override
