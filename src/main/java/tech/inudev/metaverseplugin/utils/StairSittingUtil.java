@@ -230,6 +230,7 @@ public class StairSittingUtil {
      * アクシデントでまともに立ち上がれない場合の立ち上がる処理
      *
      * @param seatEntity 座席用エンティティ
+     * @param player     立ち上がるプレイヤー
      */
     public static void standUpInAccident(Entity seatEntity, Player player) {
         if (seatEntity == null || player == null) {
@@ -257,6 +258,9 @@ public class StairSittingUtil {
     }
 
     private static void setCoolDown(Player player) {
+        if (player == null) {
+            throw new IllegalArgumentException();
+        }
         player.setMetadata(COOLDOWN_METADATA_KEY, new FixedMetadataValue(
                 Metaverseplugin.getInstance(),
                 true));
@@ -272,6 +276,9 @@ public class StairSittingUtil {
      * @param player クールダウン中のプレイヤー
      */
     public static void cancelCoolDown(Player player) {
+        if (player == null) {
+            throw new IllegalArgumentException();
+        }
         player.removeMetadata(
                 COOLDOWN_METADATA_KEY,
                 Metaverseplugin.getInstance());
