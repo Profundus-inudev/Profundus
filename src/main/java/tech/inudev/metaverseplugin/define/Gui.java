@@ -52,6 +52,8 @@ public class Gui implements Listener {
      * GUIにアイテムを追加する。
      *
      * @param menuItem 追加するアイテム
+     * @param x        アイテムを設置するX座標。左が0。Java版のみに適応する。
+     * @param y        アイテムを設置するY座標。上が0。Java版のみに適応する。
      */
     public void addItem(MenuItem menuItem,int x,int y) {
         menuItems.add(new PosMenuItem(menuItem,x,y));

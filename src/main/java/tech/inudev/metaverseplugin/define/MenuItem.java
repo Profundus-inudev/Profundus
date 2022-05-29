@@ -71,6 +71,7 @@ public class MenuItem {
      * メニューのアイテム。
      *
      * @param title      アイテムのタイトル
+     * @param lore       アイテムの説明
      * @param onClick    クリック時のイベント
      * @param icon       アイテムのブロック
      * @param customData Itemにつける任意のデータ
@@ -84,6 +85,7 @@ public class MenuItem {
      * メニューのアイテム。
      *
      * @param title      アイテムのタイトル
+     * @param lore       アイテムの説明
      * @param onClick    クリック時のイベント
      * @param icon       アイテムのブロック
      * @param customData Itemにつける任意のデータ
@@ -96,6 +98,7 @@ public class MenuItem {
      * メニューのアイテム。
      *
      * @param title   アイテムのタイトル
+     * @param lore    アイテムの説明
      * @param onClick クリック時のイベント
      * @param icon    アイテムのブロック
      */
