@@ -117,6 +117,8 @@ public class Money {
 
     /**
      * 口座を開設する
+     *
+     * @param bankName 口座の名前
      */
     public static void createBankAccount(String bankName) {
         if (isUUID(bankName)) {
