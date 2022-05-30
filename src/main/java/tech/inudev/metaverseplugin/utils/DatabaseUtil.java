@@ -4,6 +4,7 @@ import tech.inudev.metaverseplugin.Metaverseplugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
 
 import java.sql.*;
+import java.util.UUID;
 
 /**
  * Databaseを管理するためのクラス
@@ -131,13 +132,13 @@ public class DatabaseUtil {
     }
 
     /**
-     * Databaseのnameに対応する金額データを更新する
+     * 引数playerUUIDに対応するDatabase上の金額データを更新する
      * データが存在しなければ新規作成する
      *
-     * @param name 金額データの名前
-     * @param amount 金額データの金額
+     * @param playerUUID 金額データの名前としてのプレイヤーUUID
+     * @param amount     金額データの金額
      */
-    public static void updateMoneyAmount(String name, int amount) {
+    public static void updateMoneyAmount(UUID playerUUID, int amount) {
         try {
             createMoneyTable();
 
@@ -146,22 +147,58 @@ public class DatabaseUtil {
 
             if (configHandler.getDatabaseType().equals("mysql")) {
                 preparedStatement = connection.prepareStatement("""
-                    INSERT INTO money (name, amount) VALUES (?, ?)
-                        ON DUPRICATE KEY UPDATE amount=VALUES(amount);
-                    """);
+                        INSERT INTO money (name, amount) VALUES (?, ?)
+                            ON DUPRICATE KEY UPDATE amount=VALUES(amount);
+                        """);
             } else if (configHandler.getDatabaseType().equals("sqlite")){
                 preparedStatement = connection.prepareStatement("""
-                    INSERT OR REPLACE INTO money VALUES (?, ?);
-                    """);
+                        INSERT OR REPLACE INTO money VALUES (?, ?);
+                        """);
             } else {
                 throw new SQLException();
             }
-            preparedStatement.setString(1, name);
+            preparedStatement.setString(1, playerUUID.toString());
             preparedStatement.setInt(2, amount);
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 引数bankNameに対応するDatabase上の金額データを更新する
+     *
+     * @param bankName 金額データの名前としての口座名
+     * @param amount   金額データの金額
+     */
+    public static void updateMoneyAmount(String bankName, int amount) {
+        if (isUUID(bankName)) {
+            throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
+        }
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    UPDATE money SET amount=? WHERE name=?
+                    """);
+            preparedStatement.setInt(1, amount);
+            preparedStatement.setString(2, bankName);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 指定された文字列がUUIDの形式であるか判定する
+     *
+     * @param name 文字列
+     * @return UUIDの形式であればtrue、そうでなければfalseを返す。
+     */
+    public static boolean isUUID(String name) {
+        String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+        return name.toLowerCase().matches(regex);
     }
 }

@@ -41,7 +41,7 @@ public class Money {
      * @param bankName 口座の名前
      */
     public Money(String bankName) {
-        if (isUUID(bankName)) {
+        if (DatabaseUtil.isUUID(bankName)) {
             throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
         }
 
@@ -109,7 +109,7 @@ public class Money {
             if (this.playerUUID == null) {
                 return false;
             }
-            DatabaseUtil.updateMoneyAmount(this.playerUUID.toString(), this.amount);
+            DatabaseUtil.updateMoneyAmount(this.playerUUID, this.amount);
         }
         return true;
     }
@@ -119,17 +119,12 @@ public class Money {
      * 口座を開設する
      */
     public static void createBankAccount(String bankName) {
-        if (isUUID(bankName)) {
+        if (DatabaseUtil.isUUID(bankName)) {
             throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
         }
         if (DatabaseUtil.loadMoneyAmount(bankName) != null) {
             throw new IllegalArgumentException("同名の口座が既に存在しています。");
         }
         DatabaseUtil.createMoneyRecord(bankName);
-    }
-
-    private static boolean isUUID(String name) {
-        String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-        return name.toLowerCase().matches(regex);
     }
 }
