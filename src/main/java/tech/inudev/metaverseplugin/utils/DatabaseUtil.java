@@ -88,7 +88,6 @@ public class DatabaseUtil {
 
     /**
      * Databaseに新たに金額データを登録する
-     * （口座の開設で使用）
      *
      * @param name 金額データの名前
      */
@@ -132,50 +131,12 @@ public class DatabaseUtil {
     }
 
     /**
-     * 引数playerUUIDに対応するDatabase上の金額データを更新する
-     * データが存在しなければ新規作成する
+     * Database上の金額データを更新する
      *
-     * @param playerUUID 金額データの名前としてのプレイヤーUUID
-     * @param amount     金額データの金額
-     */
-    public static void updateMoneyAmount(UUID playerUUID, int amount) {
-        try {
-            createMoneyTable();
-
-            PreparedStatement preparedStatement;
-            ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
-
-            if (configHandler.getDatabaseType().equals("mysql")) {
-                preparedStatement = connection.prepareStatement("""
-                        INSERT INTO money (name, amount) VALUES (?, ?)
-                            ON DUPRICATE KEY UPDATE amount=VALUES(amount);
-                        """);
-            } else if (configHandler.getDatabaseType().equals("sqlite")){
-                preparedStatement = connection.prepareStatement("""
-                        INSERT OR REPLACE INTO money VALUES (?, ?);
-                        """);
-            } else {
-                throw new SQLException();
-            }
-            preparedStatement.setString(1, playerUUID.toString());
-            preparedStatement.setInt(2, amount);
-            preparedStatement.execute();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * 引数bankNameに対応するDatabase上の金額データを更新する
-     *
-     * @param bankName 金額データの名前としての口座名
+     * @param bankName 金額データの名前
      * @param amount   金額データの金額
      */
     public static void updateMoneyAmount(String bankName, int amount) {
-        if (isUUID(bankName)) {
-            throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
-        }
         try {
             createMoneyTable();
 
@@ -189,16 +150,5 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * 指定された文字列がUUIDの形式であるか判定する
-     *
-     * @param name 文字列
-     * @return UUIDの形式であればtrue、そうでなければfalseを返す。
-     */
-    public static boolean isUUID(String name) {
-        String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-        return name.toLowerCase().matches(regex);
     }
 }
