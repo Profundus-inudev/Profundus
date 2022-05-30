@@ -74,10 +74,31 @@ public class DatabaseUtil {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS 'money' (
-                    'name' VARCHAR(36) NOT NULL,
-                    'amount' INT NOT NULL,
-                    PRIMARY KEY ('name'))
-                """);
+                        'name' VARCHAR(36) NOT NULL,
+                        'amount' INT NOT NULL,
+                        PRIMARY KEY ('name'))
+                    """);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Databaseに新たに金額データを登録する
+     * （口座の開設で使用）
+     *
+     * @param name 金額データの名前
+     */
+    public static void createMoneyRecord(String name) {
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    INSERT INTO money (name, amount) VALUES (?, 0)
+                    """);
+            preparedStatement.setString(1, name);
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
@@ -87,6 +108,7 @@ public class DatabaseUtil {
 
     /**
      * Databaseのnameに対応する金額データを取得する
+     *
      * @param name Databaseの検索に使用する金額データの名前
      * @return 金額。Database上にデータが存在しなければnullを返す
      */
@@ -111,6 +133,7 @@ public class DatabaseUtil {
     /**
      * Databaseのnameに対応する金額データを更新する
      * データが存在しなければ新規作成する
+     *
      * @param name 金額データの名前
      * @param amount 金額データの金額
      */
