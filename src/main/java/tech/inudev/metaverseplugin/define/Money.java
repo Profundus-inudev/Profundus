@@ -115,6 +115,18 @@ public class Money {
     }
 
     /**
+     * 所持金データを作成する
+     *
+     * @param playerUUID プレイヤーのUUID
+     */
+    public static void createPlayerWallet(UUID playerUUID) {
+        if (playerWalletExists(playerUUID)) {
+            throw new IllegalArgumentException("プレイヤーの所持金データが既に存在しています。");
+        }
+        DatabaseUtil.createMoneyRecord(playerUUID.toString());
+    }
+
+    /**
      * 口座を開設する
      *
      * @param bankName 口座の名前
