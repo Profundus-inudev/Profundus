@@ -28,8 +28,7 @@ public class Money {
     public Money(UUID playerUUID) {
         Integer amount = DatabaseUtil.loadMoneyAmount(playerUUID.toString());
         if (amount == null) {
-            DatabaseUtil.createMoneyRecord(playerUUID.toString());
-            amount = 0;
+            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
         this.amount = amount;
         this.playerUUID = playerUUID;
@@ -124,7 +123,7 @@ public class Money {
         if (isUUID(bankName)) {
             throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
         }
-        if (DatabaseUtil.loadMoneyAmount(bankName) != null) {
+        if (moneyDataExists(bankName)) {
             throw new IllegalArgumentException("同名の口座が既に存在しています。");
         }
         DatabaseUtil.createMoneyRecord(bankName);
@@ -139,5 +138,25 @@ public class Money {
     public static boolean isUUID(String name) {
         String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
         return name.toLowerCase().matches(regex);
+    }
+
+    /**
+     * データベース上に所持金情報が存在するかを判定する。
+     *
+     * @param playerUUID プレイヤーのUUID
+     * @return データベース上に所持金情報が存在していればtrue、そうでなければfalseを返す。
+     */
+    public static boolean moneyDataExists(UUID playerUUID) {
+        return DatabaseUtil.loadMoneyAmount(playerUUID.toString()) != null;
+    }
+
+    /**
+     * データベース上に口座情報が存在するかを判定する。
+     *
+     * @param bankName 口座名
+     * @return データベース上に口座情報が存在していればtrue、そうでなければfalseを返す。
+     */
+    public static boolean moneyDataExists(String bankName) {
+        return DatabaseUtil.loadMoneyAmount(bankName) != null;
     }
 }
