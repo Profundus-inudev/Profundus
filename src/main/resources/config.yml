@@ -7,3 +7,5 @@ database:
   database: 'database_name'
   username: 'username'
   password: 'password'
+
+  master_bank_name: "master_bank"

@@ -5,6 +5,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
 import tech.inudev.metaverseplugin.config.StairsHandler;
+import tech.inudev.metaverseplugin.define.Money;
 import tech.inudev.metaverseplugin.listener.StairSittingListener;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
@@ -36,6 +37,10 @@ public final class Metaverseplugin extends JavaPlugin {
         this.databasePingRunnable = new DatabasePingRunnable();
 
         DatabaseUtil.connect();
+
+        if (!Money.bankAccountExists(this.configHandler.getMasterBankName())) {
+            Money.createBankAccount(this.configHandler.getMasterBankName());
+        }
 
         registerSchedulers();
         registerListeners();

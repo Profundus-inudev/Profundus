@@ -14,15 +14,25 @@ public class ConfigHandler {
     private final Plugin plugin;
     private final FileConfiguration config;
 
-    @Getter private int configVersion;
-    @Getter private String databaseAddress;
-    @Getter private String databaseName;
-    @Getter private String databaseUsername;
-    @Getter private String databasePassword;
-    @Getter private String databaseType;
+    @Getter
+    private int configVersion;
+    @Getter
+    private String databaseAddress;
+    @Getter
+    private String databaseName;
+    @Getter
+    private String databaseUsername;
+    @Getter
+    private String databasePassword;
+    @Getter
+    private String databaseType;
+
+    @Getter
+    private String masterBankName;
 
     /**
      * コンストラクタ
+     *
      * @param plugin プラグイン
      */
     public ConfigHandler(Plugin plugin) {
@@ -41,6 +51,8 @@ public class ConfigHandler {
         databaseName = config.getString(databasePath + "database");
         databaseUsername = config.getString(databasePath + "username");
         databasePassword = config.getString(databasePath + "password");
+
+        masterBankName = config.getString(databasePath + "master_bank_name");
     }
 
     /**
