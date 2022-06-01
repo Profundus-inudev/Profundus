@@ -1,5 +1,6 @@
 package tech.inudev.metaverseplugin.define;
 
+import lombok.Data;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -41,8 +42,7 @@ public class Money {
      * @param bankName 口座の名前
      */
     public Money(String bankName) {
-        String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-        if (bankName.toLowerCase().matches(regex)) {
+        if (isUUID(bankName)) {
             throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
         }
 
@@ -113,5 +113,63 @@ public class Money {
             DatabaseUtil.updateMoneyAmount(this.playerUUID.toString(), this.amount);
         }
         return true;
+    }
+
+    /**
+     * 所持金データを作成する
+     *
+     * @param playerUUID プレイヤーのUUID
+     */
+    public static void createPlayerWallet(UUID playerUUID) {
+        if (playerWalletExists(playerUUID)) {
+            throw new IllegalArgumentException("プレイヤーの所持金データが既に存在しています。");
+        }
+        DatabaseUtil.createMoneyRecord(playerUUID.toString());
+    }
+
+    /**
+     * 口座を開設する
+     *
+     * @param bankName 口座の名前
+     */
+    public static void createBankAccount(String bankName) {
+        if (bankAccountExists(bankName)) {
+            throw new IllegalArgumentException("同名の口座が既に存在しています。");
+        }
+        DatabaseUtil.createMoneyRecord(bankName);
+    }
+
+    /**
+     * データベース上に所持金データが存在するかを判定する。
+     *
+     * @param playerUUID プレイヤーのUUID
+     * @return データベース上に所持金データが存在していればtrue、そうでなければfalseを返す。
+     */
+    public static boolean playerWalletExists(UUID playerUUID) {
+        return DatabaseUtil.loadMoneyAmount(playerUUID.toString()) != null;
+    }
+
+    /**
+     * データベース上に口座データが存在するかを判定する。
+     *
+     * @param bankName 口座名
+     * @return データベース上に口座データが存在していればtrue、そうでなければfalseを返す。
+     */
+    public static boolean bankAccountExists(String bankName) {
+        if (isUUID(bankName)) {
+            throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
+        }
+        return DatabaseUtil.loadMoneyAmount(bankName) != null;
+    }
+
+    /**
+     * 指定された文字列がUUIDの形式であるか判定する
+     *
+     * @param name 文字列
+     * @return UUIDの形式であればtrue、そうでなければfalseを返す。
+     */
+    public static boolean isUUID(String name) {
+        String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+        return name.toLowerCase().matches(regex);
     }
 }

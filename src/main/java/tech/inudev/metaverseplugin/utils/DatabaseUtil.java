@@ -4,6 +4,7 @@ import tech.inudev.metaverseplugin.Metaverseplugin;
 import tech.inudev.metaverseplugin.config.ConfigHandler;
 
 import java.sql.*;
+import java.util.UUID;
 
 /**
  * Databaseを管理するためのクラス
@@ -74,10 +75,30 @@ public class DatabaseUtil {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("""
                 CREATE TABLE IF NOT EXISTS 'money' (
-                    'name' VARCHAR(36) NOT NULL,
-                    'amount' INT NOT NULL,
-                    PRIMARY KEY ('name'))
-                """);
+                        'name' VARCHAR(36) NOT NULL,
+                        'amount' INT NOT NULL,
+                        PRIMARY KEY ('name'))
+                    """);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Databaseに新たに金額データを登録する
+     *
+     * @param name 金額データの名前
+     */
+    public static void createMoneyRecord(String name) {
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    INSERT INTO money (name, amount) VALUES (?, 0)
+                    """);
+            preparedStatement.setString(1, name);
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
@@ -87,6 +108,7 @@ public class DatabaseUtil {
 
     /**
      * Databaseのnameに対応する金額データを取得する
+     *
      * @param name Databaseの検索に使用する金額データの名前
      * @return 金額。Database上にデータが存在しなければnullを返す
      */
@@ -109,32 +131,20 @@ public class DatabaseUtil {
     }
 
     /**
-     * Databaseのnameに対応する金額データを更新する
-     * データが存在しなければ新規作成する
-     * @param name 金額データの名前
-     * @param amount 金額データの金額
+     * Database上の金額データを更新する
+     *
+     * @param bankName 金額データの名前
+     * @param amount   金額データの金額
      */
-    public static void updateMoneyAmount(String name, int amount) {
+    public static void updateMoneyAmount(String bankName, int amount) {
         try {
             createMoneyTable();
 
-            PreparedStatement preparedStatement;
-            ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
-
-            if (configHandler.getDatabaseType().equals("mysql")) {
-                preparedStatement = connection.prepareStatement("""
-                    INSERT INTO money (name, amount) VALUES (?, ?)
-                        ON DUPRICATE KEY UPDATE amount=VALUES(amount);
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    UPDATE money SET amount=? WHERE name=?
                     """);
-            } else if (configHandler.getDatabaseType().equals("sqlite")){
-                preparedStatement = connection.prepareStatement("""
-                    INSERT OR REPLACE INTO money VALUES (?, ?);
-                    """);
-            } else {
-                throw new SQLException();
-            }
-            preparedStatement.setString(1, name);
-            preparedStatement.setInt(2, amount);
+            preparedStatement.setInt(1, amount);
+            preparedStatement.setString(2, bankName);
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
