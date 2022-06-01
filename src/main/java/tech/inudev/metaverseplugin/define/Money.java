@@ -1,5 +1,6 @@
 package tech.inudev.metaverseplugin.define;
 
+import lombok.Data;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -132,13 +133,33 @@ public class Money {
      * @param bankName 口座の名前
      */
     public static void createBankAccount(String bankName) {
-        if (isUUID(bankName)) {
-            throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
-        }
-        if (moneyDataExists(bankName)) {
+        if (bankAccountExists(bankName)) {
             throw new IllegalArgumentException("同名の口座が既に存在しています。");
         }
         DatabaseUtil.createMoneyRecord(bankName);
+    }
+
+    /**
+     * データベース上に所持金データが存在するかを判定する。
+     *
+     * @param playerUUID プレイヤーのUUID
+     * @return データベース上に所持金データが存在していればtrue、そうでなければfalseを返す。
+     */
+    public static boolean playerWalletExists(UUID playerUUID) {
+        return DatabaseUtil.loadMoneyAmount(playerUUID.toString()) != null;
+    }
+
+    /**
+     * データベース上に口座データが存在するかを判定する。
+     *
+     * @param bankName 口座名
+     * @return データベース上に口座データが存在していればtrue、そうでなければfalseを返す。
+     */
+    public static boolean bankAccountExists(String bankName) {
+        if (isUUID(bankName)) {
+            throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
+        }
+        return DatabaseUtil.loadMoneyAmount(bankName) != null;
     }
 
     /**
@@ -150,25 +171,5 @@ public class Money {
     public static boolean isUUID(String name) {
         String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
         return name.toLowerCase().matches(regex);
-    }
-
-    /**
-     * データベース上に所持金情報が存在するかを判定する。
-     *
-     * @param playerUUID プレイヤーのUUID
-     * @return データベース上に所持金情報が存在していればtrue、そうでなければfalseを返す。
-     */
-    public static boolean moneyDataExists(UUID playerUUID) {
-        return DatabaseUtil.loadMoneyAmount(playerUUID.toString()) != null;
-    }
-
-    /**
-     * データベース上に口座情報が存在するかを判定する。
-     *
-     * @param bankName 口座名
-     * @return データベース上に口座情報が存在していればtrue、そうでなければfalseを返す。
-     */
-    public static boolean moneyDataExists(String bankName) {
-        return DatabaseUtil.loadMoneyAmount(bankName) != null;
     }
 }
