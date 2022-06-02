@@ -1,6 +1,5 @@
 package tech.inudev.metaverseplugin.define;
 
-import lombok.Data;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -16,7 +15,9 @@ import java.util.UUID;
  */
 public class Money {
     @Getter
-    private int amount;
+    private int ownAmount;
+    @Getter
+    private int total = 0;
     private UUID playerUUID;
     private String bankName;
     private final boolean isBankMoney;
@@ -31,7 +32,7 @@ public class Money {
         if (amount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
-        this.amount = amount;
+        this.ownAmount = amount;
         this.playerUUID = playerUUID;
         this.isBankMoney = false;
     }
@@ -50,7 +51,7 @@ public class Money {
         if (amount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
-        this.amount = amount;
+        this.ownAmount = amount;
         this.bankName = bankName;
         this.isBankMoney = true;
     }
@@ -64,7 +65,8 @@ public class Money {
         if (value < 0) {
             throw new IllegalArgumentException("負の値は引数に指定できません。");
         }
-        this.amount += value;
+//        this.ownAmount += value;
+        total += value;
     }
 
     /**
@@ -78,18 +80,19 @@ public class Money {
         if (value < 0) {
             throw new IllegalArgumentException("負の値は引数に指定できません。");
         }
-        if (this.amount >= value) {
-            this.amount -= value;
+        if (ownAmount >= total - value) {
+//            this.ownAmount -= value;
+            total -= value;
             return true;
         } else {
-            if (this.isBankMoney || playerUUID == null) {
+            if (isBankMoney || playerUUID == null) {
                 return false;
             }
             // 所持金による取引の場合、プレイヤーへお金不足を通知
             Player player = Bukkit.getPlayer(playerUUID);
             if (player != null && player.isOnline()) {
                 player.sendMessage(Component.text(
-                        "取引するためのお金が足りません"));
+                        "取引するためのお金が足りません。"));
             }
             return false;
         }
@@ -100,18 +103,59 @@ public class Money {
      *
      * @return 正常終了したかどうか
      */
-    public boolean push() {
-        if (this.isBankMoney) {
-            if (this.bankName.isEmpty()) {
-                return false;
-            }
-            DatabaseUtil.updateMoneyAmount(this.bankName, this.amount);
-        } else {
-            if (this.playerUUID == null) {
-                return false;
-            }
-            DatabaseUtil.updateMoneyAmount(this.playerUUID.toString(), this.amount);
+    public boolean push(UUID partnerUUID) {
+//        if (!playerWalletExists(partnerUUID)) {
+//            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
+//        }
+        // partnerのamountがtotal分引けるのかをチェックする
+        Integer partnerAmount = DatabaseUtil.loadMoneyAmount(partnerUUID.toString());
+        if (partnerAmount == null) {
+            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
+        if (partnerAmount < total) {
+            // プレイヤーにメッセージを飛ばす
+            Player partner = Bukkit.getPlayer(partnerUUID);
+            if (partner != null && partner.isOnline()) {
+                partner.sendMessage(Component.text(
+                        "取引するためのお金が足りません。"));
+            }
+            return false;
+        }
+
+        return pushTransaction(partnerUUID.toString(), partnerAmount);
+    }
+
+    public boolean push(String partnerBankName) {
+//        if (!bankAccountExists(partnerBankName)) {
+//            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
+//        }
+        // partnerのamountがtotal分引けるのかをチェックする
+        Integer partnerAmount = DatabaseUtil.loadMoneyAmount(partnerBankName);
+        if (partnerAmount == null) {
+            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
+        }
+        if (partnerAmount < total) {
+            return false;
+        }
+        return pushTransaction(partnerBankName, partnerAmount);
+    }
+
+    private boolean pushTransaction(String partnerName, int partnerAmount) {
+        if (isBankMoney) {
+            if (bankName.isEmpty()) {
+                return false;
+            }
+            DatabaseUtil.updateMoneyAmount(bankName, ownAmount + total);
+            DatabaseUtil.updateMoneyAmount(partnerName, partnerAmount - total);
+        } else {
+            if (playerUUID == null) {
+                return false;
+            }
+            DatabaseUtil.updateMoneyAmount(playerUUID.toString(), ownAmount + total);
+            DatabaseUtil.updateMoneyAmount(partnerName, partnerAmount - total);
+        }
+        ownAmount += total;
+        total = 0;
         return true;
     }
 
