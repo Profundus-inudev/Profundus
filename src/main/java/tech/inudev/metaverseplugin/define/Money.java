@@ -65,7 +65,6 @@ public class Money {
         if (value < 0) {
             throw new IllegalArgumentException("負の値は引数に指定できません。");
         }
-//        this.ownAmount += value;
         total += value;
     }
 
@@ -81,12 +80,10 @@ public class Money {
             throw new IllegalArgumentException("負の値は引数に指定できません。");
         }
         if (ownAmount + total >= value) {
-//            this.ownAmount -= value;
             total -= value;
             return true;
         } else {
             if (!isBankMoney && playerUUID != null) {
-                // 所持金による取引の場合、プレイヤーへお金不足を通知
                 sendMessageToPlayer(playerUUID, "取引するためのお金が足りません。");
             }
             return false;
@@ -94,21 +91,18 @@ public class Money {
     }
 
     /**
-     * 取引後の金額をDatabaseへ反映する
+     * 取引の送金処理を実行する。
      *
-     * @return 正常終了したかどうか
+     * @param partnerUUID 取引相手のプレイヤーUUID
+     * @return 送金処理が正常に完了したならばtrueを返す。そうでなければfalseを返す。
      */
     public boolean push(UUID partnerUUID) {
-//        if (!playerWalletExists(partnerUUID)) {
-//            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
-//        }
-        // partnerのamountがtotal分引けるのかをチェックする
         Integer partnerAmount = DatabaseUtil.loadMoneyAmount(partnerUUID.toString());
         if (partnerAmount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
+        // totalが正のとき、取引先のお金が足りなければ処理失敗
         if (partnerAmount < total) {
-            // プレイヤーにメッセージを飛ばす
             if (!isBankMoney && playerUUID != null) {
                 sendMessageToPlayer(playerUUID, "取引先に問題が発生し、送金処理に失敗しました。");
             }
@@ -119,15 +113,18 @@ public class Money {
         return pushTransaction(partnerUUID.toString(), partnerAmount);
     }
 
+    /**
+     * 取引の送金処理を実行する。
+     *
+     * @param partnerBankName 取引相手の口座名
+     * @return 送金処理が正常に完了したならばtrueを返す。そうでなければfalseを返す。
+     */
     public boolean push(String partnerBankName) {
-//        if (!bankAccountExists(partnerBankName)) {
-//            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
-//        }
-        // partnerのamountがtotal分引けるのかをチェックする
         Integer partnerAmount = DatabaseUtil.loadMoneyAmount(partnerBankName);
         if (partnerAmount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
+        // totalが正のとき、取引先のお金が足りなければ処理失敗
         if (partnerAmount < total) {
             if (!isBankMoney && playerUUID != null) {
                 sendMessageToPlayer(playerUUID, "取引先に問題が発生し、送金処理に失敗しました。");
