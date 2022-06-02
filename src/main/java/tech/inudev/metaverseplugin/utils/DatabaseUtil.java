@@ -105,7 +105,8 @@ public class DatabaseUtil {
                 preparedStatement.setString(1, name);
                 preparedStatement.execute();
                 preparedStatement.close();
-                connection.commit();
+
+                commitTransaction();
             } catch (SQLException e) {
                 connection.rollback();
                 throw new RuntimeException(e);
@@ -140,14 +141,26 @@ public class DatabaseUtil {
     }
 
     /**
-     * Database上の金額データを更新する。
+     * 送金処理のトランザクションを実行する。
      * 処理が完了した場合は、トランザクションをコミットする。
-     * 一方で、処理中にエラーが発生した場合は、トランザクションをロールバックする。
+     * 一方で、処理中にエラーが発生した場合は、トランザクションはロールバックする。
      *
-     * @param bankName 金額データの名前
-     * @param amount   金額データの金額
+     * @param selfName      自分の金額データの名前
+     * @param selfAmount    自分の金額データの金額
+     * @param partnerName   相手の金額データの名前
+     * @param partnerAmount 相手の金額データの金額
      */
-    public static void updateMoneyAmount(String bankName, int amount) {
+    public static void remitTransaction(
+            String selfName,
+            int selfAmount,
+            String partnerName,
+            int partnerAmount) {
+        updateMoneyAmount(selfName, selfAmount);
+        updateMoneyAmount(partnerName, partnerAmount);
+        commitTransaction();
+    }
+
+    private static void updateMoneyAmount(String bankName, int amount) {
         try {
             try {
                 createMoneyTable();
@@ -159,6 +172,18 @@ public class DatabaseUtil {
                 preparedStatement.setString(2, bankName);
                 preparedStatement.execute();
                 preparedStatement.close();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new RuntimeException(e);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void commitTransaction() {
+        try {
+            try {
                 connection.commit();
             } catch (SQLException e) {
                 connection.rollback();

@@ -97,20 +97,7 @@ public class Money {
      * @return 送金処理が正常に完了したならばtrueを返す。そうでなければfalseを返す。
      */
     public boolean push(UUID partnerUUID) {
-        Integer partnerAmount = DatabaseUtil.loadMoneyAmount(partnerUUID.toString());
-        if (partnerAmount == null) {
-            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
-        }
-        // totalが正のとき、取引先のお金が足りなければ処理失敗
-        if (partnerAmount < total) {
-            if (!isBankMoney && playerUUID != null) {
-                sendMessageToPlayer(playerUUID, "取引先に問題が発生し、送金処理に失敗しました。");
-            }
-            sendMessageToPlayer(partnerUUID, "取引するためのお金が足りません。");
-            return false;
-        }
-
-        return pushTransaction(partnerUUID.toString(), partnerAmount);
+        return remitMoney(partnerUUID.toString());
     }
 
     /**
@@ -120,34 +107,66 @@ public class Money {
      * @return 送金処理が正常に完了したならばtrueを返す。そうでなければfalseを返す。
      */
     public boolean push(String partnerBankName) {
-        Integer partnerAmount = DatabaseUtil.loadMoneyAmount(partnerBankName);
+        if (isUUID(partnerBankName)) {
+            throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
+        }
+        return remitMoney(partnerBankName);
+    }
+
+    private boolean remitMoney(String partnerName) {
+        Integer partnerAmount = DatabaseUtil.loadMoneyAmount(partnerName);
         if (partnerAmount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
-        // totalが正のとき、取引先のお金が足りなければ処理失敗
+        // totalが正のとき、取引相手のお金が足りなければ処理失敗
         if (partnerAmount < total) {
             if (!isBankMoney && playerUUID != null) {
                 sendMessageToPlayer(playerUUID, "取引先に問題が発生し、送金処理に失敗しました。");
             }
+            // 取引相手にお金不足を通知
+            if (isUUID(partnerName)) {
+                sendMessageToPlayer(UUID.fromString(partnerName), "取引するためのお金が足りません。");
+            }
             return false;
         }
-        return pushTransaction(partnerBankName, partnerAmount);
-    }
 
-    private boolean pushTransaction(String partnerName, int partnerAmount) {
         if (isBankMoney) {
             if (bankName.isEmpty()) {
+                // 取引先に処理失敗を通知
+                if (isUUID(partnerName)) {
+                    sendMessageToPlayer(UUID.fromString(partnerName), "送金処理に失敗しました。");
+                }
                 return false;
             }
-            DatabaseUtil.updateMoneyAmount(bankName, ownAmount + total);
-            DatabaseUtil.updateMoneyAmount(partnerName, partnerAmount - total);
+//            DatabaseUtil.updateMoneyAmount(bankName, ownAmount + total);
+
+            DatabaseUtil.remitTransaction(
+                    bankName,
+                    ownAmount + total,
+                    partnerName,
+                    partnerAmount - total);
         } else {
             if (playerUUID == null) {
+                // 取引先に処理失敗を通知
+                if (isUUID(partnerName)) {
+                    sendMessageToPlayer(UUID.fromString(partnerName), "送金処理に失敗しました。");
+                }
                 return false;
             }
-            DatabaseUtil.updateMoneyAmount(playerUUID.toString(), ownAmount + total);
-            DatabaseUtil.updateMoneyAmount(partnerName, partnerAmount - total);
+//            DatabaseUtil.updateMoneyAmount(playerUUID.toString(), ownAmount + total);
+
+            DatabaseUtil.remitTransaction(
+                    playerUUID.toString(),
+                    ownAmount + total,
+                    partnerName,
+                    partnerAmount - total);
         }
+//        return pushTransaction(partnerUUID.toString(), partnerAmount);
+//        return true;
+
+//        DatabaseUtil.updateMoneyAmount(partnerName, partnerAmount - total);
+//        DatabaseUtil.commitTransaction();
+
         ownAmount += total;
         total = 0;
         return true;
