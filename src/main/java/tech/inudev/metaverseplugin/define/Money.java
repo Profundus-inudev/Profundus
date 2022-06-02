@@ -138,8 +138,6 @@ public class Money {
                 }
                 return false;
             }
-//            DatabaseUtil.updateMoneyAmount(bankName, ownAmount + total);
-
             DatabaseUtil.remitTransaction(
                     bankName,
                     ownAmount + total,
@@ -153,20 +151,12 @@ public class Money {
                 }
                 return false;
             }
-//            DatabaseUtil.updateMoneyAmount(playerUUID.toString(), ownAmount + total);
-
             DatabaseUtil.remitTransaction(
                     playerUUID.toString(),
                     ownAmount + total,
                     partnerName,
                     partnerAmount - total);
         }
-//        return pushTransaction(partnerUUID.toString(), partnerAmount);
-//        return true;
-
-//        DatabaseUtil.updateMoneyAmount(partnerName, partnerAmount - total);
-//        DatabaseUtil.commitTransaction();
-
         ownAmount += total;
         total = 0;
         return true;
