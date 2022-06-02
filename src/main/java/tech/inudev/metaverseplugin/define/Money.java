@@ -80,19 +80,14 @@ public class Money {
         if (value < 0) {
             throw new IllegalArgumentException("負の値は引数に指定できません。");
         }
-        if (ownAmount >= total - value) {
+        if (ownAmount + total >= value) {
 //            this.ownAmount -= value;
             total -= value;
             return true;
         } else {
-            if (isBankMoney || playerUUID == null) {
-                return false;
-            }
-            // 所持金による取引の場合、プレイヤーへお金不足を通知
-            Player player = Bukkit.getPlayer(playerUUID);
-            if (player != null && player.isOnline()) {
-                player.sendMessage(Component.text(
-                        "取引するためのお金が足りません。"));
+            if (!isBankMoney && playerUUID != null) {
+                // 所持金による取引の場合、プレイヤーへお金不足を通知
+                sendMessageToPlayer(playerUUID, "取引するためのお金が足りません。");
             }
             return false;
         }
@@ -114,11 +109,10 @@ public class Money {
         }
         if (partnerAmount < total) {
             // プレイヤーにメッセージを飛ばす
-            Player partner = Bukkit.getPlayer(partnerUUID);
-            if (partner != null && partner.isOnline()) {
-                partner.sendMessage(Component.text(
-                        "取引するためのお金が足りません。"));
+            if (!isBankMoney && playerUUID != null) {
+                sendMessageToPlayer(playerUUID, "取引先に問題が発生し、送金処理に失敗しました。");
             }
+            sendMessageToPlayer(partnerUUID, "取引するためのお金が足りません。");
             return false;
         }
 
@@ -135,6 +129,9 @@ public class Money {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
         if (partnerAmount < total) {
+            if (!isBankMoney && playerUUID != null) {
+                sendMessageToPlayer(playerUUID, "取引先に問題が発生し、送金処理に失敗しました。");
+            }
             return false;
         }
         return pushTransaction(partnerBankName, partnerAmount);
@@ -215,5 +212,12 @@ public class Money {
     public static boolean isUUID(String name) {
         String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
         return name.toLowerCase().matches(regex);
+    }
+
+    private static void sendMessageToPlayer(UUID playerUUID, String message) {
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player != null && player.isOnline()) {
+            player.sendMessage(Component.text(message));
+        }
     }
 }
