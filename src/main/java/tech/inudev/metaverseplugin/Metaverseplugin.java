@@ -7,6 +7,7 @@ import tech.inudev.metaverseplugin.config.ConfigHandler;
 import tech.inudev.metaverseplugin.config.StairsHandler;
 import tech.inudev.metaverseplugin.define.Money;
 import tech.inudev.metaverseplugin.listener.StairSittingListener;
+import tech.inudev.metaverseplugin.listener.TestCommand;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 import tech.inudev.metaverseplugin.utils.StairSittingUtil;
@@ -55,6 +56,8 @@ public final class Metaverseplugin extends JavaPlugin {
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new StairSittingListener(), this);
+
+        getCommand("money").setExecutor(new TestCommand());
     }
 
     @Override
