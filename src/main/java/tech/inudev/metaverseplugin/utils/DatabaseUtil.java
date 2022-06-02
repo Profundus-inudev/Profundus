@@ -39,6 +39,7 @@ public class DatabaseUtil {
         ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
         try {
             connection = DriverManager.getConnection(databaseUrl, configHandler.getDatabaseUsername(), configHandler.getDatabasePassword());
+            connection.setAutoCommit(false);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -93,14 +94,20 @@ public class DatabaseUtil {
      */
     public static void createMoneyRecord(String name) {
         try {
-            createMoneyTable();
+            try {
+                createMoneyTable();
 
-            PreparedStatement preparedStatement = connection.prepareStatement("""
-                    INSERT INTO money (name, amount) VALUES (?, 0)
-                    """);
-            preparedStatement.setString(1, name);
-            preparedStatement.execute();
-            preparedStatement.close();
+                PreparedStatement preparedStatement = connection.prepareStatement("""
+                        INSERT INTO money (name, amount) VALUES (?, 0)
+                        """);
+                preparedStatement.setString(1, name);
+                preparedStatement.execute();
+                preparedStatement.close();
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new RuntimeException(e);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -138,15 +145,21 @@ public class DatabaseUtil {
      */
     public static void updateMoneyAmount(String bankName, int amount) {
         try {
-            createMoneyTable();
+            try {
+                createMoneyTable();
 
-            PreparedStatement preparedStatement = connection.prepareStatement("""
-                    UPDATE money SET amount=? WHERE name=?
-                    """);
-            preparedStatement.setInt(1, amount);
-            preparedStatement.setString(2, bankName);
-            preparedStatement.execute();
-            preparedStatement.close();
+                PreparedStatement preparedStatement = connection.prepareStatement("""
+                        UPDATE money SET amount=? WHERE name=?
+                        """);
+                preparedStatement.setInt(1, amount);
+                preparedStatement.setString(2, bankName);
+                preparedStatement.execute();
+                preparedStatement.close();
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new RuntimeException(e);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
