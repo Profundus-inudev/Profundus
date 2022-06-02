@@ -164,39 +164,4 @@ public class DatabaseUtil {
             throw new RuntimeException(e);
         }
     }
-
-    public static void recreateMoneyTable() {
-        try {
-            try {
-                createMoneyTable();
-
-                PreparedStatement preparedStatement = connection.prepareStatement("""
-                        DROP TABLE money
-                        """);
-                preparedStatement.execute();
-                preparedStatement.close();
-
-                createMoneyTable();
-
-                String masterName = Metaverseplugin.getInstance().getConfigHandler().getMasterBankName();
-
-                PreparedStatement preparedStatement1 = connection.prepareStatement("""
-                        INSERT INTO money (name, amount) VALUES (?, 10000)
-                        """);
-                preparedStatement1.setString(1, masterName);
-                preparedStatement1.execute();
-                preparedStatement1.close();
-
-                updateMoneyAmount(masterName, 15000);
-
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new RuntimeException(e);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }

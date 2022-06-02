@@ -8,11 +8,3 @@ website: https://www.inu-dev.tech/
 depend:
   - floodgate
   - Geyser-Spigot
-
-commands:
-  money:
-    description: This is test money command
-permissions:
-  money:
-    description: test money command permission
-    default: true
