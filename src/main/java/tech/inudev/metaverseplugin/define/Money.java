@@ -73,7 +73,7 @@ public class Money {
      * 減算するお金が足りない場合、プレイヤーへ通知する
      *
      * @param value 減算する金額
-     * @return 正常に処理できたかどうか
+     * @return 正常に処理を完了したらtrueを返す。そうでなければfalseを返す。
      */
     public boolean remove(int value) {
         if (value < 0) {
