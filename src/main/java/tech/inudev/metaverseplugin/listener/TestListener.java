@@ -12,10 +12,16 @@ import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 public class TestListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        Money.createPlayerWallet(e.getPlayer().getUniqueId());
+        DatabaseUtil.createMoneyRecord(e.getPlayer().getUniqueId().toString());
+
+        DatabaseUtil.updateMoneyAmount(e.getPlayer().getUniqueId().toString(), 200);
+
+//        DatabaseUtil.createMoneyRecord("hoge");
+
         String partnerBank = "partner bank";
-        Money.createBankAccount(partnerBank);
         DatabaseUtil.updateMoneyAmount(partnerBank, 1000);
+
+        DatabaseUtil.commitTransaction();
 
         Money m = new Money(e.getPlayer().getUniqueId());
         m.add(100);
