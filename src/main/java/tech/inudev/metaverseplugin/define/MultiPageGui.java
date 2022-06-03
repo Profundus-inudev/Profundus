@@ -19,11 +19,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * いくらでもMenuItemを追加できるGUI。
+ * 場所の指定はできず、順番に並んでいく。
+ *
+ * @author kumitatepazuru
+ */
 public class MultiPageGui extends Gui {
 
     private final List<MenuItem> menuItems = new ArrayList<>();
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private MenuItem centerItem = new MenuItem("閉じる", null, null, new ItemStack(Material.BARRIER));
 
     @Getter
@@ -38,11 +45,21 @@ public class MultiPageGui extends Gui {
         super(title);
     }
 
-    public void addMenuItems(MenuItem ...menuItem) {
+    /**
+     * GUIのアイテムを追加する
+     *
+     * @param menuItem 追加するアイテム
+     */
+    public void addMenuItems(MenuItem... menuItem) {
         menuItems.addAll(Arrays.stream(menuItem).toList());
     }
 
-    public void addMenuItems(Collection<MenuItem> menuItem){
+    /**
+     * GUIのアイテムを追加する
+     *
+     * @param menuItem 追加するアイテム
+     */
+    public void addMenuItems(Collection<MenuItem> menuItem) {
         menuItems.addAll(menuItem);
     }
 
@@ -50,7 +67,7 @@ public class MultiPageGui extends Gui {
     public void open(Player p) {
         if (Gui.isBedrock(p)) {
             Gui gui = new Gui(title);
-            gui.setMenuItems(menuItems.stream().map(n -> new Gui.PosMenuItem(n,0,0)).collect(Collectors.toList()));
+            gui.setMenuItems(menuItems.stream().map(n -> new Gui.PosMenuItem(n, 0, 0)).collect(Collectors.toList()));
             gui.open(p);
         } else {
             inventory = Bukkit.createInventory(null, 27, Component.text(title));
@@ -86,7 +103,8 @@ public class MultiPageGui extends Gui {
         }
     }
 
-    @EventHandler @Override
+    @EventHandler
+    @Override
     public void onInventoryClick(InventoryClickEvent e) {
         final Inventory inv = e.getInventory();
         final int id = e.getRawSlot();
@@ -108,7 +126,8 @@ public class MultiPageGui extends Gui {
                     }
                 }
                 case 4 -> {
-                    if (centerItem.getOnClick() != null) centerItem.getOnClick().accept(centerItem, (Player) e.getWhoClicked());
+                    if (centerItem.getOnClick() != null)
+                        centerItem.getOnClick().accept(centerItem, (Player) e.getWhoClicked());
                     if (centerItem.isClose()) {
                         inventory.close();
                     }
@@ -116,7 +135,8 @@ public class MultiPageGui extends Gui {
             }
             if (id > 8 && id < 27 && e.getCurrentItem() != null) {
                 final MenuItem clickedMenuItem = menuItems.get((page - 1) * 18 + id - 9);
-                if (clickedMenuItem.getOnClick() != null) clickedMenuItem.getOnClick().accept(clickedMenuItem, (Player) e.getWhoClicked());
+                if (clickedMenuItem.getOnClick() != null)
+                    clickedMenuItem.getOnClick().accept(clickedMenuItem, (Player) e.getWhoClicked());
                 if (clickedMenuItem.isClose()) {
                     inventory.close();
                 }

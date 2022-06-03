@@ -28,15 +28,22 @@ import java.util.function.BiConsumer;
  * @author kumitatepazuru
  */
 public class Gui implements Listener {
-    record PosMenuItem(MenuItem menuItem, int x, int y){
+    record PosMenuItem(MenuItem menuItem, int x, int y) {
     }
 
-    @Getter
     @Setter
     private List<PosMenuItem> menuItems = new ArrayList<>();
+
+    /**
+     * GUIのタイトル
+     */
     @Getter
     @Setter
     protected String title;
+
+    /**
+     * GUIに使うインベントリ
+     */
     protected Inventory inventory;
 
     /**
@@ -55,8 +62,8 @@ public class Gui implements Listener {
      * @param x        アイテムを設置するX座標。左が0。Java版のみに適応する。
      * @param y        アイテムを設置するY座標。上が0。Java版のみに適応する。
      */
-    public void addItem(MenuItem menuItem,int x,int y) {
-        menuItems.add(new PosMenuItem(menuItem,x,y));
+    public void addItem(MenuItem menuItem, int x, int y) {
+        menuItems.add(new PosMenuItem(menuItem, x, y));
     }
 
     /**
@@ -72,13 +79,18 @@ public class Gui implements Listener {
         }
     }
 
+    /**
+     * Playerが統合版か確認する関数
+     *
+     * @param player プレイヤー
+     * @return 統合版ならtrue
+     */
     public static boolean isBedrock(Player player) {
         return FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId());
     }
 
     private void openBedrockImpl(Player player) {
-        final SimpleForm.Builder builder = SimpleForm.builder()
-                .title(title);
+        final SimpleForm.Builder builder = SimpleForm.builder().title(title);
 
         for (PosMenuItem posItem : menuItems) {
             MenuItem item = posItem.menuItem();
