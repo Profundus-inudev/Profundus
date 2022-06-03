@@ -32,12 +32,12 @@ public class Gui implements Listener {
     }
 
     @Getter
-    private final List<PosMenuItem> menuItems = new ArrayList<>();
+    @Setter
+    private List<PosMenuItem> menuItems = new ArrayList<>();
     @Getter
     @Setter
-    private String title;
-    @Getter
-    private Inventory inventory;
+    protected String title;
+    protected Inventory inventory;
 
     /**
      * コンストラクタ
@@ -65,11 +65,15 @@ public class Gui implements Listener {
      * @param player GUIを開くプレイヤー
      */
     public void open(Player player) {
-        if (FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) {
+        if (isBedrock(player)) {
             openBedrockImpl(player);
         } else {
             openJavaImpl(player);
         }
+    }
+
+    public static boolean isBedrock(Player player) {
+        return FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId());
     }
 
     private void openBedrockImpl(Player player) {
