@@ -39,6 +39,7 @@ public class DatabaseUtil {
         ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
         try {
             connection = DriverManager.getConnection(databaseUrl, configHandler.getDatabaseUsername(), configHandler.getDatabasePassword());
+            connection.setAutoCommit(false);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -82,12 +83,18 @@ public class DatabaseUtil {
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
         }
     }
 
     /**
-     * Databaseに新たに金額データを登録する
+     * Databaseに新たに金額データを登録する。
+     * 処理が完了した場合は、トランザクションをコミットする。
+     * 一方で、処理中にエラーが発生した場合は、トランザクションをロールバックする。
      *
      * @param name 金額データの名前
      */
@@ -95,19 +102,30 @@ public class DatabaseUtil {
         try {
             createMoneyTable();
 
+            if (loadMoneyAmount(name) != null) {
+                throw new SQLException();
+            }
+
             PreparedStatement preparedStatement = connection.prepareStatement("""
                     INSERT INTO money (name, amount) VALUES (?, 0)
                     """);
             preparedStatement.setString(1, name);
             preparedStatement.execute();
             preparedStatement.close();
+
+            commitTransaction();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
         }
     }
 
     /**
-     * Databaseのnameに対応する金額データを取得する
+     * Databaseのnameに対応する金額データを取得する。
+     * 処理中にエラーが発生した場合は、トランザクションをロールバックする。
      *
      * @param name Databaseの検索に使用する金額データの名前
      * @return 金額。Database上にデータが存在しなければnullを返す
@@ -126,19 +144,42 @@ public class DatabaseUtil {
             preparedStatement.close();
             return result;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+                return null;
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
         }
     }
 
     /**
-     * Database上の金額データを更新する
+     * 送金処理のトランザクションを実行する。
+     * 処理が完了した場合は、トランザクションをコミットする。
+     * 一方で、処理中にエラーが発生した場合は、トランザクションはロールバックする。
      *
-     * @param bankName 金額データの名前
-     * @param amount   金額データの金額
+     * @param selfName      自分の金額データの名前
+     * @param selfAmount    自分の金額データの金額
+     * @param partnerName   相手の金額データの名前
+     * @param partnerAmount 相手の金額データの金額
      */
-    public static void updateMoneyAmount(String bankName, int amount) {
+    public static void remitTransaction(
+            String selfName,
+            int selfAmount,
+            String partnerName,
+            int partnerAmount) {
+        updateMoneyAmount(selfName, selfAmount);
+        updateMoneyAmount(partnerName, partnerAmount);
+        commitTransaction();
+    }
+
+    private static void updateMoneyAmount(String bankName, int amount) {
         try {
             createMoneyTable();
+
+            if (loadMoneyAmount(bankName) == null) {
+                throw new SQLException();
+            }
 
             PreparedStatement preparedStatement = connection.prepareStatement("""
                     UPDATE money SET amount=? WHERE name=?
@@ -148,7 +189,23 @@ public class DatabaseUtil {
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
+        }
+    }
+
+    private static void commitTransaction() {
+        try {
+            connection.commit();
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 package tech.inudev.metaverseplugin.define;
 
-import lombok.Data;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -16,7 +15,9 @@ import java.util.UUID;
  */
 public class Money {
     @Getter
-    private int amount;
+    private int ownAmount;
+    @Getter
+    private int total = 0;
     private UUID playerUUID;
     private String bankName;
     private final boolean isBankMoney;
@@ -31,7 +32,7 @@ public class Money {
         if (amount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
-        this.amount = amount;
+        this.ownAmount = amount;
         this.playerUUID = playerUUID;
         this.isBankMoney = false;
     }
@@ -50,7 +51,7 @@ public class Money {
         if (amount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
-        this.amount = amount;
+        this.ownAmount = amount;
         this.bankName = bankName;
         this.isBankMoney = true;
     }
@@ -64,7 +65,7 @@ public class Money {
         if (value < 0) {
             throw new IllegalArgumentException("負の値は引数に指定できません。");
         }
-        this.amount += value;
+        total += value;
     }
 
     /**
@@ -72,46 +73,92 @@ public class Money {
      * 減算するお金が足りない場合、プレイヤーへ通知する
      *
      * @param value 減算する金額
-     * @return 正常に処理できたかどうか
+     * @return 正常に処理を完了したらtrueを返す。そうでなければfalseを返す。
      */
     public boolean remove(int value) {
         if (value < 0) {
             throw new IllegalArgumentException("負の値は引数に指定できません。");
         }
-        if (this.amount >= value) {
-            this.amount -= value;
+        if (ownAmount + total >= value) {
+            total -= value;
             return true;
         } else {
-            if (this.isBankMoney || playerUUID == null) {
-                return false;
-            }
-            // 所持金による取引の場合、プレイヤーへお金不足を通知
-            Player player = Bukkit.getPlayer(playerUUID);
-            if (player != null && player.isOnline()) {
-                player.sendMessage(Component.text(
-                        "取引するためのお金が足りません"));
+            if (!isBankMoney && playerUUID != null) {
+                sendMessageToPlayer(playerUUID, "取引するためのお金が足りません。");
             }
             return false;
         }
     }
 
     /**
-     * 取引後の金額をDatabaseへ反映する
+     * 取引の送金処理を実行する。
      *
-     * @return 正常終了したかどうか
+     * @param partnerUUID 取引相手のプレイヤーUUID
+     * @return 送金処理が正常に完了したならばtrueを返す。そうでなければfalseを返す。
      */
-    public boolean push() {
-        if (this.isBankMoney) {
-            if (this.bankName.isEmpty()) {
-                return false;
-            }
-            DatabaseUtil.updateMoneyAmount(this.bankName, this.amount);
-        } else {
-            if (this.playerUUID == null) {
-                return false;
-            }
-            DatabaseUtil.updateMoneyAmount(this.playerUUID.toString(), this.amount);
+    public boolean push(UUID partnerUUID) {
+        return remitMoney(partnerUUID.toString());
+    }
+
+    /**
+     * 取引の送金処理を実行する。
+     *
+     * @param partnerBankName 取引相手の口座名
+     * @return 送金処理が正常に完了したならばtrueを返す。そうでなければfalseを返す。
+     */
+    public boolean push(String partnerBankName) {
+        if (isUUID(partnerBankName)) {
+            throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
         }
+        return remitMoney(partnerBankName);
+    }
+
+    private boolean remitMoney(String partnerName) {
+        Integer partnerAmount = DatabaseUtil.loadMoneyAmount(partnerName);
+        if (partnerAmount == null) {
+            throw new IllegalArgumentException("引数に対応するデータが存在しません。");
+        }
+        // totalが正のとき、取引相手のお金が足りなければ処理失敗
+        if (partnerAmount < total) {
+            if (!isBankMoney && playerUUID != null) {
+                sendMessageToPlayer(playerUUID, "取引先に問題が発生し、送金処理に失敗しました。");
+            }
+            // 取引相手にお金不足を通知
+            if (isUUID(partnerName)) {
+                sendMessageToPlayer(UUID.fromString(partnerName), "取引するためのお金が足りません。");
+            }
+            return false;
+        }
+
+        if (isBankMoney) {
+            if (bankName.isEmpty()) {
+                // 取引先に処理失敗を通知
+                if (isUUID(partnerName)) {
+                    sendMessageToPlayer(UUID.fromString(partnerName), "送金処理に失敗しました。");
+                }
+                return false;
+            }
+            DatabaseUtil.remitTransaction(
+                    bankName,
+                    ownAmount + total,
+                    partnerName,
+                    partnerAmount - total);
+        } else {
+            if (playerUUID == null) {
+                // 取引先に処理失敗を通知
+                if (isUUID(partnerName)) {
+                    sendMessageToPlayer(UUID.fromString(partnerName), "送金処理に失敗しました。");
+                }
+                return false;
+            }
+            DatabaseUtil.remitTransaction(
+                    playerUUID.toString(),
+                    ownAmount + total,
+                    partnerName,
+                    partnerAmount - total);
+        }
+        ownAmount += total;
+        total = 0;
         return true;
     }
 
@@ -171,5 +218,12 @@ public class Money {
     public static boolean isUUID(String name) {
         String regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
         return name.toLowerCase().matches(regex);
+    }
+
+    private static void sendMessageToPlayer(UUID playerUUID, String message) {
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player != null && player.isOnline()) {
+            player.sendMessage(Component.text(message));
+        }
     }
 }
