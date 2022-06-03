@@ -156,11 +156,12 @@ public class DatabaseUtil {
             String partnerName,
             int partnerAmount) {
         updateMoneyAmount(selfName, selfAmount);
-        updateMoneyAmount(partnerName, partnerAmount);
+//        updateMoneyAmount(partnerName, partnerAmount);
+        updateMoneyAmount("てすと", partnerAmount);
         commitTransaction();
     }
 
-    private static void updateMoneyAmount(String bankName, int amount) {
+    public static void updateMoneyAmount(String bankName, int amount) {
         try {
             try {
                 createMoneyTable();
