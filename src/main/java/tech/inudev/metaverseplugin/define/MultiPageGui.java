@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import tech.inudev.metaverseplugin.Metaverseplugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,11 +21,10 @@ import java.util.stream.Collectors;
 
 public class MultiPageGui extends Gui {
 
-    @Getter
     private final List<MenuItem> menuItems = new ArrayList<>();
 
     @Getter @Setter
-    private MenuItem centerItem;
+    private MenuItem centerItem = new MenuItem("閉じる", null, null, new ItemStack(Material.BARRIER));
 
     @Getter
     private int page = 1;
@@ -54,6 +54,8 @@ public class MultiPageGui extends Gui {
             gui.open(p);
         } else {
             inventory = Bukkit.createInventory(null, 27, Component.text(title));
+            update();
+            Bukkit.getPluginManager().registerEvents(this, Metaverseplugin.getInstance());
             p.openInventory(inventory);
         }
     }
@@ -105,11 +107,19 @@ public class MultiPageGui extends Gui {
                         update();
                     }
                 }
-                case 4 -> centerItem.getOnClick().accept(centerItem, (Player) e.getWhoClicked());
+                case 4 -> {
+                    if (centerItem.getOnClick() != null) centerItem.getOnClick().accept(centerItem, (Player) e.getWhoClicked());
+                    if (centerItem.isClose()) {
+                        inventory.close();
+                    }
+                }
             }
             if (id > 8 && id < 27 && e.getCurrentItem() != null) {
                 final MenuItem clickedMenuItem = menuItems.get((page - 1) * 18 + id - 9);
-                clickedMenuItem.getOnClick().accept(centerItem, (Player) e.getWhoClicked());
+                if (clickedMenuItem.getOnClick() != null) clickedMenuItem.getOnClick().accept(clickedMenuItem, (Player) e.getWhoClicked());
+                if (clickedMenuItem.isClose()) {
+                    inventory.close();
+                }
             }
         }
     }

@@ -19,5 +19,6 @@ public class test implements Listener {
         List<MenuItem> items = new java.util.ArrayList<>(Collections.nCopies(100, new MenuItem("test")));
         items.add(new MenuItem("最後のアイテムだよ〜ん", null,null, new ItemStack(Material.BIRCH_LOG)));
         gui.addMenuItems(items);
+        gui.open(event.getPlayer());
     }
 }
