@@ -83,7 +83,11 @@ public class DatabaseUtil {
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
         }
     }
 
@@ -96,28 +100,32 @@ public class DatabaseUtil {
      */
     public static void createMoneyRecord(String name) {
         try {
-            try {
-                createMoneyTable();
+            createMoneyTable();
 
-                PreparedStatement preparedStatement = connection.prepareStatement("""
-                        INSERT INTO money (name, amount) VALUES (?, 0)
-                        """);
-                preparedStatement.setString(1, name);
-                preparedStatement.execute();
-                preparedStatement.close();
-
-                commitTransaction();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new RuntimeException(e);
+            if (loadMoneyAmount(name) != null) {
+                throw new SQLException();
             }
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    INSERT INTO money (name, amount) VALUES (?, 0)
+                    """);
+            preparedStatement.setString(1, name);
+            preparedStatement.execute();
+            preparedStatement.close();
+
+            commitTransaction();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
         }
     }
 
     /**
-     * Databaseのnameに対応する金額データを取得する
+     * Databaseのnameに対応する金額データを取得する。
+     * 処理中にエラーが発生した場合は、トランザクションをロールバックする。
      *
      * @param name Databaseの検索に使用する金額データの名前
      * @return 金額。Database上にデータが存在しなければnullを返す
@@ -136,7 +144,12 @@ public class DatabaseUtil {
             preparedStatement.close();
             return result;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+                return null;
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
         }
     }
 
@@ -156,42 +169,43 @@ public class DatabaseUtil {
             String partnerName,
             int partnerAmount) {
         updateMoneyAmount(selfName, selfAmount);
-//        updateMoneyAmount(partnerName, partnerAmount);
-        updateMoneyAmount("てすと", partnerAmount);
+        updateMoneyAmount(partnerName, partnerAmount);
         commitTransaction();
     }
 
-    public static void updateMoneyAmount(String bankName, int amount) {
+    private static void updateMoneyAmount(String bankName, int amount) {
         try {
-            try {
-                createMoneyTable();
+            createMoneyTable();
 
-                PreparedStatement preparedStatement = connection.prepareStatement("""
-                        UPDATE money SET amount=? WHERE name=?
-                        """);
-                preparedStatement.setInt(1, amount);
-                preparedStatement.setString(2, bankName);
-                preparedStatement.execute();
-                preparedStatement.close();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new RuntimeException(e);
+            if (loadMoneyAmount(bankName) == null) {
+                throw new SQLException();
             }
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    UPDATE money SET amount=? WHERE name=?
+                    """);
+            preparedStatement.setInt(1, amount);
+            preparedStatement.setString(2, bankName);
+            preparedStatement.execute();
+            preparedStatement.close();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
         }
     }
 
     private static void commitTransaction() {
         try {
-            try {
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new RuntimeException(e);
-            }
+            connection.commit();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
         }
     }
 }
