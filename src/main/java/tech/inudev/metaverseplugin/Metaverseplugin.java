@@ -7,7 +7,6 @@ import tech.inudev.metaverseplugin.config.ConfigHandler;
 import tech.inudev.metaverseplugin.config.StairsHandler;
 import tech.inudev.metaverseplugin.define.Money;
 import tech.inudev.metaverseplugin.listener.StairSittingListener;
-import tech.inudev.metaverseplugin.listener.test;
 import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
 import tech.inudev.metaverseplugin.utils.DatabaseUtil;
 import tech.inudev.metaverseplugin.utils.StairSittingUtil;
