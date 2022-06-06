@@ -80,10 +80,7 @@ public class StairSittingUtil {
             return false;
         }
         // クールダウン中なら座れない
-        if (isCoolDown(player)) {
-            return false;
-        }
-        return true;
+        return !isCoolDown(player);
     }
 
     /**
