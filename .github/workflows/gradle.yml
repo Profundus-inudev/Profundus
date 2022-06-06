@@ -39,10 +39,8 @@ jobs:
 
     - name: push Javadoc
       if: github.ref == 'refs/heads/develop'
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit -m "Javadocを追加" -a
-        git push  
-        
+      uses: actions-js/push@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        message: "Javadoc加筆"
+        branch: develop       
