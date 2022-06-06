@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.define;
+package tech.inudev.profundus.define;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;

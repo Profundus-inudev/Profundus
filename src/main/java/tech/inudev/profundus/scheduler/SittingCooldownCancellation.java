@@ -1,8 +1,8 @@
-package tech.inudev.metaverseplugin.scheduler;
+package tech.inudev.profundus.scheduler;
 
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import tech.inudev.metaverseplugin.utils.StairSittingUtil;
+import tech.inudev.profundus.utils.StairSittingUtil;
 
 /**
  * 階段ブロックからプレイヤーが立ち上がった後、再度座れるようになるまで

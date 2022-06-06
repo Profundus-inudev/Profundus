@@ -1,7 +1,7 @@
-package tech.inudev.metaverseplugin.scheduler;
+package tech.inudev.profundus.scheduler;
 
 import org.bukkit.scheduler.BukkitRunnable;
-import tech.inudev.metaverseplugin.utils.DatabaseUtil;
+import tech.inudev.profundus.utils.DatabaseUtil;
 
 /**
  * DatabaseのConnectionが切断されないように定期的にPingを送るためのクラス

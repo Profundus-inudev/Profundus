@@ -1,25 +1,25 @@
-package tech.inudev.metaverseplugin;
+package tech.inudev.profundus;
 
 import lombok.Getter;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import tech.inudev.metaverseplugin.config.ConfigHandler;
-import tech.inudev.metaverseplugin.config.StairsHandler;
-import tech.inudev.metaverseplugin.define.Money;
-import tech.inudev.metaverseplugin.listener.StairSittingListener;
-import tech.inudev.metaverseplugin.scheduler.DatabasePingRunnable;
-import tech.inudev.metaverseplugin.utils.DatabaseUtil;
-import tech.inudev.metaverseplugin.utils.StairSittingUtil;
+import tech.inudev.profundus.config.ConfigHandler;
+import tech.inudev.profundus.config.StairsHandler;
+import tech.inudev.profundus.define.Money;
+import tech.inudev.profundus.listener.StairSittingListener;
+import tech.inudev.profundus.scheduler.DatabasePingRunnable;
+import tech.inudev.profundus.utils.DatabaseUtil;
+import tech.inudev.profundus.utils.StairSittingUtil;
 
 /**
  * メタバースプラグイン（仮）
  *
  * @author kumitatepazuru, tererun, toru-toruto
  */
-public final class Metaverseplugin extends JavaPlugin {
+public final class Profundus extends JavaPlugin {
 
     @Getter
-    private static Metaverseplugin instance;
+    private static Profundus instance;
 
     @Getter
     private ConfigHandler configHandler;
@@ -45,7 +45,7 @@ public final class Metaverseplugin extends JavaPlugin {
         registerSchedulers();
         registerListeners();
 
-        getLogger().info("Metaverseplugin enabled!");
+        getLogger().info("Profundus plugin enabled!");
     }
 
     private void registerSchedulers() {
@@ -65,7 +65,7 @@ public final class Metaverseplugin extends JavaPlugin {
 
         DatabaseUtil.disconnect();
 
-        getLogger().info("Metaverseplugin disabled!");
+        getLogger().info("Profundus plugin disabled!");
     }
 
 }

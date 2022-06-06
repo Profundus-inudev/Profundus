@@ -1,10 +1,9 @@
-package tech.inudev.metaverseplugin.utils;
+package tech.inudev.profundus.utils;
 
-import tech.inudev.metaverseplugin.Metaverseplugin;
-import tech.inudev.metaverseplugin.config.ConfigHandler;
+import tech.inudev.profundus.Profundus;
+import tech.inudev.profundus.config.ConfigHandler;
 
 import java.sql.*;
-import java.util.UUID;
 
 /**
  * Databaseを管理するためのクラス
@@ -20,13 +19,13 @@ public class DatabaseUtil {
     private static final String databaseUrl;
 
     static {
-        ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
+        ConfigHandler configHandler = Profundus.getInstance().getConfigHandler();
         if(configHandler.getDatabaseType().equals("mysql")) {
             databaseUrl = "jdbc:mysql://$address/$name?useUnicode=true&characterEncoding=utf8&autoReconnect=true&maxReconnects=10&useSSL=false"
                     .replace("$address", configHandler.getDatabaseAddress())
                     .replace("$name", configHandler.getDatabaseName());
         } else if (configHandler.getDatabaseType().equals("sqlite")) {
-            databaseUrl = "jdbc:sqlite:$path".replace("$path", Metaverseplugin.getInstance().getDataFolder().getPath() + "/database.db");
+            databaseUrl = "jdbc:sqlite:$path".replace("$path", Profundus.getInstance().getDataFolder().getPath() + "/database.db");
         } else {
             throw new IllegalArgumentException("Invalid database type");
         }
@@ -36,7 +35,7 @@ public class DatabaseUtil {
      * Databaseに接続する
      */
     public static void connect() {
-        ConfigHandler configHandler = Metaverseplugin.getInstance().getConfigHandler();
+        ConfigHandler configHandler = Profundus.getInstance().getConfigHandler();
         try {
             connection = DriverManager.getConnection(databaseUrl, configHandler.getDatabaseUsername(), configHandler.getDatabasePassword());
             connection.setAutoCommit(false);

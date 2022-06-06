@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.config;
+package tech.inudev.profundus.config;
 
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -14,7 +14,6 @@ import java.util.List;
  * @author toru-toruto
  */
 public class StairsHandler {
-    private final Plugin plugin;
     private final FileConfiguration config;
 
     @Getter
@@ -27,7 +26,6 @@ public class StairsHandler {
      */
     public StairsHandler(Plugin plugin) {
         plugin.saveResource("stairs.yml", false);
-        this.plugin = plugin;
         File stairsYml = new File(plugin.getDataFolder() + File.separator + "stairs.yml");
         this.config = YamlConfiguration.loadConfiguration(stairsYml);
         this.init();
