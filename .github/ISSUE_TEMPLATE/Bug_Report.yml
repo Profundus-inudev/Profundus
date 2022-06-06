@@ -10,7 +10,9 @@ body:
     id: what-happened
     attributes:
       label: バグの内容
-      description: どのようなバグが発生したか**できるだけ詳しく**教えて下さい。\nできればどのような動作をしなければいけないかも教えて下さい。
+      description: |
+        どのようなバグが発生したか**できるだけ詳しく**教えて下さい。
+        できればどのような動作をしなければいけないかも教えて下さい。
       placeholder: バグの内容を教えて下さい。
     validations:
       required: true
