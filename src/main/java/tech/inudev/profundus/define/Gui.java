@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.define;
+package tech.inudev.profundus.define;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +15,7 @@ import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
-import tech.inudev.metaverseplugin.Metaverseplugin;
+import tech.inudev.profundus.Profundus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -134,7 +134,7 @@ public class Gui implements Listener {
             inventory.setItem(menuItem.x() - 1 + (menuItem.y() - 1) * 9, menuItem.menuItem().getIcon());
         }
 
-        Bukkit.getPluginManager().registerEvents(this, Metaverseplugin.getInstance());
+        Bukkit.getPluginManager().registerEvents(this, Profundus.getInstance());
         player.openInventory(inventory);
     }
 

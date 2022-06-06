@@ -1,6 +1,6 @@
-name: Metaverseplugin
+name: Profundus
 version: '${version}'
-main: tech.inudev.metaverseplugin.Metaverseplugin
+main: tech.inudev.profundus.Profundus
 api-version: 1.18
 authors: [ kumitatepazuru ]
 description: めたばーすぷらぐいん（仮）

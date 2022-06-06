@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.listener;
+package tech.inudev.profundus.listener;
 
 import com.destroystokyo.paper.event.block.BlockDestroyEvent;
 import org.bukkit.block.Block;
@@ -14,7 +14,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
-import tech.inudev.metaverseplugin.utils.StairSittingUtil;
+import tech.inudev.profundus.utils.StairSittingUtil;
 
 /**
  * 階段ブロックへ座る、階段ブロックから立ち上がる処理を行うためのリスナー

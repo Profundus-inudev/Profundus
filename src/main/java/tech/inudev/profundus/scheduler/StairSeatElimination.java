@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.scheduler;
+package tech.inudev.profundus.scheduler;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;

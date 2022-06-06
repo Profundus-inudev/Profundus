@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.config;
+package tech.inudev.profundus.config;
 
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;

@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.define;
+package tech.inudev.profundus.define;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import tech.inudev.metaverseplugin.Metaverseplugin;
+import tech.inudev.profundus.Profundus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +72,7 @@ public class MultiPageGui extends Gui {
         } else {
             inventory = Bukkit.createInventory(null, 27, Component.text(title));
             update();
-            Bukkit.getPluginManager().registerEvents(this, Metaverseplugin.getInstance());
+            Bukkit.getPluginManager().registerEvents(this, Profundus.getInstance());
             p.openInventory(inventory);
         }
     }

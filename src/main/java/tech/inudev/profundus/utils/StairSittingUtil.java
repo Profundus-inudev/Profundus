@@ -1,4 +1,4 @@
-package tech.inudev.metaverseplugin.utils;
+package tech.inudev.profundus.utils;
 
 import lombok.Getter;
 import org.bukkit.Location;
@@ -13,9 +13,9 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
-import tech.inudev.metaverseplugin.Metaverseplugin;
-import tech.inudev.metaverseplugin.scheduler.SittingCooldownCancellation;
-import tech.inudev.metaverseplugin.scheduler.StairSeatElimination;
+import tech.inudev.profundus.Profundus;
+import tech.inudev.profundus.scheduler.SittingCooldownCancellation;
+import tech.inudev.profundus.scheduler.StairSeatElimination;
 
 import java.util.*;
 
@@ -96,7 +96,7 @@ public class StairSittingUtil {
         if (block == null) {
             throw new IllegalArgumentException();
         }
-        return Metaverseplugin.getInstance().getStairsHandler()
+        return Profundus.getInstance().getStairsHandler()
                 .getStairList().contains(block.getType().toString());
     }
 
@@ -116,7 +116,7 @@ public class StairSittingUtil {
             if (v.getOwningPlugin() == null) {
                 continue;
             }
-            if (v.getOwningPlugin().getName().equals(Metaverseplugin.getInstance().getName())) {
+            if (v.getOwningPlugin().getName().equals(Profundus.getInstance().getName())) {
                 seatEntityUUID = v.asString();
                 break;
             }
@@ -140,7 +140,7 @@ public class StairSittingUtil {
             if (v.getOwningPlugin() == null) {
                 continue;
             }
-            if (v.getOwningPlugin().getName().equals(Metaverseplugin.getInstance().getName())) {
+            if (v.getOwningPlugin().getName().equals(Profundus.getInstance().getName())) {
                 return v.asBoolean();
             }
         }
@@ -164,12 +164,12 @@ public class StairSittingUtil {
         seatEntityList.add(seatEntity);
         entityToBlockMap.put(seatEntity.getUniqueId(), stair);
         stair.setMetadata(SEAT_METADATA_KEY, new FixedMetadataValue(
-                Metaverseplugin.getInstance(),
+                Profundus.getInstance(),
                 seatEntity.getUniqueId().toString()));
 
         // 座席Entity永続化防止のタスクを設定
         BukkitTask task = new StairSeatElimination(seatEntity).runTaskLater(
-                Metaverseplugin.getInstance(),
+                Profundus.getInstance(),
                 ELIMINATION_DELAY);
         eliminationTaskMap.put(seatEntity.getUniqueId(), task);
     }
@@ -248,7 +248,7 @@ public class StairSittingUtil {
         if (stair == null) {
             throw new IllegalArgumentException();
         }
-        stair.removeMetadata(SEAT_METADATA_KEY, Metaverseplugin.getInstance());
+        stair.removeMetadata(SEAT_METADATA_KEY, Profundus.getInstance());
         entityToBlockMap.remove(seatEntity.getUniqueId());
         seatEntityList.remove(seatEntity);
         seatEntity.remove();
@@ -262,11 +262,11 @@ public class StairSittingUtil {
             throw new IllegalArgumentException();
         }
         player.setMetadata(COOLDOWN_METADATA_KEY, new FixedMetadataValue(
-                Metaverseplugin.getInstance(),
+                Profundus.getInstance(),
                 true));
 
         new SittingCooldownCancellation(player).runTaskLater(
-                Metaverseplugin.getInstance(),
+                Profundus.getInstance(),
                 COOLDOWN_TIME);
     }
 
@@ -281,7 +281,7 @@ public class StairSittingUtil {
         }
         player.removeMetadata(
                 COOLDOWN_METADATA_KEY,
-                Metaverseplugin.getInstance());
+                Profundus.getInstance());
     }
 
     /**
@@ -290,7 +290,7 @@ public class StairSittingUtil {
     public static void removeSeatsOnServerDisable() {
         for (Entity entity : new ArrayList<>(seatEntityList)) {
             entityToBlockMap.get(entity.getUniqueId()).removeMetadata(
-                    SEAT_METADATA_KEY, Metaverseplugin.getInstance());
+                    SEAT_METADATA_KEY, Profundus.getInstance());
             Player player = (Player) entity.getPassengers().stream().findFirst().orElse(null);
             if (player != null) {
                 standUp(entity, player);

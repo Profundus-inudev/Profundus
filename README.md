@@ -1,1 +1,8 @@
-# metaverseplugin
+# 𝓟𝓻𝓸𝓯𝓾𝓷𝓭𝓾𝓼
+
+いぬたぬきメタバース計画、Profundus。
+その世界を司る心臓部分を作り上げているのがこのプロジェクト。
+
+より深く、より広く、より多くの人々を知ることができるように。
+
+開発チーム: [@inudev](https://twitter.com/inudev) | [公式サイト](https://www.inu-dev.tech/)
