@@ -37,10 +37,10 @@ jobs:
       # warning: [deprecation] 以外で発生しているwarningとerrorを取得し、ヒットした場合は終了コード1で終了
       run: "! ./gradlew javadoc 2>&1 | grep -v 'warning: \\[deprecation\\]' | grep -A 2 -e warning: -e error: ; exit $?"
 
-    - name: push Javadoc
-      if: github.ref == 'refs/heads/develop'
-      uses: actions-js/push@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        message: "Javadoc加筆"
-        branch: develop       
+#    - name: push Javadoc
+#      if: github.ref == 'refs/heads/develop'
+#      uses: actions-js/push@master
+#      with:
+#        github_token: ${{ secrets.GITHUB_TOKEN }}
+#        message: "Javadoc加筆"
+#        branch: develop
