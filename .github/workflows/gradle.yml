@@ -36,3 +36,12 @@ jobs:
     - name: Check Javadoc
       # warning: [deprecation] 以外で発生しているwarningとerrorを取得し、ヒットした場合は終了コード1で終了
       run: "! ./gradlew javadoc 2>&1 | grep -v 'warning: \\[deprecation\\]' | grep -A 2 -e warning: -e error: ; exit $?"
+
+    - name: push Javadoc
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Add URL" -a
+        git push  
+        
