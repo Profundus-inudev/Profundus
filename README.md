@@ -5,4 +5,6 @@
 
 より深く、より広く、より多くの人々を知ることができるように。
 
+*Profundusの意味：ラテン語で深遠*
+
 開発チーム: [@inudev](https://twitter.com/inudev) | [公式サイト](https://www.inu-dev.tech/)
