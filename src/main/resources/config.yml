@@ -7,3 +7,66 @@ database:
   database: 'database_name'
   username: 'username'
   password: 'password'
+
+
+
+
+
+# ↓↓↓ ～～～～Iphone関連～～～～ ↓↓↓
+# 全設定はサーバー起動時に取得し、サーバーへの負荷の最低限にしています。
+# またコマンドからサーバー起動中でも再取得し、書き換えた部分の上書きが可能です。
+
+# Iphoneの各テレポート先の保存場所です。(わざとLocationを複数形ではなく書いています。)
+Location:
+  # テンプレート: "ワールド名/X/Y/Z/Yaw/Pitch"
+  TrapTower: "null"
+  SurvivalServer: "null"
+  # テレポート先の数は最大 "9" とする
+  #テンプレート
+  # Server1～9:
+  #   Name: "テレポートの表記名"
+  #   Type: "メニューに設置されるアイテムのID"
+  #   Location: "ワールド名/X/Y/Z/Yaw/Pitch"
+  WorldTeleport:
+    Server1:
+      Name: "ロビー"
+      Type: "QUARTZ_BLOCK"
+      Location: "null"
+    Server2:
+      Name: "採掘場"
+      Type: "GRASS_BLOCK"
+      Location: "null"
+
+# Iphoneの各アイテムの使用時の値段の保存場所です。(わざとPriceを複数形ではなく書いています。)
+Price:
+  # トラップタワーで毎分に消費する金額
+  TrapTower: 200
+
+# Iphoneの各設定の保存場所です。(わざとLocationを複数形ではなく書いています。)
+Type:
+  # "SERVER" or "WORLD"
+  # SERVER ➔ 他鯖の場合
+  # WORLD ➔ 同鯖の場合
+  SurvivalServer: "SERVER"
+  WorldTeleport: "SERVER"
+
+# Iphoneの各指定先の保存場所です。(わざとLocationを複数形ではなく書いています。)
+Select:
+  # テレポートするサバイバルサーバーの名前
+  SurvivalServer: "Survival"
+  # テレポート先の数は最大 "9" とする
+  #テンプレート
+  #　Server1～9:
+  #   Name: "テレポートの表記名"
+  #   Type: "メニューに設置されるアイテムのID"
+  #   Bungee: "バンジーで設定しているサーバー名"
+  WorldTeleport:
+    Server1:
+      Name: "ロビー"
+      Type: "QUARTZ_BLOCK"
+      Bungee: "Lobby"
+    Server2:
+      Name: "サバイバル"
+      Type: "GRASS_BLOCK"
+      Bungee: "Survival"
+# ↑↑↑ ～～～～Iphone関連～～～～ ↑↑↑
