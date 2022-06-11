@@ -1,7 +1,6 @@
 package tech.inudev.profundus.utils;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -76,10 +75,9 @@ public class HelpUtil {
                 lineList.add("");
             } else {
                 // 行を半角スペースごとに分割し、それぞれの文字列を処理（主に英単語をまとめて折り返す目的）
-                final String rawSection = ChatColor.stripColor(section);
                 StringBuilder lineStr = new StringBuilder(); // 行の文字列を保存
                 int lineWidth = 0;
-                for (String word : rawSection.split(" ")) {
+                for (String word : section.split(" ")) {
                     if (word.equals("")) {
                         lineStr.append(" ");
                         continue;
@@ -88,6 +86,13 @@ public class HelpUtil {
                     String[] charList = word.split("");
                     int i = 0;
                     while (i < charList.length) {
+                        if (i < charList.length - 1 && isColorWord(charList[i], charList[i + 1])) {
+                            logging("true");
+                            // カラーコードまたは装飾コードの場合
+                            lineStr.append(charList[i]).append(charList[i + 1]);
+                            i += 2;
+                            continue;
+                        }
                         if (font.isValid(charList[i])) {
                             // MinecraftFontに文字が定義されている場合
                             StringBuilder mcFontWord = new StringBuilder(charList[i]);
@@ -147,5 +152,11 @@ public class HelpUtil {
             }
         });
         return lineList;
+    }
+
+    private static boolean isColorWord(String str0, String str1) {
+        String regex = "(?i)[0-9A-FK-ORX]";
+        return str0.equals(String.valueOf(ChatColor.COLOR_CHAR))
+                && str1.matches(regex);
     }
 }
