@@ -64,15 +64,18 @@ public class HelpUtil {
         }
     }
 
+    private static void logging(String str) {
+        Profundus.getInstance().getLogger().info(str);
+    }
+
     public static List<String> getLines(String text) {
         final MinecraftFont font = new MinecraftFont();
         final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
-
+//        logging("max: " + maxLineWidth);
         List<String> lineList = new ArrayList<>();
         text.lines().forEach((String section) -> {
             if (section.equals("")) {
-                lineList.add("(BREAK)");
-
+                lineList.add("");
             } else {
                 String[] wordList = ChatColor.stripColor(section).split(" ");
                 String line = ""; // 行の文字列を保存
@@ -82,18 +85,23 @@ public class HelpUtil {
                         line += " ";
                         continue;
                     }
+                    // 分割された文字列を文字単位に
                     String[] charList = word.split("");
                     int i = 0;
                     while (i < charList.length) {
                         if (font.isValid(charList[i])) {
+                            // MinecraftFontに存在する文字の場合、つまりwidthが定義されている場合
+//                            logging(charList[i] + ": " + font.getWidth(charList[i]));
                             String mcFontWord = charList[i];
                             // MinecraftFontに含まれる文字が続く限りiを進行
                             while (i < word.length() - 1 && font.isValid(charList[i + 1])) {
+//                                logging(charList[i + 1] + ": " + font.getWidth(charList[i+1]));
+
                                 mcFontWord += charList[i + 1];
                                 i++;
                             }
                             // 主に英単語の幅が最大を超えてしまう場合、英単語ごと折り返す
-                            if (width + font.getWidth(mcFontWord) > maxLineWidth) {
+                            if (width + (line.equals("") ? 0 : 1) + font.getWidth(mcFontWord) > maxLineWidth) {
                                 // todo:ひと単語で一行埋めてしまう場合の特別処理が必要
                                 lineList.add(line);
                                 // 次の行
@@ -107,11 +115,13 @@ public class HelpUtil {
                             i++;
                             if (width + 1 + font.getWidth(" ") <= maxLineWidth && i == word.length()) {
                                 line += " ";
-                                width += font.getWidth(" ");
+                                width += 1 + font.getWidth(" ");
                             }
                         } else {
                             final int margin = 1;
                             final int charWidth = 8; // 全角文字の幅基準
+                            logging(charList[i] + ": " + charWidth);
+
 //                            // 日本語の場合
 //                            if (isJapanese(charList[i])) {
 //                                final int margin = 1;
