@@ -32,25 +32,32 @@ public class HelpUtil {
                         .author(Component.text("Master"))
                         .title(Component.text("Help"));
 
-//                InputStream stream = Profundus.getInstance().getResource("help/test.txt");
-//                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-//                Stream<String> lines = new BufferedReader(reader).lines();
-//                String str = lines.collect(Collectors.joining("\n"));
-
-                String str = """
-                        これから説明しますのは、なんといってもowesomeでgreatなsomething。
-
-                         まず第一にclass 1において、この機構は軸のroleを果たしている。一見すると取るに足らないcrude shapeをしているが、実際のところ、これがthe best shapeであることは間違いない。
-
-                        ごま豆乳鍋のprecious valueは、この舌触りにある。通常の鍋は、どちらかと言えば澄ましたうまみ出しによる鍋であるが、ごま豆乳鍋では豆乳の滑らかさに加え、ごまのほのかなざらつきによって、深みのある食感体験を演出しているのである。""";
-                String afterStr = "";
-                for (String s : HelpUtil.getLines(str)) {
-                    afterStr += s + "\n";
-//                    Profundus.getInstance().getLogger().info(s);
+                InputStream stream = Profundus.getInstance().getResource("help/test.txt");
+                if (stream == null) {
+                    player.sendMessage(Component.text("error: opening help failed."));
+                    return;
                 }
-                Profundus.getInstance().getLogger().info(afterStr);
-
-                bookMeta.addPages(Component.text(afterStr));
+                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+                Stream<String> lines = new BufferedReader(reader).lines();
+                String str = lines.collect(Collectors.joining("\n"));
+//                String str = """
+//                        これから説明しますのは、なんといってもowesomeでgreatなsomething。
+//
+//                         まず第一にclass 1において、この機構は軸のroleを果たしている。一見すると取るに足らないcrude shapeをしているが、実際のところ、これがthe best shapeであることは間違いない。
+//
+//                        ごま豆乳鍋のprecious valueは、この舌触りにある。通常の鍋は、どちらかと言えば澄ましたうまみ出しによる鍋であるが、ごま豆乳鍋では豆乳の滑らかさに加え、ごまのほのかなざらつきによって、深みのある食感体験を演出しているのである。""";
+                List<Component> pageList = new ArrayList<>();
+                List<String> bookLines = HelpUtil.getLines(str);
+                String page = "";
+                for (int i = 0; i < bookLines.size(); i++) {
+                    page += bookLines.get(i) + "\n";
+                    if (i != 0 && (i % 13 == 0 || i == bookLines.size() - 1)) {
+                        pageList.add(Component.text(page));
+                        Profundus.getInstance().getLogger().info(page);
+                        page = "";
+                    }
+                }
+                bookMeta.addPages(pageList.toArray(new Component[pageList.size()]));
                 writtenBook.setItemMeta(bookMeta);
             }
             player.openBook(writtenBook);
