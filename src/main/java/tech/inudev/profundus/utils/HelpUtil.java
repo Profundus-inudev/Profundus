@@ -19,54 +19,62 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HelpUtil {
-    public static void openHelp(UUID playerUUID, int helpId) {
-        Player player = Bukkit.getPlayer(playerUUID);
-        if (player != null && player.isOnline()) {
-            ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
-            if (helpId == 0) {
-                BookMeta bookMeta = ((BookMeta) writtenBook.getItemMeta())
-                        .author(Component.text("Master"))
-                        .title(Component.text("Help"));
+    public enum Help {
+        Test("test.txt", "Test"),
+        Sample("sample.txt", "Sample");
 
-                // テキストファイルからの読み込み
-                InputStream stream = Profundus.getInstance().getResource("help/test.txt");
-                if (stream == null) {
-                    player.sendMessage(Component.text("error: opening help failed."));
-                    return;
-                }
-                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-                Stream<String> lines = new BufferedReader(reader).lines();
-                String str = lines.collect(Collectors.joining("\n"));
+        private final String fileName;
+        private final String title;
 
-                // 本に合わせて整形
-                List<Component> pageList = new ArrayList<>();
-                List<String> bookLines = HelpUtil.getLines(str);
-                String page = "";
-                for (int i = 0; i < bookLines.size(); i++) {
-                    page += bookLines.get(i) + "\n";
-                    if (i != 0 && (i % 13 == 0 || i == bookLines.size() - 1)) {
-                        pageList.add(Component.text(page));
-                        Profundus.getInstance().getLogger().info(page);
-                        page = "";
-                    }
-                }
-
-                bookMeta.addPages(pageList.toArray(new Component[0]));
-                writtenBook.setItemMeta(bookMeta);
-            }
-            player.openBook(writtenBook);
+        Help(String fileName, String title) {
+            this.fileName = fileName;
+            this.title = title;
         }
     }
 
-    private static void logging(String str) {
-        Profundus.getInstance().getLogger().info(str);
+    public static void openHelp(UUID playerUUID, Help help) {
+        Player player = Bukkit.getPlayer(playerUUID);
+        if (player == null || !player.isOnline()) {
+            throw new IllegalArgumentException("オンラインでないか存在しないプレイヤーです。");
+        }
+
+        ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
+        BookMeta bookMeta = ((BookMeta) writtenBook.getItemMeta())
+                .author(Component.text("Master"))
+                .title(Component.text(help.title));
+
+        // テキストファイルからの読み込み
+        InputStream stream = Profundus.getInstance().getResource("help/" + help.fileName);
+        if (stream == null) {
+            throw new IllegalArgumentException("ヘルプファイルが見つかりません。");
+        }
+        InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+        Stream<String> lines = new BufferedReader(reader).lines();
+        String str = lines.collect(Collectors.joining("\n"));
+
+        // 本に合わせて整形
+        List<Component> pageList = new ArrayList<>();
+        List<String> bookLines = HelpUtil.getLines(str);
+        String page = "";
+        for (int i = 0; i < bookLines.size(); i++) {
+            page += bookLines.get(i) + "\n";
+            if (i != 0 && (i % 13 == 0 || i == bookLines.size() - 1)) {
+                pageList.add(Component.text(page));
+                Profundus.getInstance().getLogger().info(page);
+                page = "";
+            }
+        }
+
+        bookMeta.addPages(pageList.toArray(new Component[0]));
+        writtenBook.setItemMeta(bookMeta);
+
+        player.openBook(writtenBook);
     }
 
     private static List<String> getLines(String text) {
         final MinecraftFont font = new MinecraftFont();
         final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
         final int charMargin = 1;
-
         // それぞれの行について処理
         List<String> lineList = new ArrayList<>();
         text.lines().forEach((String section) -> {
