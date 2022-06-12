@@ -87,13 +87,14 @@ public class HelpUtil {
                     int i = 0;
                     while (i < charList.length) {
                         if (i < charList.length - 1 && isColorWord(charList[i], charList[i + 1])) {
-                            logging("true");
                             // カラーコードまたは装飾コードの場合
-                            lineStr.append(charList[i]).append(charList[i + 1]);
+                            if (!charList[i + 1].matches("[lL]")) {
+                                // 文字幅が変化すると困るのでボールドは解除する
+                                lineStr.append(charList[i]).append(charList[i + 1]);
+                            }
                             i += 2;
                             continue;
-                        }
-                        if (font.isValid(charList[i])) {
+                        } else if (font.isValid(charList[i])) {
                             // MinecraftFontに文字が定義されている場合
                             StringBuilder mcFontWord = new StringBuilder(charList[i]);
 
@@ -126,6 +127,8 @@ public class HelpUtil {
                                 lineWidth += endSpaceWidth;
                                 lineStr.append(" ");
                             }
+                            i++;
+                            continue;
                         } else {
                             // MinecraftFontに文字が定義されていない場合（日本語やその他の文字）
                             final int charWidth = 8; // 全角文字の幅基準
@@ -144,8 +147,9 @@ public class HelpUtil {
                                     ? charWidth
                                     : charMargin + charWidth;
                             lineStr.append(charList[i]);
+                            i++;
+                            continue;
                         }
-                        i++;
                     }
                 }
                 lineList.add(lineStr.toString());
