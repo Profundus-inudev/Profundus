@@ -18,21 +18,35 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * ヘルプの表示するためのクラス
+ *
+ * @author toru-toruto
+ */
 public class HelpUtil {
-    public enum Help {
+    /**
+     * それぞれのヘルプの情報を管理する列挙型
+     */
+    public enum HelpType {
         Test("test.txt", "Test"),
         Sample("sample.txt", "Sample");
 
         private final String fileName;
         private final String title;
 
-        Help(String fileName, String title) {
+        HelpType(String fileName, String title) {
             this.fileName = fileName;
             this.title = title;
         }
     }
 
-    public static void openHelp(UUID playerUUID, Help help) {
+    /**
+     * ヘルプを開く
+     *
+     * @param playerUUID ヘルプを開く対象のプレイヤー
+     * @param helpType   開くヘルプの種類
+     */
+    public static void openHelp(UUID playerUUID, HelpType helpType) {
         Player player = Bukkit.getPlayer(playerUUID);
         if (player == null || !player.isOnline()) {
             throw new IllegalArgumentException("オンラインでないか存在しないプレイヤーです。");
@@ -41,10 +55,10 @@ public class HelpUtil {
         ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
         BookMeta bookMeta = ((BookMeta) writtenBook.getItemMeta())
                 .author(Component.text("Master"))
-                .title(Component.text(help.title));
+                .title(Component.text(helpType.title));
 
         // テキストファイルからの読み込み
-        InputStream stream = Profundus.getInstance().getResource("help/" + help.fileName);
+        InputStream stream = Profundus.getInstance().getResource("help/" + helpType.fileName);
         if (stream == null) {
             throw new IllegalArgumentException("ヘルプファイルが見つかりません。");
         }
