@@ -85,69 +85,81 @@ public class HelpUtil {
         player.openBook(writtenBook);
     }
 
+    /**
+     * 与えられたテキストを本のサイズに合わせて整形し、行のリストとして返す。
+     * 英単語などの半角スペースなしで続く文字列が行に入りきらない場合、文字列をまとめて次行に折り返す。
+     * カラーコードや装飾コードは、ボールドを除いて使用可能。（ボールドは文字の幅が変化するため現状は不可(2022/06/13)）
+     *
+     * @param text 本に表示するテキスト
+     * @return 本のサイズに合わせて整形されたテキストの行ごとのリスト
+     */
     private static List<String> getLines(String text) {
         final MinecraftFont font = new MinecraftFont();
         final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
         final int charMargin = 1;
-        // それぞれの行について処理
-        List<String> lineList = new ArrayList<>();
-        text.lines().forEach((String section) -> {
+
+        List<String> resultLines = new ArrayList<>();
+
+        // それぞれの行についてループ
+        for (String section : text.lines().toList()) {
             if (section.equals("")) {
                 // 空行の場合
-                lineList.add("");
+                resultLines.add("");
+                continue;
             } else {
-                // 行を半角スペースごとに分割し、それぞれの文字列を処理（主に英単語をまとめて折り返す目的）
-                StringBuilder lineStr = new StringBuilder(); // 行の文字列を保存
-                int lineWidth = 0;
+                StringBuilder newLineStr = new StringBuilder();
+                int newLineWidth = 0;
+
+                // 半角スペースで分割した各文字列をループ（主に英単語をまとめて折り返す目的）
                 for (String word : section.split(" ")) {
                     if (word.equals("")) {
-                        lineStr.append(" ");
+                        // 文頭や連続半角スペースの場合
+                        newLineStr.append(" ");
                         continue;
                     }
-                    // 文字列を文字単位に分割し、それぞれ処理
+                    // 文字列を文字単位に分割しループ
                     String[] charList = word.split("");
                     int i = 0;
                     while (i < charList.length) {
                         if (i < charList.length - 1 && isColorWord(charList[i], charList[i + 1])) {
                             // カラーコードまたは装飾コードの場合
                             if (!charList[i + 1].matches("[lL]")) {
-                                // 文字幅が変化すると困るのでボールドは解除する
-                                lineStr.append(charList[i]).append(charList[i + 1]);
+                                // 文字幅が変化すると困るのでボールドの装飾は解除
+                                newLineStr.append(charList[i]).append(charList[i + 1]);
                             }
                             i += 2;
                             continue;
                         } else if (font.isValid(charList[i])) {
                             // MinecraftFontに文字が定義されている場合
-                            StringBuilder mcFontWord = new StringBuilder(charList[i]);
+                            StringBuilder newWord = new StringBuilder(charList[i]);
 
                             // 連続するMinecraftFontに定義される文字をまとめて処理
                             while (i < word.length() - 1 && font.isValid(charList[i + 1])) {
-                                mcFontWord.append(charList[i + 1]);
+                                newWord.append(charList[i + 1]);
                                 i++;
                             }
-
                             // 追加される（主に）英単語がはみ出す場合、英単語ごと折り返す
-                            final int newWidth = (lineStr.toString().equals("") ? 0 : charMargin)
-                                    + font.getWidth(mcFontWord.toString());
-                            if (lineWidth + newWidth > maxLineWidth) {
+                            final int newWidth = (newLineStr.toString().equals("") ? 0 : charMargin)
+                                    + font.getWidth(newWord.toString());
+                            if (newLineWidth + newWidth > maxLineWidth) {
                                 // todo:ひと単語で一行埋めてしまう場合の特別処理が必要
-                                lineList.add(lineStr.toString());
+                                resultLines.add(newLineStr.toString());
                                 // 次の行へ
-                                lineWidth = 0;
-                                lineStr = new StringBuilder();
+                                newLineWidth = 0;
+                                newLineStr = new StringBuilder();
                             }
 
                             // 行へ追加
-                            lineWidth += lineStr.toString().equals("")
-                                    ? font.getWidth(mcFontWord.toString())
-                                    : charMargin + font.getWidth(mcFontWord.toString());
-                            lineStr.append(mcFontWord);
+                            newLineWidth += newLineStr.toString().equals("")
+                                    ? font.getWidth(newWord.toString())
+                                    : charMargin + font.getWidth(newWord.toString());
+                            newLineStr.append(newWord);
 
                             // 行のラストにスペースの余地があるならスペースを入れる
                             final int endSpaceWidth = charMargin + font.getWidth(" ");
-                            if (i == word.length() - 1 && lineWidth + endSpaceWidth <= maxLineWidth) {
-                                lineWidth += endSpaceWidth;
-                                lineStr.append(" ");
+                            if (i == word.length() - 1 && newLineWidth + endSpaceWidth <= maxLineWidth) {
+                                newLineWidth += endSpaceWidth;
+                                newLineStr.append(" ");
                             }
                             i++;
                             continue;
@@ -157,27 +169,27 @@ public class HelpUtil {
 
                             // 追加される文字がはみ出す場合、折り返す
                             final int newWidth = charMargin + charWidth;
-                            if (lineWidth + newWidth > maxLineWidth) {
-                                lineList.add(lineStr.toString());
+                            if (newLineWidth + newWidth > maxLineWidth) {
+                                resultLines.add(newLineStr.toString());
                                 // 次の行へ
-                                lineWidth = 0;
-                                lineStr = new StringBuilder();
+                                newLineWidth = 0;
+                                newLineStr = new StringBuilder();
                             }
 
                             // 行へ追加
-                            lineWidth += (lineStr.toString().equals(""))
+                            newLineWidth += (newLineStr.toString().equals(""))
                                     ? charWidth
                                     : charMargin + charWidth;
-                            lineStr.append(charList[i]);
+                            newLineStr.append(charList[i]);
                             i++;
                             continue;
                         }
                     }
                 }
-                lineList.add(lineStr.toString());
+                resultLines.add(newLineStr.toString());
             }
-        });
-        return lineList;
+        }
+        return resultLines;
     }
 
     private static boolean isColorWord(String str0, String str1) {
