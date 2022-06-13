@@ -93,7 +93,7 @@ public class HelpUtil {
      * @param text 本に表示するテキスト
      * @return 本のサイズに合わせて整形されたテキストの行ごとのリスト
      */
-    private static List<String> getLines(String text) {
+    public static List<String> getLines(String text) {
 
         List<String> resultLines = new ArrayList<>();
 
@@ -112,8 +112,6 @@ public class HelpUtil {
     private static List<String> buildLines(String paragraph) {
         final List<String> newLines = new ArrayList<>();
 
-        final MinecraftFont font = new MinecraftFont();
-
         StringBuilder newLineBuilder = new StringBuilder();
         int newLineWidth = 0;
 
@@ -124,7 +122,7 @@ public class HelpUtil {
                 newLineBuilder.append(" ");
             } else {
                 JoinWordResult result =
-                        joinWord(newLineBuilder.toString(), newLineWidth, word, font);
+                        joinWord(newLineBuilder.toString(), newLineWidth, word);
                 newLines.addAll(result.newLines);
                 newLineBuilder = new StringBuilder(result.newLineStr);
                 newLineWidth = result.newLineWidth;
@@ -149,7 +147,7 @@ public class HelpUtil {
         }
     }
 
-    private static JoinWordResult joinWord(String lineStr, int newLineWidth, String word, MinecraftFont font) {
+    private static JoinWordResult joinWord(String lineStr, int lineWidth, String word) {
         List<String> newLines = new ArrayList<>();
         StringBuilder newLineStr = new StringBuilder(lineStr);
 
@@ -163,20 +161,21 @@ public class HelpUtil {
                 newLineStr = new StringBuilder(result.newLineStr);
                 id = result.id;
             } else {
+                final MinecraftFont font = new MinecraftFont();
                 final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
                 final int letterMargin = 1;
                 JoinLetterResult result = font.isValid(letters[id])
-                        ? joinRegisteredLetters(newLineStr.toString(), letters, id, newLineWidth, font, maxLineWidth, letterMargin)
-                        : joinUnregisteredLetter(newLineStr.toString(), letters, id, newLineWidth, maxLineWidth, letterMargin);
+                        ? joinRegisteredLetters(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin)
+                        : joinUnregisteredLetter(newLineStr.toString(), lineWidth, letters, id, maxLineWidth, letterMargin);
                 if (result.newLines.size() > 0) {
                     newLines.addAll(result.newLines);
                 }
                 newLineStr = new StringBuilder(result.newLineStr);
                 id = result.id;
-                newLineWidth = result.newLineWidth;
+                lineWidth = result.newLineWidth;
             }
         }
-        return new JoinWordResult(newLines, newLineStr.toString(), newLineWidth);
+        return new JoinWordResult(newLines, newLineStr.toString(), lineWidth);
     }
 
     private static class DecorationResult {
@@ -217,8 +216,8 @@ public class HelpUtil {
     }
 
     private static JoinLetterResult joinRegisteredLetters(
-            String lineStr,
-            String[] letters, int id, int newLineWidth,
+            String lineStr, int lineWidth,
+            String[] letters, int id,
             MinecraftFont font, int maxLineWidth, int letterMargin) {
         // MinecraftFontに文字が定義されている場合
         List<String> newLines = new ArrayList<>();
@@ -234,34 +233,34 @@ public class HelpUtil {
         // 追加される（主に）英単語がはみ出す場合、英単語ごと折り返す
         final int newWidth = (newLineStr.toString().equals("") ? 0 : letterMargin)
                 + font.getWidth(newWord.toString());
-        if (newLineWidth + newWidth > maxLineWidth) {
+        if (lineWidth + newWidth > maxLineWidth) {
             // todo:ひと単語で一行埋めてしまう場合の特別処理が必要
 //            resultLines.add(newLineStr.toString());
             newLines.add(newLineStr.toString());
             // 次の行へ
-            newLineWidth = 0;
+            lineWidth = 0;
             newLineStr = new StringBuilder();
         }
 
         // 行へ追加
-        newLineWidth += newLineStr.toString().equals("")
+        lineWidth += newLineStr.toString().equals("")
                 ? font.getWidth(newWord.toString())
                 : letterMargin + font.getWidth(newWord.toString());
         newLineStr.append(newWord);
 
         // 行のラストにスペースの余地があるならスペースを入れる
         final int endSpaceWidth = letterMargin + font.getWidth(" ");
-        if (id == letters.length - 1 && newLineWidth + endSpaceWidth <= maxLineWidth) {
-            newLineWidth += endSpaceWidth;
+        if (id == letters.length - 1 && lineWidth + endSpaceWidth <= maxLineWidth) {
+            lineWidth += endSpaceWidth;
             newLineStr.append(" ");
         }
         id++;
-        return new JoinLetterResult(newLines, newLineStr.toString(), id, newLineWidth);
+        return new JoinLetterResult(newLines, newLineStr.toString(), id, lineWidth);
     }
 
     private static JoinLetterResult joinUnregisteredLetter(
-            String lineStr,
-            String[] letters, int id, int newLineWidth,
+            String lineStr, int lineWidth,
+            String[] letters, int id,
             int maxLineWidth, int letterMargin) {
         // MinecraftFontに文字が定義されていない場合（日本語やその他の文字）
         final int letterWidth = 8; // 全角文字の幅基準
@@ -271,21 +270,21 @@ public class HelpUtil {
 
         // 追加される文字がはみ出す場合、折り返す
         final int newWidth = letterMargin + letterWidth;
-        if (newLineWidth + newWidth > maxLineWidth) {
+        if (lineWidth + newWidth > maxLineWidth) {
 //            resultLines.add(newLineStr.toString());
             newLines.add(newLineStr.toString());
             // 次の行へ
-            newLineWidth = 0;
+            lineWidth = 0;
             newLineStr = new StringBuilder();
         }
 
         // 行へ追加
-        newLineWidth += (newLineStr.toString().equals(""))
+        lineWidth += (newLineStr.toString().equals(""))
                 ? letterWidth
                 : letterMargin + letterWidth;
         newLineStr.append(letters[id]);
         id++;
-        return new JoinLetterResult(newLines, newLineStr.toString(), id, newLineWidth);
+        return new JoinLetterResult(newLines, newLineStr.toString(), id, lineWidth);
     }
 
     private static boolean isSectionLetter(String letter) {
