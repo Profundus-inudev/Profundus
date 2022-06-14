@@ -69,6 +69,11 @@ public class HelpUtil {
         // 本に合わせて整形
         List<Component> pageList = new ArrayList<>();
         List<String> bookLines = HelpUtil.getLines(str);
+
+//        InputStream stream1 = Profundus.getInstance().getResource("help/_" + helpType.fileName);
+//        Profundus.getInstance().getLogger().info("" + (stream1 != null));
+//        Profundus.getInstance().saveResource("help/_" + helpType.fileName, true);
+
         String page = "";
         for (int i = 0; i < bookLines.size(); i++) {
             page += bookLines.get(i) + "\n";
@@ -99,6 +104,7 @@ public class HelpUtil {
 
         // それぞれの行についてループ
         for (String paragraph : text.lines().toList()) {
+            System.out.println(paragraph);
             if (paragraph.equals("")) {
                 // 空行の場合
                 resultLines.add("");
@@ -116,6 +122,10 @@ public class HelpUtil {
         int newLineWidth = 0;
 
         // 半角スペースで分割した各文字列をループ（主に英単語をまとめて折り返す目的）
+        String[] str = paragraph.split(" ");
+        for (String s : str) {
+            System.out.println(":" + s + ":");
+        }
         for (String word : paragraph.split(" ")) {
             if (word.equals("")) {
                 // 文頭や連続半角スペースの場合
@@ -166,7 +176,7 @@ public class HelpUtil {
                 final int letterMargin = 1;
                 JoinLetterResult result = font.isValid(letters[id])
                         ? joinRegisteredLetters(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin)
-                        : joinUnregisteredLetter(newLineStr.toString(), lineWidth, letters, id, maxLineWidth, letterMargin);
+                        : joinUnregisteredLetter(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin);
                 if (result.newLines.size() > 0) {
                     newLines.addAll(result.newLines);
                 }
@@ -224,23 +234,78 @@ public class HelpUtil {
         StringBuilder newLineStr = new StringBuilder(lineStr);
 
         StringBuilder newWord = new StringBuilder(letters[id]);
+        boolean isSectionStashed = false;
 
         // 連続するMinecraftFontに定義される文字をまとめて処理
         while (id < letters.length - 1 && font.isValid(letters[id + 1])) {
-            newWord.append(letters[id + 1]);
-            id++;
+            if (isSectionLetter(letters[id + 1])) {
+                // 連続する文字列の続きで「§」が出現した場合
+                // 「§」はfont.getWidthで例外となるので、現在の文字列までを処理しておく
+                final int newWidth = (newLineStr.toString().equals("") ? 0 : letterMargin)
+                        + font.getWidth(newWord.toString());
+                // 「aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa」+「§」
+                if (!isSectionStashed && lineWidth + newWidth > maxLineWidth) {
+                    if (lineWidth > 0) {
+                        newLines.add(newLineStr.toString());
+                        lineWidth = 0;
+                        newLineStr = new StringBuilder();
+                    }
+                    if (newWidth > maxLineWidth) {
+                        // ひと単語で一行埋めてしまう場合
+                        StringBuilder sb = new StringBuilder();
+                        String[] wordLetters = newWord.toString().split("");
+                        for (int i = 0; i < wordLetters.length; i++) {
+                            if (font.getWidth(sb.toString()) > maxLineWidth) {
+                                newLines.add(sb.toString());
+                                sb = new StringBuilder();
+                            }
+                            sb.append(wordLetters[i]);
+                        }
+                        newWord = new StringBuilder(sb.toString());
+                    }
+                    lineWidth += newLineStr.toString().equals("")
+                            ? font.getWidth(newWord.toString())
+                            : letterMargin + font.getWidth(newWord.toString());
+                    newLineStr.append(newWord);
+                    newWord = new StringBuilder();
+                    isSectionStashed = true;
+                }
+
+                DecorationResult result
+                        = joinDecorationLetters(newWord.toString(), letters, id + 1);
+                newLineStr.append(result.newLineStr);
+                id = result.id - 1;
+            } else {
+                newWord.append(letters[id + 1]);
+                id++;
+            }
         }
         // 追加される（主に）英単語がはみ出す場合、英単語ごと折り返す
         final int newWidth = (newLineStr.toString().equals("") ? 0 : letterMargin)
                 + font.getWidth(newWord.toString());
-        if (lineWidth + newWidth > maxLineWidth) {
-            // todo:ひと単語で一行埋めてしまう場合の特別処理が必要
+        if (!isSectionStashed && lineWidth + newWidth > maxLineWidth) {
 //            resultLines.add(newLineStr.toString());
-            newLines.add(newLineStr.toString());
-            // 次の行へ
-            lineWidth = 0;
-            newLineStr = new StringBuilder();
+            if (lineWidth > 0) {
+                newLines.add(newLineStr.toString());
+                // 次の行へ
+                lineWidth = 0;
+                newLineStr = new StringBuilder();
+            }
+            if (newWidth > maxLineWidth) {
+                // ひと単語で一行埋めてしまう場合
+                StringBuilder sb = new StringBuilder();
+                String[] wordLetters = newWord.toString().split("");
+                for (int i = 0; i < wordLetters.length; i++) {
+                    if (font.getWidth(sb.toString()) > maxLineWidth) {
+                        newLines.add(sb.toString());
+                        sb = new StringBuilder();
+                    }
+                    sb.append(wordLetters[i]);
+                }
+                newWord = new StringBuilder(sb.toString());
+            }
         }
+
 
         // 行へ追加
         lineWidth += newLineStr.toString().equals("")
@@ -261,7 +326,7 @@ public class HelpUtil {
     private static JoinLetterResult joinUnregisteredLetter(
             String lineStr, int lineWidth,
             String[] letters, int id,
-            int maxLineWidth, int letterMargin) {
+            MinecraftFont font, int maxLineWidth, int letterMargin) {
         // MinecraftFontに文字が定義されていない場合（日本語やその他の文字）
         final int letterWidth = 8; // 全角文字の幅基準
         List<String> newLines = new ArrayList<>();
@@ -283,8 +348,19 @@ public class HelpUtil {
                 ? letterWidth
                 : letterMargin + letterWidth;
         newLineStr.append(letters[id]);
+
+        final int endSpaceWidth = letterMargin + font.getWidth(" ");
+        if (id == letters.length - 1 && lineWidth + endSpaceWidth <= maxLineWidth) {
+            lineWidth += endSpaceWidth;
+            newLineStr.append(" ");
+        }
         id++;
         return new JoinLetterResult(newLines, newLineStr.toString(), id, lineWidth);
+    }
+
+    public static String getRawNewWord(String newWord) {
+        String regex = "(?i)" + ChatColor.COLOR_CHAR + "[0-9A-FK-ORX]";
+        return newWord.replaceAll(regex, "");
     }
 
     private static boolean isSectionLetter(String letter) {
