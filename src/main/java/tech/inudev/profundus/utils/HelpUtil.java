@@ -264,11 +264,11 @@ public class HelpUtil {
                 StringBuilder sb = new StringBuilder();
                 String[] wordLetters = newWord.toString().split("");
                 for (String wordLetter : wordLetters) {
-                    sb.append(wordLetter);
-                    if (font.getWidth(getRawNewWord(sb.toString())) > maxLineWidth) {
+                    if (font.getWidth(getRawNewWord(sb + wordLetter)) > maxLineWidth) {
                         newLines.add(sb.toString());
                         sb = new StringBuilder();
                     }
+                    sb.append(wordLetter);
                 }
                 newWord = new StringBuilder(sb.toString());
             }
@@ -282,7 +282,8 @@ public class HelpUtil {
 
         // 行のラストにスペースの余地があるならスペースを入れる
         final int endSpaceWidth = letterMargin + font.getWidth(" ");
-        if (id == letters.length && lineWidth + endSpaceWidth <= maxLineWidth) {
+        System.out.println(id + "," + letters.length + "," + lineWidth + "," + endSpaceWidth + "," + maxLineWidth);
+        if (id >= letters.length && lineWidth + endSpaceWidth <= maxLineWidth) {
             lineWidth += endSpaceWidth;
             newLineStr.append(" ");
         }
