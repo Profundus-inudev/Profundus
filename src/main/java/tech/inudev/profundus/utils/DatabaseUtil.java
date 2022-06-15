@@ -207,4 +207,31 @@ public class DatabaseUtil {
             }
         }
     }
+    public static Boolean createTable(String tableName, String query) {
+    	//todo
+    }
+    
+    public static Boolean addEntry(String tableName, String query) {
+    	//todo
+    }
+    
+    public static java.sql.ResultSet search(String tableName, String query){
+    	//todo
+    }
+    
+    public static int length(String tableName, String query) {
+    	//todo
+    }
+    public static Boolean deleteOne(String tableName, String query) {
+    	//todo
+    }
+    public static Boolean deleteAll(String tableName, String query) {
+    	//todo
+    }
+    public static Boolean updateOne(String tableName, String query, Object data) {
+    	//todo
+    }
+    public static Boolean updateAll(String tableName, String query, Object data) {
+    	//todo
+    }
 }
