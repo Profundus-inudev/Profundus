@@ -104,7 +104,6 @@ public class HelpUtil {
 
         // それぞれの行についてループ
         for (String paragraph : text.lines().toList()) {
-            System.out.println(paragraph);
             if (paragraph.equals("")) {
                 // 空行の場合
                 resultLines.add("");
@@ -122,10 +121,10 @@ public class HelpUtil {
         int newLineWidth = 0;
 
         // 半角スペースで分割した各文字列をループ（主に英単語をまとめて折り返す目的）
-        String[] str = paragraph.split(" ");
-        for (String s : str) {
-            System.out.println(":" + s + ":");
-        }
+//        String[] str = paragraph.split(" ");
+//        for (String s : str) {
+//            System.out.println(":" + s + ":");
+//        }
         for (String word : paragraph.split(" ")) {
             if (word.equals("")) {
                 // 文頭や連続半角スペースの場合
@@ -225,64 +224,87 @@ public class HelpUtil {
         }
     }
 
+    // MinecraftFontに文字が定義されている場合
     private static JoinLetterResult joinRegisteredLetters(
             String lineStr, int lineWidth,
             String[] letters, int id,
             MinecraftFont font, int maxLineWidth, int letterMargin) {
-        // MinecraftFontに文字が定義されている場合
+        // 完成した行のリスト
         List<String> newLines = new ArrayList<>();
+        // 処理中の行の文字列
         StringBuilder newLineStr = new StringBuilder(lineStr);
+        // 連続するフォント登録文字列（英単語など）
+//        StringBuilder newWord = new StringBuilder(letters[id]);
+        StringBuilder newWord = new StringBuilder();
 
-        StringBuilder newWord = new StringBuilder(letters[id]);
         boolean isSectionStashed = false;
 
         // 連続するMinecraftFontに定義される文字をまとめて処理
-        while (id < letters.length - 1 && font.isValid(letters[id + 1])) {
-            if (isSectionLetter(letters[id + 1])) {
-                // 連続する文字列の続きで「§」が出現した場合
-                // 「§」はfont.getWidthで例外となるので、現在の文字列までを処理しておく
-                final int newWidth = (newLineStr.toString().equals("") ? 0 : letterMargin)
-                        + font.getWidth(newWord.toString());
-                // 「aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa」+「§」
-                if (!isSectionStashed && lineWidth + newWidth > maxLineWidth) {
-                    if (lineWidth > 0) {
-                        newLines.add(newLineStr.toString());
-                        lineWidth = 0;
-                        newLineStr = new StringBuilder();
-                    }
-                    if (newWidth > maxLineWidth) {
-                        // ひと単語で一行埋めてしまう場合
-                        StringBuilder sb = new StringBuilder();
-                        String[] wordLetters = newWord.toString().split("");
-                        for (int i = 0; i < wordLetters.length; i++) {
-                            if (font.getWidth(sb.toString()) > maxLineWidth) {
-                                newLines.add(sb.toString());
-                                sb = new StringBuilder();
-                            }
-                            sb.append(wordLetters[i]);
-                        }
-                        newWord = new StringBuilder(sb.toString());
-                    }
-                    lineWidth += newLineStr.toString().equals("")
-                            ? font.getWidth(newWord.toString())
-                            : letterMargin + font.getWidth(newWord.toString());
-                    newLineStr.append(newWord);
-                    newWord = new StringBuilder();
-                    isSectionStashed = true;
-                }
+//        while (id < letters.length - 1 && font.isValid(letters[id + 1])) {
+//            if (isSectionLetter(letters[id + 1])) {
+//                // 連続する文字列の続きで「§」が出現した場合。
+//                // 「§」はfont.getWidthで例外となるので、現在の文字列までを処理しておく
+//                final int newWidth = (newLineStr.toString().equals("") ? 0 : letterMargin)
+//                        + font.getWidth(newWord.toString());
+//
+//                if (!isSectionStashed && lineWidth + newWidth > maxLineWidth) {
+//                    if (lineWidth > 0) {
+//                        newLines.add(newLineStr.toString());
+//                        lineWidth = 0;
+//                        newLineStr = new StringBuilder();
+//                    }
+//                    if (newWidth > maxLineWidth) {
+//                        // ひと単語で一行埋めてしまう場合
+//                        StringBuilder sb = new StringBuilder();
+//                        String[] wordLetters = newWord.toString().split("");
+//                        for (int i = 0; i < wordLetters.length; i++) {
+//                            if (font.getWidth(sb.toString()) > maxLineWidth) {
+//                                newLines.add(sb.toString());
+//                                sb = new StringBuilder();
+//                            }
+//                            sb.append(wordLetters[i]);
+//                        }
+//                        newWord = new StringBuilder(sb.toString());
+//                    }
+//                    lineWidth += newLineStr.toString().equals("")
+//                            ? font.getWidth(newWord.toString())
+//                            : letterMargin + font.getWidth(newWord.toString());
+//                    newLineStr.append(newWord);
+//                    newWord = new StringBuilder();
+//                    isSectionStashed = true;
+//                }
+//
+//                DecorationResult result
+//                        = joinDecorationLetters(newWord.toString(), letters, id + 1);
+//                newLineStr.append(result.newLineStr);
+//                id = result.id - 1;
+//            } else {
+//                newWord.append(letters[id + 1]);
+//                id++;
+//            }
+//        }
 
+//        System.out.println();
+        while (id < letters.length && font.isValid(letters[id])) {
+            if (isSectionLetter(letters[id])) {
+//                newLineStr.append(newWord);
+//                newWord = new StringBuilder();
+                // §の場合の処理
                 DecorationResult result
-                        = joinDecorationLetters(newWord.toString(), letters, id + 1);
-                newLineStr.append(result.newLineStr);
-                id = result.id - 1;
+                        = joinDecorationLetters(newWord.toString(), letters, id);
+                newWord = new StringBuilder(result.newLineStr);
+                System.out.println(result.id);
+                id = result.id;
             } else {
-                newWord.append(letters[id + 1]);
+                newWord.append(letters[id]);
                 id++;
             }
+
         }
+
         // 追加される（主に）英単語がはみ出す場合、英単語ごと折り返す
         final int newWidth = (newLineStr.toString().equals("") ? 0 : letterMargin)
-                + font.getWidth(newWord.toString());
+                + font.getWidth(getRawNewWord(newWord.toString()));
         if (!isSectionStashed && lineWidth + newWidth > maxLineWidth) {
 //            resultLines.add(newLineStr.toString());
             if (lineWidth > 0) {
@@ -292,15 +314,17 @@ public class HelpUtil {
                 newLineStr = new StringBuilder();
             }
             if (newWidth > maxLineWidth) {
-                // ひと単語で一行埋めてしまう場合
+                // ひと単語で何行も埋めてしまう場合、
+                //
                 StringBuilder sb = new StringBuilder();
                 String[] wordLetters = newWord.toString().split("");
-                for (int i = 0; i < wordLetters.length; i++) {
-                    if (font.getWidth(sb.toString()) > maxLineWidth) {
+                for (String wordLetter : wordLetters) {
+                    System.out.println(sb.toString());
+                    if (font.getWidth(getRawNewWord(sb.toString())) > maxLineWidth) {
                         newLines.add(sb.toString());
                         sb = new StringBuilder();
                     }
-                    sb.append(wordLetters[i]);
+                    sb.append(wordLetter);
                 }
                 newWord = new StringBuilder(sb.toString());
             }
@@ -309,13 +333,13 @@ public class HelpUtil {
 
         // 行へ追加
         lineWidth += newLineStr.toString().equals("")
-                ? font.getWidth(newWord.toString())
-                : letterMargin + font.getWidth(newWord.toString());
+                ? font.getWidth(getRawNewWord(newWord.toString()))
+                : letterMargin + font.getWidth(getRawNewWord(newWord.toString()));
         newLineStr.append(newWord);
 
         // 行のラストにスペースの余地があるならスペースを入れる
         final int endSpaceWidth = letterMargin + font.getWidth(" ");
-        if (id == letters.length - 1 && lineWidth + endSpaceWidth <= maxLineWidth) {
+        if (id == letters.length && lineWidth + endSpaceWidth <= maxLineWidth) {
             lineWidth += endSpaceWidth;
             newLineStr.append(" ");
         }
@@ -359,8 +383,13 @@ public class HelpUtil {
     }
 
     public static String getRawNewWord(String newWord) {
-        String regex = "(?i)" + ChatColor.COLOR_CHAR + "[0-9A-FK-ORX]";
-        return newWord.replaceAll(regex, "");
+        String dupRegx = "[" + ChatColor.COLOR_CHAR + "]+";
+        String decoRegx = "(?i)" + ChatColor.COLOR_CHAR + "[0-9A-FK-ORX]";
+        String secRegx = "" + ChatColor.COLOR_CHAR;
+        return newWord
+                .replaceAll(dupRegx, "" + ChatColor.COLOR_CHAR)
+                .replaceAll(decoRegx, "")
+                .replaceAll(secRegx, "");
     }
 
     private static boolean isSectionLetter(String letter) {
