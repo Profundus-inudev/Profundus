@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * ヘルプの表示するためのクラス
+ * ヘルプの表示するためのクラス。
+ * ヘルプを追加する場合は、enum HelpTypeに追加していく。
  *
  * @author toru-toruto
  */
@@ -34,12 +35,9 @@ public class HelpUtil {
      */
     public enum HelpType {
         // 例：
-        // HelpTypeName("file_name.txt", "BookTitle"),
-        // Test("test.txt", "Test");
-        Test("test.txt", "Test"),
-        Sample("sample.txt", "Sample"),
-        ErrorText("error.txt", "ErrorText"),
-        ErrorText2("error2.txt", "ErrorText2");
+        // HelpTypeName("file_name.txt", "Book Title"),
+        // NewHelp("new_help.txt", "New Help");
+        Sample("sample.txt", "Sample");
 
         private final String fileName;
         private final String title;
@@ -129,7 +127,7 @@ public class HelpUtil {
             throw new RuntimeException(e);
         }
 
-        // ページング
+        // ページ分割
         List<Component> pageList = new ArrayList<>();
         StringBuilder page = new StringBuilder();
         for (int i = 0; i < bookLines.size(); i++) {
@@ -146,7 +144,8 @@ public class HelpUtil {
     }
 
     /**
-     * ヘルプの本での表示を確認するためのテストメソッド
+     * ヘルプの本での表示を確認するためのテストメソッド。
+     * 改行やページの区切りを確認する用。
      *
      * @param helpType 開くヘルプの種類
      */
@@ -188,7 +187,7 @@ public class HelpUtil {
      * @param helpLines テキストファイルに書かれたヘルプの行ごとのリスト
      * @return 本のサイズに合わせて整形されたテキストの行ごとのリスト
      */
-    public static List<String> getBookLines(List<String> helpLines) {
+    private static List<String> getBookLines(List<String> helpLines) {
         if (helpLines == null) {
             throw new IllegalArgumentException();
         }
@@ -406,7 +405,7 @@ public class HelpUtil {
         return result;
     }
 
-    public static String getRawNewWord(String newWord) {
+    private static String getRawNewWord(String newWord) {
         if (newWord == null) {
             throw new IllegalArgumentException();
         }
