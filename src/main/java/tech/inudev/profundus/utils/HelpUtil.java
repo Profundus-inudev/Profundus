@@ -11,18 +11,13 @@ import org.bukkit.map.MinecraftFont;
 import tech.inudev.profundus.Profundus;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * ヘルプの表示するためのクラス
@@ -30,6 +25,9 @@ import java.util.stream.Stream;
  * @author toru-toruto
  */
 public class HelpUtil {
+    private static final String HELP_DIR = "help";
+    private static final String BOOK_SHAPE_DIR = "book_shape";
+
     /**
      * それぞれのヘルプの情報を管理する列挙型
      */
@@ -51,32 +49,35 @@ public class HelpUtil {
     public static void initializeHelp() {
         // ヘルプを読み込み、保存する
         for (HelpType helpType : HelpType.values()) {
-            InputStream stream = Profundus.getInstance().getResource("help/" + helpType.fileName);
-            if (stream == null) {
-                throw new IllegalArgumentException("ヘルプファイルが見つかりません。");
-            }
-            InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-            Stream<String> lines = new BufferedReader(reader).lines();
-            String str = lines.collect(Collectors.joining("\n"));
+            Profundus.getInstance().saveResource(HELP_DIR + "/" + helpType.fileName, true);
+
+            List<String> helpLines;
             try {
-                stream.close();
-                reader.close();
-                lines.close();
+                String dirPath = "$data\\$help"
+                        .replace("$data", Profundus.getInstance().getDataFolder().getPath())
+                        .replace("$help", HELP_DIR);
+                Path path = Paths.get(dirPath, helpType.fileName);
+                helpLines = Files.readAllLines(path, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
             // 本に合わせて整形
-            List<String> bookLines = HelpUtil.getLines(str);
+            List<String> bookLines = HelpUtil.getBookLines(helpLines);
             // テキストファイルへ保存
-            Profundus.getInstance().saveResource("help/" + helpType.fileName, true);
             try {
-                Path path = Paths.get(Profundus.getInstance().getDataFolder().getPath() + "\\help", "_" + helpType.fileName);
+                Path dirPath = Paths.get("$data\\$help\\$bookShape"
+                        .replace("$data", Profundus.getInstance().getDataFolder().getPath())
+                        .replace("$help", HELP_DIR)
+                        .replace("$bookShape", BOOK_SHAPE_DIR));
+                if (!Files.exists(dirPath)) {
+                    Files.createDirectory(dirPath);
+                }
+                Path filePath = Paths.get(dirPath.toString(), "_" + helpType.fileName);
                 Files.write(
-                        path,
+                        filePath,
                         bookLines,
                         StandardCharsets.UTF_8);
-//            String s = Files.readString(p, StandardCharsets.UTF_8);
-//            Profundus.getInstance().getLogger().info(s);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -103,9 +104,11 @@ public class HelpUtil {
         // 初期化時に生成した"_"のついたテキストファイルの読み込み
         List<String> bookLines;
         try {
-            Path path = Paths.get(
-                    Profundus.getInstance().getDataFolder().getPath() + "\\help",
-                    "_" + helpType.fileName);
+            String dirPath = "$data\\$help\\$bookShape"
+                    .replace("$data", Profundus.getInstance().getDataFolder().getPath())
+                    .replace("$help", HELP_DIR)
+                    .replace("$bookShape", BOOK_SHAPE_DIR);
+            Path path = Paths.get(dirPath, "_" + helpType.fileName);
             bookLines = Files.readAllLines(path, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -113,13 +116,12 @@ public class HelpUtil {
 
         // ページング
         List<Component> pageList = new ArrayList<>();
-        String page = "";
+        StringBuilder page = new StringBuilder();
         for (int i = 0; i < bookLines.size(); i++) {
-            page += bookLines.get(i) + "\n";
+            page.append(bookLines.get(i)).append("\n");
             if (i != 0 && (i % 13 == 0 || i == bookLines.size() - 1)) {
-                pageList.add(Component.text(page));
-                Profundus.getInstance().getLogger().info(page);
-                page = "";
+                pageList.add(Component.text(page.toString()));
+                page = new StringBuilder();
             }
         }
         bookMeta.addPages(pageList.toArray(new Component[0]));
@@ -133,15 +135,13 @@ public class HelpUtil {
      * 英単語などの半角スペースなしで続く文字列が行に入りきらない場合、文字列をまとめて次行に折り返す。
      * カラーコードや装飾コードは、ボールドを除いて使用可能。（ボールドは文字の幅が変化するため現状は不可(2022/06/13)）
      *
-     * @param text 本に表示するテキスト
+     * @param helpLines テキストファイルに書かれたヘルプの行ごとのリスト
      * @return 本のサイズに合わせて整形されたテキストの行ごとのリスト
      */
-    public static List<String> getLines(String text) {
-
+    public static List<String> getBookLines(List<String> helpLines) {
         List<String> resultLines = new ArrayList<>();
-
         // それぞれの行についてループ
-        for (String paragraph : text.lines().toList()) {
+        for (String paragraph : helpLines) {
             if (paragraph.equals("")) {
                 // 空行の場合
                 resultLines.add("");
