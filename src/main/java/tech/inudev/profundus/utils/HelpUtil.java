@@ -29,9 +29,13 @@ public class HelpUtil {
     private static final String BOOK_SHAPE_DIR = "book_shape";
 
     /**
-     * それぞれのヘルプの情報を管理する列挙型
+     * それぞれのヘルプの情報を管理する列挙型。
+     * ヘルプを追加する場合は、ここに追加していく。
      */
     public enum HelpType {
+        // 例：
+        // HelpTypeName("file_name.txt", "BookTitle"),
+        // Test("test.txt", "Test");
         Test("test.txt", "Test"),
         Sample("sample.txt", "Sample"),
         ErrorText("error.txt", "ErrorText"),
@@ -46,6 +50,11 @@ public class HelpUtil {
         }
     }
 
+    /**
+     * 初期化処理。
+     * ヘルプのテキストを本に表示するために整形し、別のtxtファイルとして保存する。
+     * ヘルプ表示時はこのtxtファイルを読み込む。
+     */
     public static void initializeHelp() {
         // ヘルプを読み込み、保存する
         for (HelpType helpType : HelpType.values()) {
@@ -85,12 +94,17 @@ public class HelpUtil {
     }
 
     /**
-     * ヘルプを開く
+     * ヘルプを開く。
+     * 初期化処理で生成された整形済みtxtファイルを読み込み、本に表示する。
      *
      * @param playerUUID ヘルプを開く対象のプレイヤー
      * @param helpType   開くヘルプの種類
      */
     public static void openHelp(UUID playerUUID, HelpType helpType) {
+        if (playerUUID == null || helpType == null) {
+            throw new IllegalArgumentException();
+        }
+
         Player player = Bukkit.getPlayer(playerUUID);
         if (player == null || !player.isOnline()) {
             throw new IllegalArgumentException("オンラインでないか存在しないプレイヤーです。");
@@ -131,14 +145,18 @@ public class HelpUtil {
     }
 
     /**
-     * 与えられたテキストを本のサイズに合わせて整形し、行のリストとして返す。
-     * 英単語などの半角スペースなしで続く文字列が行に入りきらない場合、文字列をまとめて次行に折り返す。
-     * カラーコードや装飾コードは、ボールドを除いて使用可能。（ボールドは文字の幅が変化するため現状は不可(2022/06/13)）
+     * 与えられたテキストを本に合わせて整形し、行のリストとして返す。
+     * 連続する（半角スペースで区切られていない）文字列が行に入りきらない場合、文字列をまとめて次行に折り返す。
+     * カラーコードや装飾コードは、ボールドを除いて使用可能。（ボールドは文字の幅が変化するため現状は不可(2022/06/16)）
+     * リソースパックなどによってフォントが変更された場合、おそらく破綻してしまう。(2022/06/16)
      *
      * @param helpLines テキストファイルに書かれたヘルプの行ごとのリスト
      * @return 本のサイズに合わせて整形されたテキストの行ごとのリスト
      */
-    public static List<String> getBookLines(List<String> helpLines) {
+    private static List<String> getBookLines(List<String> helpLines) {
+        if (helpLines == null) {
+            throw new IllegalArgumentException();
+        }
         List<String> resultLines = new ArrayList<>();
         // それぞれの行についてループ
         for (String paragraph : helpLines) {
@@ -153,6 +171,9 @@ public class HelpUtil {
     }
 
     private static List<String> buildLines(String paragraph) {
+        if (paragraph == null) {
+            throw new IllegalArgumentException();
+        }
         final List<String> newLines = new ArrayList<>();
 
         StringBuilder newLineBuilder = new StringBuilder();
@@ -183,23 +204,21 @@ public class HelpUtil {
         if (!newLineBuilder.toString().equals("")) {
             newLines.add(newLineBuilder.toString());
         }
-//        resultLines.add(newLineBuilder);
         return newLines;
     }
 
-    private static class JoinWordResult {
-        List<String> newLines;
-        String newLineStr;
-        int newLineWidth;
-
-        JoinWordResult(List<String> newLines, String newLineStr, int newLineWidth) {
-            this.newLines = newLines;
-            this.newLineStr = newLineStr;
-            this.newLineWidth = newLineWidth;
+    private record JoinWordResult(List<String> newLines, String newLineStr, int newLineWidth) {
+        private JoinWordResult {
+            if (newLines == null || newLineStr == null || newLineWidth < 0) {
+                throw new IllegalArgumentException();
+            }
         }
     }
 
     private static JoinWordResult joinWord(String lineStr, int lineWidth, String word) {
+        if (lineStr == null || lineWidth < 0 || word == null) {
+            throw new IllegalArgumentException();
+        }
         List<String> newLines = new ArrayList<>();
         StringBuilder newLineStr = new StringBuilder(lineStr);
 
@@ -208,19 +227,14 @@ public class HelpUtil {
         int id = 0;
         while (id < letters.length) {
             if (isSectionLetter(letters[id])) {
+                // 「§」の場合
                 DecorationResult result
                         = joinDecorationLetters(newLineStr.toString(), letters, id);
                 newLineStr = new StringBuilder(result.newLineStr);
                 id = result.id;
             } else {
-                final MinecraftFont font = new MinecraftFont();
-                final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
-                final int letterMargin = 1;
-//                JoinLetterResult result = font.isValid(letters[id])
-//                        ? joinRegisteredLetters(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin)
-//                        : joinUnregisteredLetter(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin);
-                JoinLetterResult result = joinRegisteredLetters(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin);
-
+                // 文字の場合
+                JoinLettersResult result = joinLetters(newLineStr.toString(), lineWidth, letters, id);
                 if (result.newLines.size() > 0) {
                     newLines.addAll(result.newLines);
                 }
@@ -232,17 +246,19 @@ public class HelpUtil {
         return new JoinWordResult(newLines, newLineStr.toString(), lineWidth);
     }
 
-    private static class DecorationResult {
-        String newLineStr;
-        int id;
 
-        DecorationResult(String newLineStr, int id) {
-            this.newLineStr = newLineStr;
-            this.id = id;
+    private record DecorationResult(String newLineStr, int id) {
+        private DecorationResult {
+            if (newLineStr == null || id < 0) {
+                throw new IllegalArgumentException();
+            }
         }
     }
 
     private static DecorationResult joinDecorationLetters(String lineStr, String[] letters, int id) {
+        if (lineStr == null || letters == null || id < 0) {
+            throw new IllegalArgumentException();
+        }
         StringBuilder newLineStr = new StringBuilder(lineStr);
         if (id < letters.length - 1 && isDecorationLetter(letters[id + 1])) {
             if (!letters[id + 1].matches("[lL]")) {
@@ -255,25 +271,25 @@ public class HelpUtil {
         return new DecorationResult(newLineStr.toString(), id);
     }
 
-    private static class JoinLetterResult {
-        List<String> newLines;
-        String newLineStr;
-        int id;
-        int newLineWidth;
 
-        JoinLetterResult(List<String> newLines, String newLineStr, int id, int newLineWidth) {
-            this.newLines = newLines;
-            this.newLineStr = newLineStr;
-            this.id = id;
-            this.newLineWidth = newLineWidth;
+    private record JoinLettersResult(List<String> newLines, String newLineStr, int id, int newLineWidth) {
+        private JoinLettersResult {
+            if (newLines == null || newLineStr == null || id < 0 || newLineWidth < 0) {
+                throw new IllegalArgumentException();
+            }
         }
     }
 
     // MinecraftFontに文字が定義されている場合
-    private static JoinLetterResult joinRegisteredLetters(
-            String lineStr, int lineWidth,
-            String[] letters, int id,
-            MinecraftFont font, int maxLineWidth, int letterMargin) {
+    private static JoinLettersResult joinLetters(String lineStr, int lineWidth, String[] letters, int id) {
+        if (lineStr == null || lineWidth < 0 || letters == null || id < 0) {
+            throw new IllegalArgumentException();
+        }
+
+        final MinecraftFont font = new MinecraftFont();
+        final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
+        final int letterMargin = 1;
+
         // 完成した行のリスト
         List<String> newLines = new ArrayList<>();
         // 処理中の行の文字列
@@ -332,44 +348,13 @@ public class HelpUtil {
             newLineStr.append(" ");
         }
         id++;
-        return new JoinLetterResult(newLines, newLineStr.toString(), id, lineWidth);
-    }
-
-    private static JoinLetterResult joinUnregisteredLetter(
-            String lineStr, int lineWidth,
-            String[] letters, int id,
-            MinecraftFont font, int maxLineWidth, int letterMargin) {
-        // MinecraftFontに文字が定義されていない場合（日本語やその他の文字）
-        final int letterWidth = 8; // 全角文字の幅基準
-        List<String> newLines = new ArrayList<>();
-
-        StringBuilder newLineStr = new StringBuilder(lineStr);
-
-        // 追加される文字がはみ出す場合、折り返す
-        final int newWidth = letterMargin + letterWidth;
-        if (lineWidth + newWidth > maxLineWidth) {
-            newLines.add(newLineStr.toString());
-            // 次の行へ
-            lineWidth = 0;
-            newLineStr = new StringBuilder();
-        }
-
-        // 行へ追加
-        lineWidth += (newLineStr.toString().equals(""))
-                ? letterWidth
-                : letterMargin + letterWidth;
-        newLineStr.append(letters[id]);
-
-        final int endSpaceWidth = letterMargin + font.getWidth(" ");
-        if (id == letters.length - 1 && lineWidth + endSpaceWidth <= maxLineWidth) {
-            lineWidth += endSpaceWidth;
-            newLineStr.append(" ");
-        }
-        id++;
-        return new JoinLetterResult(newLines, newLineStr.toString(), id, lineWidth);
+        return new JoinLettersResult(newLines, newLineStr.toString(), id, lineWidth);
     }
 
     private static int getWidth(String str, MinecraftFont font) {
+        if (str == null || font == null) {
+            throw new IllegalArgumentException();
+        }
         final int zenkakuWidth = 8; // 全角文字の幅基準
         final int letterMargin = 1;
         int result = 0;
@@ -386,7 +371,10 @@ public class HelpUtil {
         return result;
     }
 
-    public static String getRawNewWord(String newWord) {
+    private static String getRawNewWord(String newWord) {
+        if (newWord == null) {
+            throw new IllegalArgumentException();
+        }
         String dupRegx = "[" + ChatColor.COLOR_CHAR + "]+";
         String decoRegx = "(?i)" + ChatColor.COLOR_CHAR + "[0-9A-FK-ORX]";
         String secRegx = "" + ChatColor.COLOR_CHAR;
@@ -397,10 +385,16 @@ public class HelpUtil {
     }
 
     private static boolean isSectionLetter(String letter) {
+        if (letter == null) {
+            throw new IllegalArgumentException();
+        }
         return letter.equals(String.valueOf(ChatColor.COLOR_CHAR));
     }
 
     private static boolean isDecorationLetter(String letter) {
+        if (letter == null) {
+            throw new IllegalArgumentException();
+        }
         String regex = "(?i)[0-9A-FK-ORX]";
         return letter.matches(regex);
     }
