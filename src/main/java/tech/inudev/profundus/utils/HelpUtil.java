@@ -56,10 +56,10 @@ public class HelpUtil {
      * ヘルプ表示時はこのtxtファイルを読み込む。
      */
     public static void initializeHelp() {
-        // ヘルプを読み込み、保存する
         for (HelpType helpType : HelpType.values()) {
             Profundus.getInstance().saveResource(HELP_DIR + "/" + helpType.fileName, true);
 
+            // txtファイルからヘルプを読み込み
             List<String> helpLines;
             try {
                 String dirPath = "$data\\$help"
@@ -73,7 +73,8 @@ public class HelpUtil {
 
             // 本に合わせて整形
             List<String> bookLines = HelpUtil.getBookLines(helpLines);
-            // テキストファイルへ保存
+
+            // 整形したものを別のtxtファイルへ保存
             try {
                 Path dirPath = Paths.get("$data\\$help\\$bookShape"
                         .replace("$data", Profundus.getInstance().getDataFolder().getPath())
@@ -115,7 +116,7 @@ public class HelpUtil {
                 .author(Component.text("Master"))
                 .title(Component.text(helpType.title));
 
-        // 初期化時に生成した"_"のついたテキストファイルの読み込み
+        // 初期化時に生成した、整形済みtxtファイルの読み込み
         List<String> bookLines;
         try {
             String dirPath = "$data\\$help\\$bookShape"
@@ -142,6 +143,40 @@ public class HelpUtil {
         writtenBook.setItemMeta(bookMeta);
 
         player.openBook(writtenBook);
+    }
+
+    /**
+     * ヘルプの本での表示を確認するためのテストメソッド
+     *
+     * @param helpType 開くヘルプの種類
+     */
+    public static void testHelpText(HelpType helpType) {
+        if (helpType == null) {
+            throw new IllegalArgumentException();
+        }
+
+        // txtファイルの読み込み
+        List<String> bookLines;
+        try {
+            String dirPath = "src/main/resources/$help"
+                    .replace("$help", HELP_DIR);
+            Path path = Paths.get(dirPath, helpType.fileName);
+            bookLines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        bookLines = getBookLines(bookLines);
+
+        // ページング
+        StringBuilder page = new StringBuilder();
+        for (int i = 0; i < bookLines.size(); i++) {
+            page.append(bookLines.get(i)).append("\n");
+            if (i != 0 && (i % 13 == 0 || i == bookLines.size() - 1)) {
+                System.out.println(page);
+                System.out.println("＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊");
+                page = new StringBuilder();
+            }
+        }
     }
 
     /**
