@@ -49,7 +49,38 @@ public class HelpUtil {
     }
 
     public static void initializeHelp() {
-
+        // ヘルプを読み込み、保存する
+        for (HelpType helpType : HelpType.values()) {
+            InputStream stream = Profundus.getInstance().getResource("help/" + helpType.fileName);
+            if (stream == null) {
+                throw new IllegalArgumentException("ヘルプファイルが見つかりません。");
+            }
+            InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+            Stream<String> lines = new BufferedReader(reader).lines();
+            String str = lines.collect(Collectors.joining("\n"));
+            try {
+                stream.close();
+                reader.close();
+                lines.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            // 本に合わせて整形
+            List<String> bookLines = HelpUtil.getLines(str);
+            // テキストファイルへ保存
+            Profundus.getInstance().saveResource("help/" + helpType.fileName, true);
+            try {
+                Path path = Paths.get(Profundus.getInstance().getDataFolder().getPath() + "\\help", "_" + helpType.fileName);
+                Files.write(
+                        path,
+                        bookLines,
+                        StandardCharsets.UTF_8);
+//            String s = Files.readString(p, StandardCharsets.UTF_8);
+//            Profundus.getInstance().getLogger().info(s);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -69,40 +100,19 @@ public class HelpUtil {
                 .author(Component.text("Master"))
                 .title(Component.text(helpType.title));
 
-        // テキストファイルからの読み込み
-        InputStream stream = Profundus.getInstance().getResource("help/" + helpType.fileName);
-        if (stream == null) {
-            throw new IllegalArgumentException("ヘルプファイルが見つかりません。");
-        }
-        InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-        Stream<String> lines = new BufferedReader(reader).lines();
-        String str = lines.collect(Collectors.joining("\n"));
+        // 初期化時に生成した"_"のついたテキストファイルの読み込み
+        List<String> bookLines;
         try {
-            stream.close();
-            reader.close();
-            lines.close();
+            Path path = Paths.get(
+                    Profundus.getInstance().getDataFolder().getPath() + "\\help",
+                    "_" + helpType.fileName);
+            bookLines = Files.readAllLines(path, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        // 本に合わせて整形
+        // ページング
         List<Component> pageList = new ArrayList<>();
-        List<String> bookLines = HelpUtil.getLines(str);
-
-        Profundus.getInstance().saveResource("help/" + helpType.fileName, true);
-
-        try {
-            Path path = Paths.get(Profundus.getInstance().getDataFolder().getPath() + "\\help", "_" + helpType.fileName);
-            Files.write(
-                    path,
-                    bookLines,
-                    StandardCharsets.UTF_8);
-//            String s = Files.readString(p, StandardCharsets.UTF_8);
-//            Profundus.getInstance().getLogger().info(s);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         String page = "";
         for (int i = 0; i < bookLines.size(); i++) {
             page += bookLines.get(i) + "\n";
@@ -112,7 +122,6 @@ public class HelpUtil {
                 page = "";
             }
         }
-
         bookMeta.addPages(pageList.toArray(new Component[0]));
         writtenBook.setItemMeta(bookMeta);
 
@@ -150,10 +159,6 @@ public class HelpUtil {
         int newLineWidth = 0;
 
         // 半角スペースで分割した各文字列をループ（主に英単語をまとめて折り返す目的）
-//        String[] str = paragraph.split(" ");
-//        for (String s : str) {
-//            System.out.println(":" + s + ":");
-//        }
         for (String word : paragraph.split(" ")) {
             if (word.equals("")) {
                 // 文頭や連続半角スペースの場合
@@ -289,10 +294,6 @@ public class HelpUtil {
             }
         }
 
-        int hoge = getWidth(newWord.toString(), font);
-        int fuga = getWidth("LLLLLLLLLLLLLLLLLLLL", font);
-        System.out.println(hoge + "," + fuga);
-
         // 追加される英単語がはみ出す場合、英単語ごと折り返す
         final int newWidth = (newLineStr.toString().equals("") ? 0 : letterMargin)
                 + getWidth(newWord.toString(), font);
@@ -326,7 +327,6 @@ public class HelpUtil {
 
         // 行のラストにスペースの余地があるならスペースを入れる
         final int endSpaceWidth = letterMargin + font.getWidth(" ");
-        System.out.println(id + "," + letters.length + "," + lineWidth + "," + endSpaceWidth + "," + maxLineWidth);
         if (lineWidth + endSpaceWidth <= maxLineWidth) {
             lineWidth += endSpaceWidth;
             newLineStr.append(" ");

@@ -9,6 +9,7 @@ import tech.inudev.profundus.define.Money;
 import tech.inudev.profundus.listener.StairSittingListener;
 import tech.inudev.profundus.scheduler.DatabasePingRunnable;
 import tech.inudev.profundus.utils.DatabaseUtil;
+import tech.inudev.profundus.utils.HelpUtil;
 import tech.inudev.profundus.utils.StairSittingUtil;
 
 /**
@@ -45,6 +46,8 @@ public final class Profundus extends JavaPlugin {
         registerSchedulers();
         registerListeners();
 
+        HelpUtil.initializeHelp();
+
         getLogger().info("Profundus plugin enabled!");
     }
 
@@ -67,5 +70,4 @@ public final class Profundus extends JavaPlugin {
 
         getLogger().info("Profundus plugin disabled!");
     }
-
 }
