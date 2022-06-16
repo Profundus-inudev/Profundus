@@ -11,8 +11,14 @@ import org.bukkit.map.MinecraftFont;
 import tech.inudev.profundus.Profundus;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,6 +48,10 @@ public class HelpUtil {
         }
     }
 
+    public static void initializeHelp() {
+
+    }
+
     /**
      * ヘルプを開く
      *
@@ -67,14 +77,31 @@ public class HelpUtil {
         InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         Stream<String> lines = new BufferedReader(reader).lines();
         String str = lines.collect(Collectors.joining("\n"));
+        try {
+            stream.close();
+            reader.close();
+            lines.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // 本に合わせて整形
         List<Component> pageList = new ArrayList<>();
         List<String> bookLines = HelpUtil.getLines(str);
 
-//        InputStream stream1 = Profundus.getInstance().getResource("help/_" + helpType.fileName);
-//        Profundus.getInstance().getLogger().info("" + (stream1 != null));
-//        Profundus.getInstance().saveResource("help/_" + helpType.fileName, true);
+        Profundus.getInstance().saveResource("help/" + helpType.fileName, true);
+
+        try {
+            Path path = Paths.get(Profundus.getInstance().getDataFolder().getPath() + "\\help", "_" + helpType.fileName);
+            Files.write(
+                    path,
+                    bookLines,
+                    StandardCharsets.UTF_8);
+//            String s = Files.readString(p, StandardCharsets.UTF_8);
+//            Profundus.getInstance().getLogger().info(s);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         String page = "";
         for (int i = 0; i < bookLines.size(); i++) {
