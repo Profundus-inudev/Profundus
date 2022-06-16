@@ -188,7 +188,7 @@ public class HelpUtil {
      * @param helpLines テキストファイルに書かれたヘルプの行ごとのリスト
      * @return 本のサイズに合わせて整形されたテキストの行ごとのリスト
      */
-    private static List<String> getBookLines(List<String> helpLines) {
+    public static List<String> getBookLines(List<String> helpLines) {
         if (helpLines == null) {
             throw new IllegalArgumentException();
         }
@@ -406,7 +406,7 @@ public class HelpUtil {
         return result;
     }
 
-    private static String getRawNewWord(String newWord) {
+    public static String getRawNewWord(String newWord) {
         if (newWord == null) {
             throw new IllegalArgumentException();
         }
