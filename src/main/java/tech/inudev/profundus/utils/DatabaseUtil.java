@@ -50,6 +50,7 @@ public class DatabaseUtil {
     public static void disconnect() {
         try {
             connection.close();
+            connection = null;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -207,31 +208,62 @@ public class DatabaseUtil {
             }
         }
     }
-    public static Boolean createTable(String tableName, String query) {
+    
+    static Connection getConnected() {
+    	if (connection == null) {
+    		//pingなどで接続チェック？
+    		connect();
+    	}
+    	return connection;
+    }
+    
+    enum Table{
+    	ACCOUNT("account"),
+    	USER("user"),
+    	GROUP("group"),
+    	PROFUNDUS_ID("pfid");
+    	
+    	private String name;
+    	private Table(String name) {
+    		this.name = name;
+    	}
+    	public String getTableName() {
+    		return this.name;
+    	}
+    }
+    static Boolean createTable(Table tableName) {
+    	StringBuffer query = new StringBuffer("CREATE TABLE IF NOT EXISTS ? (");
+    	switch(tableName) {
+    	case USER:
+    		
+    		break;
+    	default:
+    	}
+    	query.append(")");
+    	return false;
+    }
+    
+    static Boolean addEntry(Table tableName, String query) {
     	//todo
     }
     
-    public static Boolean addEntry(String tableName, String query) {
+    static java.sql.ResultSet search(Table tableName, String query){
     	//todo
     }
     
-    public static java.sql.ResultSet search(String tableName, String query){
+    static int length(Table tableName, String query) {
     	//todo
     }
-    
-    public static int length(String tableName, String query) {
+    static Boolean deleteOne(Table tableName, String query) {
     	//todo
     }
-    public static Boolean deleteOne(String tableName, String query) {
+    static Boolean deleteAll(Table tableName, String query) {
     	//todo
     }
-    public static Boolean deleteAll(String tableName, String query) {
+    static Boolean updateOne(Table tableName, String query, Object data) {
     	//todo
     }
-    public static Boolean updateOne(String tableName, String query, Object data) {
-    	//todo
-    }
-    public static Boolean updateAll(String tableName, String query, Object data) {
+    static Boolean updateAll(Table tableName, String query, Object data) {
     	//todo
     }
 }
