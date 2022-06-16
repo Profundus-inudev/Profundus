@@ -37,6 +37,9 @@ public class HelpUtil {
         // 例：
         // HelpTypeName("file_name.txt", "Book Title"),
         // NewHelp("new_help.txt", "New Help");
+        /**
+         * サンプル用ヘルプ
+         */
         Sample("sample.txt", "Sample");
 
         private final String fileName;
