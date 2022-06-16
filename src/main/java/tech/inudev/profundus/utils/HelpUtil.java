@@ -29,7 +29,9 @@ public class HelpUtil {
      */
     public enum HelpType {
         Test("test.txt", "Test"),
-        Sample("sample.txt", "Sample");
+        Sample("sample.txt", "Sample"),
+        ErrorText("error.txt", "ErrorText"),
+        ErrorText2("error2.txt", "ErrorText2");
 
         private final String fileName;
         private final String title;
@@ -98,7 +100,7 @@ public class HelpUtil {
      * @param text 本に表示するテキスト
      * @return 本のサイズに合わせて整形されたテキストの行ごとのリスト
      */
-    private static List<String> getLines(String text) {
+    public static List<String> getLines(String text) {
 
         List<String> resultLines = new ArrayList<>();
 
@@ -128,7 +130,16 @@ public class HelpUtil {
         for (String word : paragraph.split(" ")) {
             if (word.equals("")) {
                 // 文頭や連続半角スペースの場合
-                newLineBuilder.append(" ");
+                final MinecraftFont font = new MinecraftFont();
+                final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
+                if (newLineWidth + font.getWidth(" ") > maxLineWidth) {
+                    newLines.add(newLineBuilder.toString());
+                    newLineBuilder = new StringBuilder();
+                    newLineWidth = 0;
+                } else {
+                    newLineBuilder.append(" ");
+                    newLineWidth += font.getWidth(" ");
+                }
             } else {
                 JoinWordResult result =
                         joinWord(newLineBuilder.toString(), newLineWidth, word);
@@ -173,9 +184,11 @@ public class HelpUtil {
                 final MinecraftFont font = new MinecraftFont();
                 final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
                 final int letterMargin = 1;
-                JoinLetterResult result = font.isValid(letters[id])
-                        ? joinRegisteredLetters(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin)
-                        : joinUnregisteredLetter(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin);
+//                JoinLetterResult result = font.isValid(letters[id])
+//                        ? joinRegisteredLetters(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin)
+//                        : joinUnregisteredLetter(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin);
+                JoinLetterResult result = joinRegisteredLetters(newLineStr.toString(), lineWidth, letters, id, font, maxLineWidth, letterMargin);
+
                 if (result.newLines.size() > 0) {
                     newLines.addAll(result.newLines);
                 }
@@ -236,7 +249,7 @@ public class HelpUtil {
         // 連続するフォント登録文字列（英単語など）
         StringBuilder newWord = new StringBuilder();
 
-        while (id < letters.length && font.isValid(letters[id])) {
+        while (id < letters.length) {
             if (isSectionLetter(letters[id])) {
                 // §の場合の処理
                 DecorationResult result
@@ -249,9 +262,13 @@ public class HelpUtil {
             }
         }
 
+        int hoge = getWidth(newWord.toString(), font);
+        int fuga = getWidth("LLLLLLLLLLLLLLLLLLLL", font);
+        System.out.println(hoge + "," + fuga);
+
         // 追加される英単語がはみ出す場合、英単語ごと折り返す
         final int newWidth = (newLineStr.toString().equals("") ? 0 : letterMargin)
-                + font.getWidth(getRawNewWord(newWord.toString()));
+                + getWidth(newWord.toString(), font);
         if (lineWidth + newWidth > maxLineWidth) {
             if (lineWidth > 0) {
                 newLines.add(newLineStr.toString());
@@ -264,7 +281,7 @@ public class HelpUtil {
                 StringBuilder sb = new StringBuilder();
                 String[] wordLetters = newWord.toString().split("");
                 for (String wordLetter : wordLetters) {
-                    if (font.getWidth(getRawNewWord(sb + wordLetter)) > maxLineWidth) {
+                    if (getWidth(sb + wordLetter, font) > maxLineWidth) {
                         newLines.add(sb.toString());
                         sb = new StringBuilder();
                     }
@@ -276,14 +293,14 @@ public class HelpUtil {
 
         // 行へ追加
         lineWidth += newLineStr.toString().equals("")
-                ? font.getWidth(getRawNewWord(newWord.toString()))
-                : letterMargin + font.getWidth(getRawNewWord(newWord.toString()));
+                ? getWidth(newWord.toString(), font)
+                : letterMargin + getWidth(newWord.toString(), font);
         newLineStr.append(newWord);
 
         // 行のラストにスペースの余地があるならスペースを入れる
         final int endSpaceWidth = letterMargin + font.getWidth(" ");
         System.out.println(id + "," + letters.length + "," + lineWidth + "," + endSpaceWidth + "," + maxLineWidth);
-        if (id >= letters.length && lineWidth + endSpaceWidth <= maxLineWidth) {
+        if (lineWidth + endSpaceWidth <= maxLineWidth) {
             lineWidth += endSpaceWidth;
             newLineStr.append(" ");
         }
@@ -325,7 +342,24 @@ public class HelpUtil {
         return new JoinLetterResult(newLines, newLineStr.toString(), id, lineWidth);
     }
 
-    private static String getRawNewWord(String newWord) {
+    private static int getWidth(String str, MinecraftFont font) {
+        final int zenkakuWidth = 8; // 全角文字の幅基準
+        final int letterMargin = 1;
+        int result = 0;
+
+        String[] letters = getRawNewWord(str).split("");
+        for (int i = 0; i < letters.length; i++) {
+            final int letterWidth = (font.isValid(letters[i]))
+                    ? font.getWidth(letters[i])
+                    : zenkakuWidth;
+            result += (i == 0)
+                    ? letterWidth
+                    : letterMargin + letterWidth;
+        }
+        return result;
+    }
+
+    public static String getRawNewWord(String newWord) {
         String dupRegx = "[" + ChatColor.COLOR_CHAR + "]+";
         String decoRegx = "(?i)" + ChatColor.COLOR_CHAR + "[0-9A-FK-ORX]";
         String secRegx = "" + ChatColor.COLOR_CHAR;
