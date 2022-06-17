@@ -216,7 +216,7 @@ public class HelpUtil {
         StringBuilder newLineBuilder = new StringBuilder();
         int newLineWidth = 0;
 
-        // 半角スペースで分割した各文字列をループ（主に英単語をまとめて折り返す目的）
+        // 半角スペースで分割した各文字列をループ（文字列をまとめて折り返す目的）
         for (String word : paragraph.split(" ")) {
             if (word.equals("")) {
                 // 文頭や連続半角スペースの場合
@@ -231,6 +231,7 @@ public class HelpUtil {
                     newLineWidth += font.getWidth(" ");
                 }
             } else {
+                // 文字列の場合
                 JoinWordResult result =
                         joinWord(newLineBuilder.toString(), newLineWidth, word);
                 newLines.addAll(result.newLines);
@@ -252,6 +253,7 @@ public class HelpUtil {
         }
     }
 
+    // 文字列の場合
     private static JoinWordResult joinWord(String lineStr, int lineWidth, String word) {
         if (lineStr == null || lineWidth < 0 || word == null) {
             throw new IllegalArgumentException();
@@ -270,7 +272,7 @@ public class HelpUtil {
                 newLineStr = new StringBuilder(result.newLineStr);
                 id = result.id;
             } else {
-                // 文字の場合
+                // 通常の文字の場合
                 JoinLettersResult result = joinLetters(newLineStr.toString(), lineWidth, letters, id);
                 if (result.newLines.size() > 0) {
                     newLines.addAll(result.newLines);
@@ -317,7 +319,7 @@ public class HelpUtil {
         }
     }
 
-    // MinecraftFontに文字が定義されている場合
+    // 通常の文字の場合
     private static JoinLettersResult joinLetters(String lineStr, int lineWidth, String[] letters, int id) {
         if (lineStr == null || lineWidth < 0 || letters == null || id < 0) {
             throw new IllegalArgumentException();
@@ -331,7 +333,7 @@ public class HelpUtil {
         List<String> newLines = new ArrayList<>();
         // 処理中の行の文字列
         StringBuilder newLineStr = new StringBuilder(lineStr);
-        // 連続するフォント登録文字列（英単語など）
+        // 連続する文字列
         StringBuilder newWord = new StringBuilder();
 
         while (id < letters.length) {
@@ -347,7 +349,7 @@ public class HelpUtil {
             }
         }
 
-        // 追加される英単語がはみ出す場合、英単語ごと折り返す
+        // 追加される文字列が行をはみ出す場合、文字列ごと折り返す
         final int newWidth = (newLineStr.toString().equals("") ? 0 : letterMargin)
                 + getWidth(newWord.toString(), font);
         if (lineWidth + newWidth > maxLineWidth) {
@@ -358,7 +360,7 @@ public class HelpUtil {
                 newLineStr = new StringBuilder();
             }
             if (newWidth > maxLineWidth) {
-                // ひと単語で何行も埋めてしまう場合
+                // ひとつの連続する文字列で何行も埋めてしまう場合
                 StringBuilder sb = new StringBuilder();
                 String[] wordLetters = newWord.toString().split("");
                 for (String wordLetter : wordLetters) {
