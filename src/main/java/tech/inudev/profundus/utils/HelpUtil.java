@@ -63,7 +63,7 @@ public class HelpUtil {
             // txtファイルからヘルプを読み込み
             List<String> helpLines;
             try {
-                String dirPath = "$data\\$help"
+                String dirPath = "$data/$help"
                         .replace("$data", Profundus.getInstance().getDataFolder().getPath())
                         .replace("$help", HELP_DIR);
                 Path path = Paths.get(dirPath, helpType.fileName);
@@ -77,7 +77,7 @@ public class HelpUtil {
 
             // 整形したものを別のtxtファイルへ保存
             try {
-                Path dirPath = Paths.get("$data\\$help\\$bookShape"
+                Path dirPath = Paths.get("$data/$help/$bookShape"
                         .replace("$data", Profundus.getInstance().getDataFolder().getPath())
                         .replace("$help", HELP_DIR)
                         .replace("$bookShape", BOOK_SHAPE_DIR));
@@ -120,7 +120,7 @@ public class HelpUtil {
         // 初期化時に生成した、整形済みtxtファイルの読み込み
         List<String> bookLines;
         try {
-            String dirPath = "$data\\$help\\$bookShape"
+            String dirPath = "$data/$help/$bookShape"
                     .replace("$data", Profundus.getInstance().getDataFolder().getPath())
                     .replace("$help", HELP_DIR)
                     .replace("$bookShape", BOOK_SHAPE_DIR);
