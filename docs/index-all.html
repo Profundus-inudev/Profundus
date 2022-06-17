@@ -49,7 +49,7 @@ loadScripts(document, 'script');</script>
 <div class="header">
 <h1>Index</h1>
 </div>
-<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a>
+<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:V">V</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a>
 <h2 class="title" id="I:A">A</h2>
 <dl class="index">
 <dt><a href="tech/inudev/profundus/define/Money.html#add(int)" class="member-name-link">add(int)</a> - Method in class tech.inudev.profundus.define.<a href="tech/inudev/profundus/define/Money.html" title="class in tech.inudev.profundus.define">Money</a></dt>
@@ -148,8 +148,29 @@ loadScripts(document, 'script');</script>
 <div class="block">コンストラクタ</div>
 </dd>
 </dl>
+<h2 class="title" id="I:H">H</h2>
+<dl class="index">
+<dt><a href="tech/inudev/profundus/utils/HelpUtil.html" class="type-name-link" title="class in tech.inudev.profundus.utils">HelpUtil</a> - Class in <a href="tech/inudev/profundus/utils/package-summary.html">tech.inudev.profundus.utils</a></dt>
+<dd>
+<div class="block">ヘルプの表示するためのクラス。
+ ヘルプを追加する場合は、enum HelpTypeに追加していく。</div>
+</dd>
+<dt><a href="tech/inudev/profundus/utils/HelpUtil.html#%3Cinit%3E()" class="member-name-link">HelpUtil()</a> - Constructor for class tech.inudev.profundus.utils.<a href="tech/inudev/profundus/utils/HelpUtil.html" title="class in tech.inudev.profundus.utils">HelpUtil</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="tech/inudev/profundus/utils/HelpUtil.HelpType.html" class="type-name-link" title="enum class in tech.inudev.profundus.utils">HelpUtil.HelpType</a> - Enum Class in <a href="tech/inudev/profundus/utils/package-summary.html">tech.inudev.profundus.utils</a></dt>
+<dd>
+<div class="block">それぞれのヘルプの情報を管理する列挙型。
+ ヘルプを追加する場合は、ここに追加していく。</div>
+</dd>
+</dl>
 <h2 class="title" id="I:I">I</h2>
 <dl class="index">
+<dt><a href="tech/inudev/profundus/utils/HelpUtil.html#initializeHelp()" class="member-name-link">initializeHelp()</a> - Static method in class tech.inudev.profundus.utils.<a href="tech/inudev/profundus/utils/HelpUtil.html" title="class in tech.inudev.profundus.utils">HelpUtil</a></dt>
+<dd>
+<div class="block">初期化処理。
+ ヘルプのテキストを本に表示するために整形し、別のtxtファイルとして保存する。
+ ヘルプ表示時はこのtxtファイルを読み込む。</div>
+</dd>
 <dt><a href="tech/inudev/profundus/define/Gui.html#inventory" class="member-name-link">inventory</a> - Variable in class tech.inudev.profundus.define.<a href="tech/inudev/profundus/define/Gui.html" title="class in tech.inudev.profundus.define">Gui</a></dt>
 <dd>
 <div class="block">GUIに使うインベントリ</div>
@@ -311,6 +332,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="tech/inudev/profundus/define/MultiPageGui.html#open(org.bukkit.entity.Player)" class="member-name-link">open(Player)</a> - Method in class tech.inudev.profundus.define.<a href="tech/inudev/profundus/define/MultiPageGui.html" title="class in tech.inudev.profundus.define">MultiPageGui</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="tech/inudev/profundus/utils/HelpUtil.html#openHelp(java.util.UUID,tech.inudev.profundus.utils.HelpUtil.HelpType)" class="member-name-link">openHelp(UUID, HelpUtil.HelpType)</a> - Static method in class tech.inudev.profundus.utils.<a href="tech/inudev/profundus/utils/HelpUtil.html" title="class in tech.inudev.profundus.utils">HelpUtil</a></dt>
+<dd>
+<div class="block">ヘルプを開く。
+ 初期化処理で生成された整形済みtxtファイルを読み込み、本に表示する。</div>
+</dd>
 </dl>
 <h2 class="title" id="I:P">P</h2>
 <dl class="index">
@@ -368,6 +394,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:S">S</h2>
 <dl class="index">
+<dt><a href="tech/inudev/profundus/utils/HelpUtil.HelpType.html#Sample" class="member-name-link">Sample</a> - Enum constant in enum class tech.inudev.profundus.utils.<a href="tech/inudev/profundus/utils/HelpUtil.HelpType.html" title="enum class in tech.inudev.profundus.utils">HelpUtil.HelpType</a></dt>
+<dd>
+<div class="block">サンプル用ヘルプ</div>
+</dd>
 <dt><a href="tech/inudev/profundus/config/ConfigHandler.html#saveConfig()" class="member-name-link">saveConfig()</a> - Method in class tech.inudev.profundus.config.<a href="tech/inudev/profundus/config/ConfigHandler.html" title="class in tech.inudev.profundus.config">ConfigHandler</a></dt>
 <dd>
 <div class="block">コンフィグを保存する</div>
@@ -452,12 +482,29 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">プラグインのユーティリティクラスを提供するパッケージ</div>
 </dd>
+<dt><a href="tech/inudev/profundus/utils/HelpUtil.html#testHelpText(tech.inudev.profundus.utils.HelpUtil.HelpType)" class="member-name-link">testHelpText(HelpUtil.HelpType)</a> - Static method in class tech.inudev.profundus.utils.<a href="tech/inudev/profundus/utils/HelpUtil.html" title="class in tech.inudev.profundus.utils">HelpUtil</a></dt>
+<dd>
+<div class="block">ヘルプの本での表示を確認するためのテストメソッド。
+ 改行やページの区切りを確認する用。</div>
+</dd>
 <dt><a href="tech/inudev/profundus/define/Gui.html#title" class="member-name-link">title</a> - Variable in class tech.inudev.profundus.define.<a href="tech/inudev/profundus/define/Gui.html" title="class in tech.inudev.profundus.define">Gui</a></dt>
 <dd>
 <div class="block">GUIのタイトル</div>
 </dd>
 </dl>
-<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a></main>
+<h2 class="title" id="I:V">V</h2>
+<dl class="index">
+<dt><a href="tech/inudev/profundus/utils/HelpUtil.HelpType.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class tech.inudev.profundus.utils.<a href="tech/inudev/profundus/utils/HelpUtil.HelpType.html" title="enum class in tech.inudev.profundus.utils">HelpUtil.HelpType</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
+<dt><a href="tech/inudev/profundus/utils/HelpUtil.HelpType.html#values()" class="member-name-link">values()</a> - Static method in enum class tech.inudev.profundus.utils.<a href="tech/inudev/profundus/utils/HelpUtil.HelpType.html" title="enum class in tech.inudev.profundus.utils">HelpUtil.HelpType</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+</dl>
+<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:V">V</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a></main>
 </div>
 </div>
 </body>

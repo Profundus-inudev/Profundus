@@ -15,7 +15,11 @@
 <script type="text/javascript" src="script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="all-classes-index-page">
-<script type="text/javascript">var pathtoroot = "./";
+<script type="text/javascript">var evenRowColor = "even-row-color";
+var oddRowColor = "odd-row-color";
+var tableTab = "table-tab";
+var activeTableTab = "active-table-tab";
+var pathtoroot = "./";
 loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -50,8 +54,9 @@ loadScripts(document, 'script');</script>
 <h1 title="All Classes and Interfaces" class="title">All Classes and Interfaces</h1>
 </div>
 <div id="all-classes-table">
-<div class="caption"><span>Classes</span></div>
-<div class="summary-table two-column-summary">
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="all-classes-table-tab0" role="tab" aria-selected="true" aria-controls="all-classes-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="all-classes-table-tab2" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab2', 2)" class="table-tab">Classes</button><button id="all-classes-table-tab3" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab3', 2)" class="table-tab">Enum Classes</button></div>
+<div id="all-classes-table.tabpanel" role="tabpanel">
+<div class="summary-table two-column-summary" aria-labelledby="all-classes-table-tab0">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="tech/inudev/profundus/config/ConfigHandler.html" title="class in tech.inudev.profundus.config">ConfigHandler</a></div>
@@ -70,6 +75,16 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="tech/inudev/profundus/define/Gui.html" title="class in tech.inudev.profundus.define">Gui</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">GUIを簡単に作れるようになるクラス。</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="tech/inudev/profundus/utils/HelpUtil.html" title="class in tech.inudev.profundus.utils">HelpUtil</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">ヘルプの表示するためのクラス。
+ ヘルプを追加する場合は、enum HelpTypeに追加していく。</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="tech/inudev/profundus/utils/HelpUtil.HelpType.html" title="enum class in tech.inudev.profundus.utils">HelpUtil.HelpType</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
+<div class="block">それぞれのヘルプの情報を管理する列挙型。
+ ヘルプを追加する場合は、ここに追加していく。</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="tech/inudev/profundus/define/MenuItem.html" title="class in tech.inudev.profundus.define">MenuItem</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -116,6 +131,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="tech/inudev/profundus/utils/StairSittingUtil.html" title="class in tech.inudev.profundus.utils">StairSittingUtil</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">階段への座る・立ち上がる処理を管理するクラス</div>
+</div>
 </div>
 </div>
 </div>
