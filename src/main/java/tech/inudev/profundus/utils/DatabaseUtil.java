@@ -231,16 +231,48 @@ public class DatabaseUtil {
     		return this.name;
     	}
     }
-    static Boolean createTable(Table tableName) {
-    	StringBuffer query = new StringBuffer("CREATE TABLE IF NOT EXISTS ? (");
+    static Boolean createTable(Table tableName, Boolean dropIfExists) {
+    	StringBuffer query = new StringBuffer();
+    	if(dropIfExists) {query.append("DROP TABLE IF EXISTS ?;");}
+    	query.append("CREATE TABLE IF NOT EXISTS ? (");
+    	
     	switch(tableName) {
     	case USER:
     		
     		break;
-    	default:
+    	case PROFUNDUS_ID:
+    		query.append("""
+    				seqID INT AUTO_INCREMENT NOT NULL,
+    				mostSignificantPFID BIGINT NOT NULL,
+    				leastSignificantPFID BIGINT NOT NULL,
+    				type VARCHAR NOT NULL,
+    				PRIMARY KEY(seqID)
+    				""");
+    		break;
+    	case GROUP:
+    		
+    		break;
+    	case ACCOUNT:
+    		
+    		break;
     	}
-    	query.append(")");
-    	return false;
+    	query.append(");");
+    	
+    	Connection con = getConnected();
+	    try {
+	    	PreparedStatement preparedStatement = con.prepareStatement(query.toString());
+	    	preparedStatement.setString(1, tableName.getTableName());
+	        preparedStatement.executeUpdate();
+	        preparedStatement.close();
+	    } catch (SQLException e) {
+	        try {
+	            con.rollback();
+	        } catch (SQLException e2) {
+	            throw new RuntimeException(e2);
+	        }
+	        return false;
+	    }
+	    	return true;
     }
     
     static Boolean addEntry(Table tableName, String query) {
