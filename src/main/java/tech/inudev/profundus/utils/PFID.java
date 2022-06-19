@@ -1,49 +1,40 @@
 package tech.inudev.profundus.utils;
 
-import java.util.*;
+import java.util.UUID;
+import java.sql.*;
+import tech.inudev.profundus.utils.DatabaseUtil.Table;
 
-
-public class PFID {
-	
-	private static Map<UUID, UUID> storedPFIDList = new HashMap<UUID,UUID>();
-	
-	/**
-	 *Convert Minecraft Player UUID to Profundus user UUID;
-	 *This may enable secure management of transactions;
-	 *
-	 * @param uuid Minecraft Player UUID
-	 * @return uuid Profundus User UUID
-	 */
-	static UUID getPFID(UUID uuid) {
-		UUID yourID = newUUID(); //とりあえず，仮に発行しておく。
-		//
-		if(storedPFIDList.containsKey(uuid)) {
-			yourID = storedPFIDList.get(uuid); //HashMapにあれば，それを返却。
-			return yourID;
-		}
-		if(true) { 
-			//search DB for PFID that matches Player UUID;
-			//yourID = *getFromDB*
-		} else {
-				//add new entry to DB (e.g. new user)
-		}
-		storedPFIDList.put(uuid, yourID);
-		//add to class variables(HashMap) for optimization
-		
+public class PFID{
+	enum Type{
+		User,
+		Group,
+		Land,
+		Item
+	}
+	static UUID newPFID(PFID.Type type) {
+		//とりあえず，ランダムで発行。
+		UUID yourID = UUID.randomUUID();
+		DatabaseUtil.insertPFIDEntry(yourID,type);
 		return yourID;
 	}
-	
-	static UUID newUUID() {
-		//とりあえず，ランダムで発行。
-		return UUID.randomUUID();
-	}
-	
-	static void removeFromStoredList(UUID uuid) {
-		if(storedPFIDList.containsKey(uuid)) {
-			storedPFIDList.remove(uuid);
+	static PFID.Type getType(UUID pfid){
+		ResultSet rs = DatabaseUtil.selectUUID(Table.PROFUNDUS_ID, "PFID", pfid);
+		try {
+			rs.first();
+			String result = rs.getString("type");
+			switch(result) {
+			case "User":
+				return Type.User;
+			case "Group":
+				return Type.Group;
+			case "Land":
+				return Type.Land;
+			case "Item":
+				return Type.Item;
+			}
+		}catch(SQLException e) {
+			System.out.println(e);
 		}
+		return null;
 	}
-	
-	
-	
 }
