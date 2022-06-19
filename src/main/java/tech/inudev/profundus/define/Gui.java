@@ -80,6 +80,20 @@ public class Gui implements Listener {
     }
 
     /**
+     * GUIを開く。
+     *
+     * @param player GUIを開くプレイヤー
+     * @param forceInventoryGui 統合版でもインベントリGUIを使用するか
+     */
+    public void open(Player player, boolean forceInventoryGui) {
+        if (isBedrock(player) && !forceInventoryGui) {
+            openBedrockImpl(player);
+        } else {
+            openJavaImpl(player);
+        }
+    }
+
+    /**
      * Playerが統合版か確認する関数
      *
      * @param player プレイヤー
