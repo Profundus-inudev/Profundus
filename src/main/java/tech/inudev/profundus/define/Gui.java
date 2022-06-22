@@ -172,7 +172,12 @@ public class Gui implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (e.getInventory().equals(inventory)) {
+        Inventory inv = e.getClickedInventory();
+        if(inv == null) {
+            return;
+        }
+
+        if (inv.equals(inventory)) {
             e.setCancelled(true);
             // Handle click
             for (PosMenuItem menuItem : menuItems) {
