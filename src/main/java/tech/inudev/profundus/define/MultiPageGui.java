@@ -106,8 +106,11 @@ public class MultiPageGui extends Gui {
     @EventHandler
     @Override
     public void onInventoryClick(InventoryClickEvent e) {
-        final Inventory inv = e.getInventory();
+        final Inventory inv = e.getClickedInventory();
         final int id = e.getRawSlot();
+        if (inv == null) {
+            return;
+        }
 
         if (inv.equals(inventory)) {
             e.setCancelled(true);
