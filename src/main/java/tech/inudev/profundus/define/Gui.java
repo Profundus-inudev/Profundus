@@ -28,6 +28,12 @@ import java.util.function.BiConsumer;
  * @author kumitatepazuru
  */
 public class Gui implements Listener {
+    /**
+     * 内部で使用するMenuItemに座標データをつけたもの。
+     * @param menuItem MenuItem
+     * @param x x座標
+     * @param y y座標
+     */
     record PosMenuItem(MenuItem menuItem, int x, int y) {
     }
 
@@ -177,28 +183,23 @@ public class Gui implements Listener {
             return;
         }
 
-        if (inv.equals(inventory)) {
+        if(e.getInventory().equals(inventory)) {
             e.setCancelled(true);
+        }
+        if (inv.equals(inventory)) {
             // Handle click
-            if(e.getCurrentItem() == null) {
-                return;
-            }
-
-            boolean existsMenuItem = false;
             for (PosMenuItem menuItem : menuItems) {
                 if (e.getSlot() == menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
+                    if(menuItem.menuItem().isDraggable()) {
+                        e.setCancelled(false);
+                    }
                     if (menuItem.menuItem().getOnClick() != null) {
                         menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                     }
                     if (menuItem.menuItem().isClose()) {
                         inventory.close();
                     }
-                    existsMenuItem = true;
                 }
-            }
-
-            if(!existsMenuItem) {
-                Profundus.getInstance().getLogger().warning("デベロッパー向け情報: MenuItemに登録されていないアイテムがクリックされました。InventoryのsetItem等を使うことをは推奨されていません。");
             }
         }
     }

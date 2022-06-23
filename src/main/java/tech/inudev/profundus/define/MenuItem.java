@@ -32,6 +32,9 @@ public class MenuItem {
     @Getter
     private final List<Component> lore;
 
+    @Getter
+    private final boolean draggable;
+
     /**
      * メニューのアイテム。
      *
@@ -42,8 +45,9 @@ public class MenuItem {
      * @param customData Itemにつける任意のデータ
      * @param shiny      ブロックをキラキラさせるか
      * @param lore       アイテムの説明
+     * @param draggable  アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
      */
-    public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close) {
+    public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, boolean draggable) {
         this.onClick = onClick;
         this.icon = icon;
         this.customData = customData;
@@ -51,17 +55,18 @@ public class MenuItem {
         this.close = close;
         this.title = title;
         this.lore = lore;
+        this.draggable = draggable;
 
         if (shiny) {
             icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
         }
 
         ItemMeta meta = icon.getItemMeta();
-        if(title != null) {
+        if (title != null) {
             meta.displayName(title);
         }
 
-        if(lore != null) {
+        if (lore != null) {
             meta.lore(lore);
         }
         icon.setItemMeta(meta);
@@ -78,7 +83,7 @@ public class MenuItem {
      * @param shiny      ブロックをキラキラさせるか
      */
     public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny) {
-        this(Component.text(title), lore, onClick, icon, customData, shiny, true);
+        this(Component.text(title), lore, onClick, icon, customData, shiny, true, false);
     }
 
     /**
@@ -119,14 +124,15 @@ public class MenuItem {
     /**
      * メニューのアイテム。
      *
-     * @param title   アイテムのタイトル
-     * @param onClick クリック時のイベント
-     * @param icon    アイテムのブロック
-     * @param shiny   ブロックをキラキラさせるか
-     * @param close   クリック時にGUIを閉じるか
+     * @param title     アイテムのタイトル
+     * @param onClick   クリック時のイベント
+     * @param icon      アイテムのブロック
+     * @param shiny     ブロックをキラキラさせるか
+     * @param close     クリック時にGUIを閉じるか
+     * @param draggable アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
      */
-    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close) {
-        this(Component.text(title), null, onClick, icon, null, shiny, close);
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close, boolean draggable) {
+        this(Component.text(title), null, onClick, icon, null, shiny, close, draggable);
     }
 
     /**
@@ -147,5 +153,18 @@ public class MenuItem {
      */
     public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick) {
         this(title, lore, onClick, new ItemStack(Material.STONE));
+    }
+
+    /**
+     * メニューのアイテム。
+     *
+     * @param title     アイテムのタイトル
+     * @param onClick   クリック時のイベント
+     * @param icon      アイテムのブロック
+     * @param draggable アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
+     * @param close     クリック時にGUIを閉じるか
+     */
+    public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean close, boolean draggable) {
+        this(Component.text(title), null, onClick, icon, null, false, close, draggable);
     }
 }
