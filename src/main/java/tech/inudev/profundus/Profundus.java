@@ -59,7 +59,6 @@ public final class Profundus extends JavaPlugin {
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new StairSittingListener(), this);
-        pm.registerEvents(new test(),this);
     }
 
     @Override
