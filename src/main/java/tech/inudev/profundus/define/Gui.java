@@ -28,6 +28,12 @@ import java.util.function.BiConsumer;
  * @author kumitatepazuru
  */
 public class Gui implements Listener {
+    /**
+     * 内部で使用するMenuItemに座標データをつけたもの。
+     * @param menuItem MenuItem
+     * @param x x座標
+     * @param y y座標
+     */
     record PosMenuItem(MenuItem menuItem, int x, int y) {
     }
 
@@ -178,15 +184,13 @@ public class Gui implements Listener {
         }
 
         if (inv.equals(inventory)) {
-            e.setCancelled(true);
             // Handle click
-            if(e.getCurrentItem() == null) {
-                return;
-            }
-
             boolean existsMenuItem = false;
             for (PosMenuItem menuItem : menuItems) {
                 if (e.getSlot() == menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
+                    if(!menuItem.menuItem().isDraggable()) {
+                        e.setCancelled(true);
+                    }
                     if (menuItem.menuItem().getOnClick() != null) {
                         menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                     }
@@ -197,8 +201,8 @@ public class Gui implements Listener {
                 }
             }
 
-            if(!existsMenuItem) {
-                Profundus.getInstance().getLogger().warning("デベロッパー向け情報: MenuItemに登録されていないアイテムがクリックされました。InventoryのsetItem等を使うことをは推奨されていません。");
+            if(!existsMenuItem && e.getCurrentItem() != null) {
+                Profundus.getInstance().getLogger().warning("デベロッパー向け情報: MenuItemに登録されていないアイテムがクリックされました。Guiクラス内部のInventoryでsetItem等を使うことをは推奨されていません。");
             }
         }
     }
