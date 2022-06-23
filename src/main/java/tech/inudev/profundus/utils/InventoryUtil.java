@@ -7,6 +7,11 @@ import java.util.List;
 
 public class InventoryUtil {
 
+    /**
+     * インベントリに複数のアイテムを追加します
+     * @param inventory 対象のインベントリ
+     * @param itemStacks 追加するアイテム
+     */
     public static void addItems(Inventory inventory, List<ItemStack> itemStacks) {
         ItemStack[] arrayStack = new ItemStack[itemStacks.size()];
         itemStacks.toArray(arrayStack);
