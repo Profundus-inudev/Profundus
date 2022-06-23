@@ -5,6 +5,11 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
+/**
+ * Inventoryを操作する際に使うであろうメソッドたちをまとめたUtilクラス
+ *
+ * @author tererun
+ */
 public class InventoryUtil {
 
     /**
