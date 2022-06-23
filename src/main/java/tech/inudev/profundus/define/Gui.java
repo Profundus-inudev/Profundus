@@ -183,13 +183,15 @@ public class Gui implements Listener {
             return;
         }
 
+        if(e.getInventory().equals(inventory)) {
+            e.setCancelled(true);
+        }
         if (inv.equals(inventory)) {
             // Handle click
-            boolean existsMenuItem = false;
             for (PosMenuItem menuItem : menuItems) {
                 if (e.getSlot() == menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
-                    if(!menuItem.menuItem().isDraggable()) {
-                        e.setCancelled(true);
+                    if(menuItem.menuItem().isDraggable()) {
+                        e.setCancelled(false);
                     }
                     if (menuItem.menuItem().getOnClick() != null) {
                         menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
@@ -197,12 +199,7 @@ public class Gui implements Listener {
                     if (menuItem.menuItem().isClose()) {
                         inventory.close();
                     }
-                    existsMenuItem = true;
                 }
-            }
-
-            if(!existsMenuItem && e.getCurrentItem() != null) {
-                Profundus.getInstance().getLogger().warning("デベロッパー向け情報: MenuItemに登録されていないアイテムがクリックされました。Guiクラス内部のInventoryでsetItem等を使うことをは推奨されていません。");
             }
         }
     }
