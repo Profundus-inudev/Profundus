@@ -183,10 +183,8 @@ public class Gui implements Listener {
             return;
         }
 
-        if(e.getInventory().equals(inventory)) {
-            e.setCancelled(true);
-        }
         if (inv.equals(inventory)) {
+            e.setCancelled(true);
             // Handle click
             for (PosMenuItem menuItem : menuItems) {
                 if (e.getSlot() == menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
