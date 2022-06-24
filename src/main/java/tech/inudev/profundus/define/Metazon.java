@@ -41,6 +41,9 @@ public class Metazon {
                 (menuItem, player) -> openSellMode(player),
                 new ItemStack(Material.ORANGE_WOOL));
         menuItemList.add(new Gui.PosMenuItem(sellMode, 6, 1));
+
+        int[][] filledArray = {{4, 6}};
+        addDisuses(filledArray);
     }
 
     private void openBuyMode(Player player) {
@@ -116,17 +119,8 @@ public class Metazon {
                 false);
         menuItemList.add(new Gui.PosMenuItem(help, 9, 3));
 
-        // 不使用スロットを埋める
         int[][] filledArray = {{2, 3, 4, 5, 6, 7, 8}, {5}, {5, 9}};
-        for (int x = 0; x < 9; x++) {
-            for (int y = 0; y < 3; y++) {
-                int finalX = x;
-                if (Arrays.stream(filledArray[y]).filter(v -> v == finalX + 1).findFirst().isEmpty()) {
-                    menuItemList.add(new Gui.PosMenuItem(
-                            MenuItem.generateDisuse(), x + 1, y + 1));
-                }
-            }
-        }
+        addDisuses(filledArray);
     }
 
     private Gui.PosMenuItem generatePriceChanger(int value, int x) {
@@ -147,66 +141,16 @@ public class Metazon {
         return new Gui.PosMenuItem(newItem, x, 1);
     }
 
-
-//    public void openSellMode(Player player) {
-//        MultiPageGui gui = new MultiPageGui("Metazon");
-//        List<MenuItem> items = new ArrayList<>();
-//        BiConsumer<MenuItem, Player> onClick = (menuItem, p) -> {
-////            Profundus.getInstance().getLogger().info("ほげ");
-//            p.sendMessage(menuItem.getTitle());
-//        };
-//        items.add(new MenuItem(
-//                "ほげ",
-//                onClick,
-//                new ItemStack(Material.RED_WOOL),
-//                false,
-//                false));
-//        items.add(new MenuItem(
-//                "ふが",
-//                onClick,
-//                new ItemStack(Material.BLUE_WOOL),
-//                false,
-//                false));
-//        for (int i=0; i<100; i++) {
-//            items.add(new MenuItem(
-//                    "ふが",
-//                    null,
-//                    new ItemStack(Material.BAKED_POTATO),
-//                    false,
-//                    true));
-//        }
-//        gui.addMenuItems(items);
-//        gui.open(player);
-//    }
-
-//    public void openSellMode(Player player) {
-//        Gui gui = new Gui("Metazon");
-//        BiConsumer<MenuItem, Player> onClick = (menuItem, p) -> {
-////            Profundus.getInstance().getLogger().info("ほげ");
-//            p.sendMessage(menuItem.getTitle());
-//        };
-//        gui.addItem(new MenuItem(
-//                "ほげ",
-//                onClick,
-//                new ItemStack(Material.RED_WOOL),
-//                false,
-//                false),
-//                1, 1);
-//        gui.addItem(new MenuItem(
-//                "ふが",
-//                onClick,
-//                new ItemStack(Material.BLUE_WOOL),
-//                false,
-//                false),
-//                3, 1);
-//        gui.addItem(new MenuItem(
-//                "ふが",
-//                null,
-//                new ItemStack(Material.BAKED_POTATO),
-//                false,
-//                true),
-//                5, 3);
-//        gui.open(player);
-//    }
-
+    // 不使用スロットを埋める
+    private void addDisuses(int[][] filledArray) {
+        for (int x = 0; x < 9; x++) {
+            for (int y = 0; y < filledArray.length; y++) {
+                int finalX = x;
+                if (Arrays.stream(filledArray[y]).filter(v -> v == finalX + 1).findFirst().isEmpty()) {
+                    menuItemList.add(new Gui.PosMenuItem(
+                            MenuItem.generateDisuse(), x + 1, y + 1));
+                }
+            }
+        }
+    }
 }
