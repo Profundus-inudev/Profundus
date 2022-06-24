@@ -39,12 +39,12 @@ public class MenuItem {
      * メニューのアイテム。
      *
      * @param title      アイテムのタイトル
+     * @param lore       アイテムの説明
      * @param onClick    クリック時のイベント
-     * @param close      クリック時にGUIを閉じるか
      * @param icon       アイテムのブロック
      * @param customData Itemにつける任意のデータ
      * @param shiny      ブロックをキラキラさせるか
-     * @param lore       アイテムの説明
+     * @param close      クリック時にGUIを閉じるか
      * @param draggable  アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
      */
     public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, boolean draggable) {
@@ -169,10 +169,19 @@ public class MenuItem {
      * @param title     アイテムのタイトル
      * @param onClick   クリック時のイベント
      * @param icon      アイテムのブロック
-     * @param draggable アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
      * @param close     クリック時にGUIを閉じるか
+     * @param draggable アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
      */
     public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean close, boolean draggable) {
         this(Component.text(title), null, onClick, icon, null, false, close, draggable);
+    }
+
+    /**
+     * 不使用スロットを埋めるアイテムを生成する。
+     *
+     * @return 不使用スロットを埋めるアイテム
+     */
+    public static MenuItem generateDisuse() {
+        return new MenuItem(Component.text(""), null, null, new ItemStack(Material.GRAY_STAINED_GLASS_PANE), null, false, false, false);
     }
 }

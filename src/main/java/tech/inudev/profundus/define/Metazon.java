@@ -19,20 +19,29 @@ public class Metazon {
     private static final String METAZON_TITLE = "Metazon";
 
     public void open(Player player) {
+
+    }
+
+    private void openSellMode(Player player) {
         this.gui = new Gui(METAZON_TITLE);
-        initializeMenuItems();
+        initSellMenu();
+        this.gui.setMenuItems(menuItemList);
         this.gui.open(player);
     }
 
-    private void initializeMenuItems() {
+    private void initSellMenu() {
         menuItemList = new ArrayList<>();
-        menuItemList.add(createPriceUpdater(-100, 2));
-        menuItemList.add(createPriceUpdater(-10, 3));
-        menuItemList.add(createPriceUpdater(-1, 4));
-        menuItemList.add(createPriceUpdater(1, 6));
-        menuItemList.add(createPriceUpdater(10, 7));
-        menuItemList.add(createPriceUpdater(100, 8));
 
+        // 金額変動用アイテム
+        for (int i = 0; i < 3; i++) {
+            int x = 5;
+            menuItemList.add(generatePriceChanger(
+                    (int) Math.pow(10, i), x + (i + 1)));
+            menuItemList.add(generatePriceChanger(
+                    (int) -Math.pow(10, i), x - (i + 1)));
+        }
+
+        // 金額表示用アイテム
         MenuItem emerald = new MenuItem(
                 Component.text("金額"),
                 List.of(Component.text(this.price)),
@@ -40,10 +49,12 @@ public class Metazon {
                 new ItemStack(Material.EMERALD),
                 null,
                 false,
+                false,
                 false
         );
         menuItemList.add(new Gui.PosMenuItem(emerald, 5, 1));
 
+        // 売却ボタン用アイテム
         BiConsumer<MenuItem, Player> onPaperClick = (menuItem, player)
                 -> Profundus.getInstance().getLogger().info("on paper click");
         MenuItem paper = new MenuItem(
@@ -53,9 +64,20 @@ public class Metazon {
                 new ItemStack(Material.PAPER),
                 null,
                 false,
+                false,
                 false);
         menuItemList.add(new Gui.PosMenuItem(paper, 5, 2));
 
+        // 販売アイテムセット用の空欄
+        MenuItem itemBox = new MenuItem(
+                "",
+                null,
+                null,
+                false,
+                true);
+        menuItemList.add(new Gui.PosMenuItem(itemBox, 5, 3));
+
+        // ヘルプ用アイテム
         BiConsumer<MenuItem, Player> onHelpClick = (menuItem, player)
                 -> HelpUtil.openHelp(player.getUniqueId(), HelpUtil.HelpType.Sample);
         MenuItem help = new MenuItem(
@@ -65,34 +87,27 @@ public class Metazon {
                 new ItemStack(Material.WRITTEN_BOOK),
                 null,
                 true,
+                false,
                 false);
         menuItemList.add(new Gui.PosMenuItem(help, 9, 3));
 
-        MenuItem a = new MenuItem(
-                Component.text(""),
-                null,
-                null,
-                new ItemStack(Material.GRAY_STAINED_GLASS_PANE),
-                null,
-                false,
-                false);
+        // 不使用スロットを埋める
         int[][] filledArray = {{2, 3, 4, 5, 6, 7, 8}, {5}, {5, 9}};
         for (int x = 0; x < 9; x++) {
             for (int y = 0; y < 3; y++) {
                 int finalX = x;
                 if (Arrays.stream(filledArray[y]).filter(v -> v == finalX + 1).findFirst().isEmpty()) {
-                    menuItemList.add(new Gui.PosMenuItem(a, x + 1, y + 1));
+                    menuItemList.add(new Gui.PosMenuItem(
+                            MenuItem.generateDisuse(), x + 1, y + 1));
                 }
             }
         }
-
-        gui.setMenuItems(menuItemList);
     }
 
-    private Gui.PosMenuItem createPriceUpdater(int value, int x) {
+    private Gui.PosMenuItem generatePriceChanger(int value, int x) {
         BiConsumer<MenuItem, Player> onClick = (menuItem, player) -> {
             this.price += (int) menuItem.getCustomData();
-            initializeMenuItems();
+            initSellMenu();
             gui.open(player);
         };
         MenuItem newItem = new MenuItem(
@@ -102,9 +117,71 @@ public class Metazon {
                 new ItemStack(value > 0 ? Material.BLUE_WOOL : Material.RED_WOOL),
                 value,
                 false,
+                false,
                 false);
         return new Gui.PosMenuItem(newItem, x, 1);
     }
 
+
+//    public void openSellMode(Player player) {
+//        MultiPageGui gui = new MultiPageGui("Metazon");
+//        List<MenuItem> items = new ArrayList<>();
+//        BiConsumer<MenuItem, Player> onClick = (menuItem, p) -> {
+////            Profundus.getInstance().getLogger().info("ほげ");
+//            p.sendMessage(menuItem.getTitle());
+//        };
+//        items.add(new MenuItem(
+//                "ほげ",
+//                onClick,
+//                new ItemStack(Material.RED_WOOL),
+//                false,
+//                false));
+//        items.add(new MenuItem(
+//                "ふが",
+//                onClick,
+//                new ItemStack(Material.BLUE_WOOL),
+//                false,
+//                false));
+//        for (int i=0; i<100; i++) {
+//            items.add(new MenuItem(
+//                    "ふが",
+//                    null,
+//                    new ItemStack(Material.BAKED_POTATO),
+//                    false,
+//                    true));
+//        }
+//        gui.addMenuItems(items);
+//        gui.open(player);
+//    }
+
+//    public void openSellMode(Player player) {
+//        Gui gui = new Gui("Metazon");
+//        BiConsumer<MenuItem, Player> onClick = (menuItem, p) -> {
+////            Profundus.getInstance().getLogger().info("ほげ");
+//            p.sendMessage(menuItem.getTitle());
+//        };
+//        gui.addItem(new MenuItem(
+//                "ほげ",
+//                onClick,
+//                new ItemStack(Material.RED_WOOL),
+//                false,
+//                false),
+//                1, 1);
+//        gui.addItem(new MenuItem(
+//                "ふが",
+//                onClick,
+//                new ItemStack(Material.BLUE_WOOL),
+//                false,
+//                false),
+//                3, 1);
+//        gui.addItem(new MenuItem(
+//                "ふが",
+//                null,
+//                new ItemStack(Material.BAKED_POTATO),
+//                false,
+//                true),
+//                5, 3);
+//        gui.open(player);
+//    }
 
 }
