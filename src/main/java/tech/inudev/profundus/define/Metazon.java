@@ -19,6 +19,31 @@ public class Metazon {
     private static final String METAZON_TITLE = "Metazon";
 
     public void open(Player player) {
+        this.gui = new Gui(METAZON_TITLE);
+        initTopMenu();
+        this.gui.setMenuItems(menuItemList);
+        this.gui.open(player);
+    }
+
+    private void initTopMenu() {
+        menuItemList = new ArrayList<>();
+
+        MenuItem paper = new MenuItem(
+                "購入モード",
+                null,
+                (menuItem, player) -> openBuyMode(player),
+                new ItemStack(Material.GREEN_WOOL));
+        menuItemList.add(new Gui.PosMenuItem(paper, 4, 1));
+
+        MenuItem sellMode = new MenuItem(
+                "販売モード",
+                null,
+                (menuItem, player) -> openSellMode(player),
+                new ItemStack(Material.ORANGE_WOOL));
+        menuItemList.add(new Gui.PosMenuItem(sellMode, 6, 1));
+    }
+
+    private void openBuyMode(Player player) {
 
     }
 
