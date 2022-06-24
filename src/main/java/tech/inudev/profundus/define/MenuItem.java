@@ -57,6 +57,14 @@ public class MenuItem {
         this.lore = lore;
         this.draggable = draggable;
 
+        if (icon == null) {
+            if (!draggable) {
+                throw new IllegalArgumentException("draggableがfalseの場合、iconをnullにはできません");
+            } else {
+                return;
+            }
+        }
+
         if (shiny) {
             icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
         }

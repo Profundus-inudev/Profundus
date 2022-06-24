@@ -115,13 +115,15 @@ public class Gui implements Listener {
         for (PosMenuItem posItem : menuItems) {
             MenuItem item = posItem.menuItem();
             List<String> buttonText = new ArrayList<>();
-            String text = item.getIcon().getItemMeta().getDisplayName();
-            if (item.isShiny()) {
-                text = text + "§a";
-            }
-            buttonText.add(text);
-            if (item.getIcon().lore() != null) {
-                buttonText.addAll(Objects.requireNonNull(item.getIcon().getLore()));
+            if (item.getIcon() != null) {
+                String text = item.getIcon().getItemMeta().getDisplayName();
+                if (item.isShiny()) {
+                    text = text + "§a";
+                }
+                buttonText.add(text);
+                if (item.getIcon().lore() != null) {
+                    buttonText.addAll(Objects.requireNonNull(item.getIcon().getLore()));
+                }
             }
             if (item.isClose()) {
                 builder.button(String.join("\n", buttonText));
