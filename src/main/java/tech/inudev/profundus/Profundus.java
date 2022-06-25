@@ -7,8 +7,10 @@ import tech.inudev.profundus.config.ConfigHandler;
 import tech.inudev.profundus.config.StairsHandler;
 import tech.inudev.profundus.define.Money;
 import tech.inudev.profundus.listener.StairSittingListener;
+import tech.inudev.profundus.listener.LoginEvent;
 import tech.inudev.profundus.scheduler.DatabasePingRunnable;
 import tech.inudev.profundus.utils.DatabaseUtil;
+import tech.inudev.profundus.utils.DatabaseUtil.Table;
 import tech.inudev.profundus.utils.StairSittingUtil;
 
 /**
@@ -37,6 +39,9 @@ public final class Profundus extends JavaPlugin {
         this.databasePingRunnable = new DatabasePingRunnable();
 
         DatabaseUtil.connect();
+        //ここの第二引数をtrueにすると，テーブル再作成（データ消えるよ）
+        DatabaseUtil.createTable(Table.USER,false);
+        DatabaseUtil.createTable(Table.PFID,false);
 
         if (!Money.bankAccountExists(this.configHandler.getMasterBankName())) {
             Money.createBankAccount(this.configHandler.getMasterBankName());
@@ -55,6 +60,7 @@ public final class Profundus extends JavaPlugin {
     private void registerListeners() {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new StairSittingListener(), this);
+        pm.registerEvents(new LoginEvent(), this);
     }
 
     @Override
