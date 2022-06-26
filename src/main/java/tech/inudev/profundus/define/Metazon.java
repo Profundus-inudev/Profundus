@@ -14,7 +14,6 @@ import java.util.function.BiConsumer;
 
 public class Metazon {
     Gui gui;
-    //    List<Gui.PosMenuItem> menuItemList = new ArrayList<>();
     private int price = 0;
     private static final String METAZON_TITLE = "Metazon";
     private static final int EMERALD_X = 5;
@@ -85,9 +84,8 @@ public class Metazon {
         result.add(new Gui.PosMenuItem(emerald, EMERALD_X, EMERALD_Y));
 
         // 売却ボタン用アイテム
-        BiConsumer<MenuItem, Player> onPaperClick = (menuItem, player) -> {
-            Profundus.getInstance().getLogger().info("on paper click");
-        };
+        BiConsumer<MenuItem, Player> onPaperClick = (menuItem, player)
+                -> Profundus.getInstance().getLogger().info("on paper click");
         MenuItem paper = new MenuItem(
                 Component.text("売却ボタン"),
                 List.of(Component.text("下に売りたいアイテムをセットしてください")),
@@ -109,8 +107,8 @@ public class Metazon {
         result.add(new Gui.PosMenuItem(itemBox, EMERALD_X, EMERALD_Y + 2));
 
         // ヘルプ用アイテム
-        BiConsumer<MenuItem, Player> onHelpClick = (menuItem, player)
-                -> HelpUtil.openHelp(player.getUniqueId(), HelpUtil.HelpType.Sample);
+        BiConsumer<MenuItem, Player> onHelpClick = (menuItem, player) ->
+                HelpUtil.openHelp(player.getUniqueId(), HelpUtil.HelpType.Sample);
         MenuItem help = new MenuItem(
                 Component.text("ヘルプ"),
                 List.of(Component.text("Metazonのつかいかた")),
@@ -132,47 +130,11 @@ public class Metazon {
     private Gui.PosMenuItem generatePriceChanger(int value, int x) {
         BiConsumer<MenuItem, Player> onClick = (menuItem, player) -> {
             this.price += (int) menuItem.getCustomData();
-//            Profundus.getInstance().getLogger().info("" + this.price);
-//            gui.setItemLore(EMERALD_X, EMERALD_Y, List.of(Component.text(this.price)));
-
-//            List<Gui.PosMenuItem> menuItemList = initSellMenu();
-
-            gui.cloneMenuItems().forEach(v -> {
-                if (v.menuItem().isDraggable() && v.x() == 2 && v.y() == 2) {
-                    Profundus.getInstance().getLogger().info("($x,$y):$type,$amount"
-                            .replace("$x", "" + v.x())
-                            .replace("$y", "" + v.y())
-                            .replace("$type", v.menuItem().getIcon() != null
-                                    ? v.menuItem().getIcon().getType().name()
-                                    : "null")
-                            .replace("$amount", v.menuItem().getIcon() != null
-                                    ? "" + v.menuItem().getIcon().getAmount()
-                                    : "0"));
-                }
-            });
-
-            List<Gui.PosMenuItem> menuItemList = gui.cloneMenuItems().stream().map(v -> {
+            List<Gui.PosMenuItem> menuItemList = gui.cloneMenuItems().stream().peek(v -> {
                 if (v.x() == EMERALD_X && v.y() == EMERALD_Y) {
                     v.menuItem().setLore(List.of(Component.text(this.price)));
-//                    MenuItem emerald = new MenuItem(
-//                            Component.text("金額"),
-//                            List.of(Component.text(this.price)),
-//                            null,
-//                            new ItemStack(Material.EMERALD),
-//                            null,
-//                            false,
-//                            false,
-//                            false
-//                    );
-//                    v = new Gui.PosMenuItem(emerald, EMERALD_X, EMERALD_Y);
                 }
-                return v;
             }).toList();
-
-//            if (emerald != null) {
-//                emerald.menuItem().setLore(List.of(Component.text(this.price)));
-//            }
-//            gui = new Gui(METAZON_TITLE);
             gui.setMenuItems(menuItemList);
             gui.open(player);
         };

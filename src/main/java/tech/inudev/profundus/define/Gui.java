@@ -76,24 +76,6 @@ public class Gui implements Listener {
         return new ArrayList<>(menuItems);
     }
 
-    public void setItemLore(int x, int y, List<Component> lore) {
-//        for (PosMenuItem item : menuItems) {
-//            if (item.x() == x && item.y() == y) {
-//                item.menuItem().setLore(lore);
-//            }
-//        }
-
-        for (int i = 0; i < menuItems.size(); i++) {
-            if (menuItems.get(i).x() == x && menuItems.get(i).y() == y) {
-                menuItems.get(i).menuItem().setLore(lore);
-//                inventory.getItem(x - 1 + (y - 1) * 9).lore(lore);
-            }
-        }
-
-//        menuItems.stream().filter(v -> v.x() == x && v.y() == y)
-//                .findFirst()..orElse(null);
-    }
-
     /**
      * GUIを開く。
      *
@@ -206,17 +188,6 @@ public class Gui implements Listener {
         if (inv == null) {
             return;
         }
-        Profundus.getInstance().getLogger().info("===================");
-//        Profundus.getInstance().getLogger().info(e.getAction().name());
-//        String current = e.getCurrentItem() != null
-//                ? e.getCurrentItem().getType().name()
-//                : "currentNull";
-//        String cursor = e.getCursor() != null
-//                ? e.getCursor().getType().name()
-//                : "cursorNull";
-//        Profundus.getInstance().getLogger().info(current +","+ cursor);
-//        Profundus.getInstance().getLogger().info(e.getClick().name());
-
         if (inv.equals(inventory)) {
             e.setCancelled(true);
             // Handle click
@@ -224,20 +195,12 @@ public class Gui implements Listener {
                 if (e.getSlot() == menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
                     if (menuItem.menuItem().isDraggable()) {
                         e.setCancelled(false);
-                        // 移動後のアイテムを取得するため1フレーム実行遅延
+                        // 移動後のアイテムを取得するため1tick実行遅延
                         Bukkit.getScheduler().runTaskLater(Profundus.getInstance(), () -> {
-                            menuItems.stream().filter(v -> v.menuItem().isDraggable())
-                                    .forEach(v -> {
-                                        int id = v.x() - 1 + (v.y() - 1) * 9;
-                                        ItemStack item = inventory.getItem(id);
-                                        Profundus.getInstance().getLogger().info(
-                                                item != null ? item.getType().name() : "null");
-                                        v.menuItem().setIcon(item);
-                                    });
                             menuItems.forEach(v -> {
-                                if (v.menuItem().isDraggable() && v.x() == 2 && v.y() == 2) {
-                                    Profundus.getInstance().getLogger().info(
-                                            "after:" + (v.menuItem().getIcon() == null ? "null" : v.menuItem().getIcon().getType().name()));
+                                if (v.menuItem().isDraggable()) {
+                                    int id = v.x() - 1 + (v.y() - 1) * 9;
+                                    v.menuItem().setIcon(inventory.getItem(id));
                                 }
                             });
                             if (menuItem.menuItem().getOnClick() != null) {
@@ -248,7 +211,6 @@ public class Gui implements Listener {
                             }
                         }, 1);
                     } else {
-//                    }
                         if (menuItem.menuItem().getOnClick() != null) {
                             menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                         }
@@ -277,60 +239,4 @@ public class Gui implements Listener {
 //            Profundus.getInstance().getLogger().info("src");
 //        }
     }
-
-    // todo:MenuItemの更新処理
-    private void updateDraggableItemOnClick(InventoryAction action) {
-        if (action == InventoryAction.PICKUP_ALL) {
-            // slotをnullにする (0個にするは良くなさそう）
-        } else if (action == InventoryAction.PICKUP_HALF) {
-            // slotから半分減らす
-        } else if (action == InventoryAction.PICKUP_SOME) {
-
-        } else if (action == InventoryAction.PICKUP_ONE) {
-
-        } else if (action == InventoryAction.PLACE_ALL) {
-            // slotをnullから変更
-        } else if (action == InventoryAction.PLACE_ONE) {
-            // slotに1個追加
-        } else if (action == InventoryAction.PLACE_SOME) {
-            // アイテムが入りきらないときになる
-            // slotの個数をmaxにする (個数が取れるならPLACE_ONEと統合できるけど）
-        } else if (action == InventoryAction.SWAP_WITH_CURSOR) {
-
-        } else if (action == InventoryAction.HOTBAR_MOVE_AND_READD) {
-            // HOTBAR_SWAPは同じインベントリ内のSWAP
-
-        } else if (action == InventoryAction.DROP_ONE_SLOT) {
-
-        } else if (action == InventoryAction.DROP_ALL_SLOT) {
-
-        } else if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-            // Gui上からインベントリへ移動させるときに使う
-
-            // インベントリがいっぱいの場合何も起こらない
-            // Shift + ダブルクリックで複数一気に配置されるとき、
-            //      ひとつひとつ配置される扱いで複数のイベントが発火される
-
-            // Gui slot上でのやつはslotをnullにする
-            // インベントリ slot上でのやつは
-        }
-    }
-
-//    @EventHandler
-//    public void onInventoryDragEvent(InventoryDragEvent e) {
-//        Inventory inv = e.
-//    }
-
-//    public void onInventoryMoveItem(InventoryMoveItemEvent e) {
-//        Inventory inv = e.getDestination();
-//        if (inv == null) {
-//            return;
-//        }
-//
-//        if (inv.equals(inventory)) {
-//            e.setCancelled(true);
-//            e
-//            e.getItem();
-//        }
-//    }
 }
