@@ -17,20 +17,19 @@ import java.util.function.BiConsumer;
  */
 public class MenuItem {
     @Getter
+    private final Component title;
+    @Getter
+    private List<Component> lore;
+    @Getter
     private final BiConsumer<MenuItem, Player> onClick;
     @Getter
-    private final ItemStack icon;
+    private ItemStack icon;
     @Getter
     private final Object customData;
     @Getter
     private final boolean shiny;
     @Getter
     private final boolean close;
-    @Getter
-    private final Component title;
-
-    @Getter
-    private final List<Component> lore;
 
     @Getter
     private final boolean draggable;
@@ -48,36 +47,14 @@ public class MenuItem {
      * @param draggable  アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
      */
     public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, boolean draggable) {
+        this.title = title;
+        this.lore = lore;
         this.onClick = onClick;
-        this.icon = icon;
         this.customData = customData;
         this.shiny = shiny;
         this.close = close;
-        this.title = title;
-        this.lore = lore;
         this.draggable = draggable;
-
-        if (icon == null) {
-            if (!draggable) {
-                throw new IllegalArgumentException("draggableがfalseの場合、iconをnullにはできません");
-            } else {
-                return;
-            }
-        }
-
-        if (shiny) {
-            icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
-        }
-
-        ItemMeta meta = icon.getItemMeta();
-        if (title != null) {
-            meta.displayName(title);
-        }
-
-        if (lore != null) {
-            meta.lore(lore);
-        }
-        icon.setItemMeta(meta);
+        setIcon(icon);
     }
 
     /**
@@ -175,6 +152,44 @@ public class MenuItem {
     public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean close, boolean draggable) {
         this(Component.text(title), null, onClick, icon, null, false, close, draggable);
     }
+
+
+    public void setLore(List<Component> lore) {
+        this.lore = lore;
+        if (icon != null && lore != null) {
+            ItemMeta meta = icon.getItemMeta();
+            meta.lore(lore);
+            icon.setItemMeta(meta);
+        }
+    }
+
+    public void setIcon(ItemStack icon) {
+        this.icon = icon;
+
+        if (this.icon == null) {
+            if (!draggable) {
+                throw new IllegalArgumentException("draggableがfalseの場合、iconをnullにはできません");
+            } else {
+                return;
+            }
+        }
+
+        if (shiny) {
+            this.icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
+        }
+
+        ItemMeta meta = this.icon.getItemMeta();
+        if (title != null) {
+            meta.displayName(title);
+        }
+
+        if (lore != null) {
+            meta.lore(lore);
+        }
+        this.icon.setItemMeta(meta);
+
+    }
+
 
     /**
      * 不使用スロットを埋めるアイテムを生成する。

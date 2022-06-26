@@ -14,36 +14,38 @@ import java.util.function.BiConsumer;
 
 public class Metazon {
     Gui gui;
-    List<Gui.PosMenuItem> menuItemList = new ArrayList<>();
+    //    List<Gui.PosMenuItem> menuItemList = new ArrayList<>();
     private int price = 0;
     private static final String METAZON_TITLE = "Metazon";
+    private static final int EMERALD_X = 5;
+    private static final int EMERALD_Y = 1;
 
     public void open(Player player) {
         this.gui = new Gui(METAZON_TITLE);
-        initTopMenu();
-        this.gui.setMenuItems(menuItemList);
+        this.gui.setMenuItems(initTopMenu());
         this.gui.open(player);
     }
 
-    private void initTopMenu() {
-        menuItemList = new ArrayList<>();
+    private List<Gui.PosMenuItem> initTopMenu() {
+        List<Gui.PosMenuItem> result = new ArrayList<>();
 
         MenuItem paper = new MenuItem(
                 "購入モード",
                 null,
                 (menuItem, player) -> openBuyMode(player),
                 new ItemStack(Material.GREEN_WOOL));
-        menuItemList.add(new Gui.PosMenuItem(paper, 4, 1));
+        result.add(new Gui.PosMenuItem(paper, 4, 1));
 
         MenuItem sellMode = new MenuItem(
                 "販売モード",
                 null,
                 (menuItem, player) -> openSellMode(player),
                 new ItemStack(Material.ORANGE_WOOL));
-        menuItemList.add(new Gui.PosMenuItem(sellMode, 6, 1));
+        result.add(new Gui.PosMenuItem(sellMode, 6, 1));
 
         int[][] filledArray = {{4, 6}};
-        addDisuses(filledArray);
+        result.addAll(generateDisuses(filledArray));
+        return result;
     }
 
     private void openBuyMode(Player player) {
@@ -52,20 +54,20 @@ public class Metazon {
 
     private void openSellMode(Player player) {
         this.gui = new Gui(METAZON_TITLE);
-        initSellMenu();
+        List<Gui.PosMenuItem> menuItemList = initSellMenu();
         this.gui.setMenuItems(menuItemList);
         this.gui.open(player);
     }
 
-    private void initSellMenu() {
-        menuItemList = new ArrayList<>();
+    private List<Gui.PosMenuItem> initSellMenu() {
+        List<Gui.PosMenuItem> result = new ArrayList<>();
 
         // 金額変動用アイテム
         for (int i = 0; i < 3; i++) {
             int x = 5;
-            menuItemList.add(generatePriceChanger(
+            result.add(generatePriceChanger(
                     (int) Math.pow(10, i), x + (i + 1)));
-            menuItemList.add(generatePriceChanger(
+            result.add(generatePriceChanger(
                     (int) -Math.pow(10, i), x - (i + 1)));
         }
 
@@ -80,11 +82,12 @@ public class Metazon {
                 false,
                 false
         );
-        menuItemList.add(new Gui.PosMenuItem(emerald, 5, 1));
+        result.add(new Gui.PosMenuItem(emerald, EMERALD_X, EMERALD_Y));
 
         // 売却ボタン用アイテム
-        BiConsumer<MenuItem, Player> onPaperClick = (menuItem, player)
-                -> Profundus.getInstance().getLogger().info("on paper click");
+        BiConsumer<MenuItem, Player> onPaperClick = (menuItem, player) -> {
+            Profundus.getInstance().getLogger().info("on paper click");
+        };
         MenuItem paper = new MenuItem(
                 Component.text("売却ボタン"),
                 List.of(Component.text("下に売りたいアイテムをセットしてください")),
@@ -94,7 +97,7 @@ public class Metazon {
                 false,
                 false,
                 false);
-        menuItemList.add(new Gui.PosMenuItem(paper, 5, 2));
+        result.add(new Gui.PosMenuItem(paper, EMERALD_X, EMERALD_Y + 1));
 
         // 販売アイテムセット用の空欄
         MenuItem itemBox = new MenuItem(
@@ -103,7 +106,7 @@ public class Metazon {
                 null,
                 false,
                 true);
-        menuItemList.add(new Gui.PosMenuItem(itemBox, 5, 3));
+        result.add(new Gui.PosMenuItem(itemBox, EMERALD_X, EMERALD_Y + 2));
 
         // ヘルプ用アイテム
         BiConsumer<MenuItem, Player> onHelpClick = (menuItem, player)
@@ -117,16 +120,60 @@ public class Metazon {
                 true,
                 false,
                 false);
-        menuItemList.add(new Gui.PosMenuItem(help, 9, 3));
+        result.add(new Gui.PosMenuItem(help, 9, EMERALD_Y + 2));
 
         int[][] filledArray = {{2, 3, 4, 5, 6, 7, 8}, {5}, {5, 9}};
-        addDisuses(filledArray);
+//        addDisuses(filledArray);
+        result.addAll(generateDraggableBlanks(filledArray));
+
+        return result;
     }
 
     private Gui.PosMenuItem generatePriceChanger(int value, int x) {
         BiConsumer<MenuItem, Player> onClick = (menuItem, player) -> {
             this.price += (int) menuItem.getCustomData();
-            initSellMenu();
+//            Profundus.getInstance().getLogger().info("" + this.price);
+//            gui.setItemLore(EMERALD_X, EMERALD_Y, List.of(Component.text(this.price)));
+
+//            List<Gui.PosMenuItem> menuItemList = initSellMenu();
+
+            gui.cloneMenuItems().forEach(v -> {
+                if (v.menuItem().isDraggable() && v.x() == 2 && v.y() == 2) {
+                    Profundus.getInstance().getLogger().info("($x,$y):$type,$amount"
+                            .replace("$x", "" + v.x())
+                            .replace("$y", "" + v.y())
+                            .replace("$type", v.menuItem().getIcon() != null
+                                    ? v.menuItem().getIcon().getType().name()
+                                    : "null")
+                            .replace("$amount", v.menuItem().getIcon() != null
+                                    ? "" + v.menuItem().getIcon().getAmount()
+                                    : "0"));
+                }
+            });
+
+            List<Gui.PosMenuItem> menuItemList = gui.cloneMenuItems().stream().map(v -> {
+                if (v.x() == EMERALD_X && v.y() == EMERALD_Y) {
+                    v.menuItem().setLore(List.of(Component.text(this.price)));
+//                    MenuItem emerald = new MenuItem(
+//                            Component.text("金額"),
+//                            List.of(Component.text(this.price)),
+//                            null,
+//                            new ItemStack(Material.EMERALD),
+//                            null,
+//                            false,
+//                            false,
+//                            false
+//                    );
+//                    v = new Gui.PosMenuItem(emerald, EMERALD_X, EMERALD_Y);
+                }
+                return v;
+            }).toList();
+
+//            if (emerald != null) {
+//                emerald.menuItem().setLore(List.of(Component.text(this.price)));
+//            }
+//            gui = new Gui(METAZON_TITLE);
+            gui.setMenuItems(menuItemList);
             gui.open(player);
         };
         MenuItem newItem = new MenuItem(
@@ -142,15 +189,35 @@ public class Metazon {
     }
 
     // 不使用スロットを埋める
-    private void addDisuses(int[][] filledArray) {
+    private List<Gui.PosMenuItem> generateDisuses(int[][] filledArray) {
+        List<Gui.PosMenuItem> result = new ArrayList<>();
         for (int x = 0; x < 9; x++) {
             for (int y = 0; y < filledArray.length; y++) {
                 int finalX = x;
                 if (Arrays.stream(filledArray[y]).filter(v -> v == finalX + 1).findFirst().isEmpty()) {
-                    menuItemList.add(new Gui.PosMenuItem(
+                    result.add(new Gui.PosMenuItem(
                             MenuItem.generateDisuse(), x + 1, y + 1));
                 }
             }
         }
+        return result;
+    }
+
+    private List<Gui.PosMenuItem> generateDraggableBlanks(int[][] filledArray) {
+        List<Gui.PosMenuItem> result = new ArrayList<>();
+        for (int x = 0; x < 9; x++) {
+            for (int y = 0; y < filledArray.length; y++) {
+                int finalX = x;
+                if (Arrays.stream(filledArray[y]).filter(v -> v == finalX + 1).findFirst().isEmpty()) {
+                    result.add(new Gui.PosMenuItem(new MenuItem(
+                            "",
+                            null,
+                            null,
+                            false,
+                            true), x + 1, y + 1));
+                }
+            }
+        }
+        return result;
     }
 }

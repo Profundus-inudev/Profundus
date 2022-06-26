@@ -8,9 +8,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
@@ -70,6 +70,28 @@ public class Gui implements Listener {
      */
     public void addItem(MenuItem menuItem, int x, int y) {
         menuItems.add(new PosMenuItem(menuItem, x, y));
+    }
+
+    public List<PosMenuItem> cloneMenuItems() {
+        return new ArrayList<>(menuItems);
+    }
+
+    public void setItemLore(int x, int y, List<Component> lore) {
+//        for (PosMenuItem item : menuItems) {
+//            if (item.x() == x && item.y() == y) {
+//                item.menuItem().setLore(lore);
+//            }
+//        }
+
+        for (int i = 0; i < menuItems.size(); i++) {
+            if (menuItems.get(i).x() == x && menuItems.get(i).y() == y) {
+                menuItems.get(i).menuItem().setLore(lore);
+//                inventory.getItem(x - 1 + (y - 1) * 9).lore(lore);
+            }
+        }
+
+//        menuItems.stream().filter(v -> v.x() == x && v.y() == y)
+//                .findFirst()..orElse(null);
     }
 
     /**
@@ -155,7 +177,7 @@ public class Gui implements Listener {
         for (PosMenuItem menuItem : menuItems) {
             inventory.setItem(menuItem.x() - 1 + (menuItem.y() - 1) * 9, menuItem.menuItem().getIcon());
         }
-
+        HandlerList.unregisterAll(this);
         Bukkit.getPluginManager().registerEvents(this, Profundus.getInstance());
         player.openInventory(inventory);
     }
@@ -181,26 +203,134 @@ public class Gui implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         Inventory inv = e.getClickedInventory();
-        if(inv == null) {
+        if (inv == null) {
             return;
         }
+        Profundus.getInstance().getLogger().info("===================");
+//        Profundus.getInstance().getLogger().info(e.getAction().name());
+//        String current = e.getCurrentItem() != null
+//                ? e.getCurrentItem().getType().name()
+//                : "currentNull";
+//        String cursor = e.getCursor() != null
+//                ? e.getCursor().getType().name()
+//                : "cursorNull";
+//        Profundus.getInstance().getLogger().info(current +","+ cursor);
+//        Profundus.getInstance().getLogger().info(e.getClick().name());
 
         if (inv.equals(inventory)) {
             e.setCancelled(true);
             // Handle click
             for (PosMenuItem menuItem : menuItems) {
                 if (e.getSlot() == menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
-                    if(menuItem.menuItem().isDraggable()) {
+                    if (menuItem.menuItem().isDraggable()) {
                         e.setCancelled(false);
-                    }
-                    if (menuItem.menuItem().getOnClick() != null) {
-                        menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
-                    }
-                    if (menuItem.menuItem().isClose()) {
-                        inventory.close();
+                        // 移動後のアイテムを取得するため1フレーム実行遅延
+                        Bukkit.getScheduler().runTaskLater(Profundus.getInstance(), () -> {
+                            menuItems.stream().filter(v -> v.menuItem().isDraggable())
+                                    .forEach(v -> {
+                                        int id = v.x() - 1 + (v.y() - 1) * 9;
+                                        ItemStack item = inventory.getItem(id);
+                                        Profundus.getInstance().getLogger().info(
+                                                item != null ? item.getType().name() : "null");
+                                        v.menuItem().setIcon(item);
+                                    });
+                            menuItems.forEach(v -> {
+                                if (v.menuItem().isDraggable() && v.x() == 2 && v.y() == 2) {
+                                    Profundus.getInstance().getLogger().info(
+                                            "after:" + (v.menuItem().getIcon() == null ? "null" : v.menuItem().getIcon().getType().name()));
+                                }
+                            });
+                            if (menuItem.menuItem().getOnClick() != null) {
+                                menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
+                            }
+                            if (menuItem.menuItem().isClose()) {
+                                inventory.close();
+                            }
+                        }, 1);
+                    } else {
+//                    }
+                        if (menuItem.menuItem().getOnClick() != null) {
+                            menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
+                        }
+                        if (menuItem.menuItem().isClose()) {
+                            inventory.close();
+                        }
                     }
                 }
             }
         }
     }
+
+    @EventHandler
+    public void onInventoryDragEvent(InventoryDragEvent e) {
+
+        Profundus.getInstance().getLogger().info(e.getEventName());
+
+        for (int key : e.getNewItems().keySet()) {
+            Profundus.getInstance().getLogger().info(
+                    key + ":" + e.getNewItems().get(key).getType().name());
+        }
+
+//        if (e.getDestination().equals(inventory)) {
+//            Profundus.getInstance().getLogger().info("dest");
+//        } else if (e.getSource().equals(inventory)) {
+//            Profundus.getInstance().getLogger().info("src");
+//        }
+    }
+
+    // todo:MenuItemの更新処理
+    private void updateDraggableItemOnClick(InventoryAction action) {
+        if (action == InventoryAction.PICKUP_ALL) {
+            // slotをnullにする (0個にするは良くなさそう）
+        } else if (action == InventoryAction.PICKUP_HALF) {
+            // slotから半分減らす
+        } else if (action == InventoryAction.PICKUP_SOME) {
+
+        } else if (action == InventoryAction.PICKUP_ONE) {
+
+        } else if (action == InventoryAction.PLACE_ALL) {
+            // slotをnullから変更
+        } else if (action == InventoryAction.PLACE_ONE) {
+            // slotに1個追加
+        } else if (action == InventoryAction.PLACE_SOME) {
+            // アイテムが入りきらないときになる
+            // slotの個数をmaxにする (個数が取れるならPLACE_ONEと統合できるけど）
+        } else if (action == InventoryAction.SWAP_WITH_CURSOR) {
+
+        } else if (action == InventoryAction.HOTBAR_MOVE_AND_READD) {
+            // HOTBAR_SWAPは同じインベントリ内のSWAP
+
+        } else if (action == InventoryAction.DROP_ONE_SLOT) {
+
+        } else if (action == InventoryAction.DROP_ALL_SLOT) {
+
+        } else if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            // Gui上からインベントリへ移動させるときに使う
+
+            // インベントリがいっぱいの場合何も起こらない
+            // Shift + ダブルクリックで複数一気に配置されるとき、
+            //      ひとつひとつ配置される扱いで複数のイベントが発火される
+
+            // Gui slot上でのやつはslotをnullにする
+            // インベントリ slot上でのやつは
+        }
+    }
+
+//    @EventHandler
+//    public void onInventoryDragEvent(InventoryDragEvent e) {
+//        Inventory inv = e.
+//    }
+
+//    public void onInventoryMoveItem(InventoryMoveItemEvent e) {
+//        Inventory inv = e.getDestination();
+//        if (inv == null) {
+//            return;
+//        }
+//
+//        if (inv.equals(inventory)) {
+//            e.setCancelled(true);
+//            e
+//            e.getItem();
+//        }
+//    }
 }
