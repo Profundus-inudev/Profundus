@@ -28,6 +28,12 @@ import java.util.function.BiConsumer;
  * @author kumitatepazuru
  */
 public class Gui implements Listener {
+    /**
+     * 内部で使用するMenuItemに座標データをつけたもの。
+     * @param menuItem MenuItem
+     * @param x x座標
+     * @param y y座標
+     */
     record PosMenuItem(MenuItem menuItem, int x, int y) {
     }
 
@@ -73,6 +79,20 @@ public class Gui implements Listener {
      */
     public void open(Player player) {
         if (isBedrock(player)) {
+            openBedrockImpl(player);
+        } else {
+            openJavaImpl(player);
+        }
+    }
+
+    /**
+     * GUIを開く。
+     *
+     * @param player GUIを開くプレイヤー
+     * @param forceInventoryGui 統合版でもインベントリGUIを使用するか
+     */
+    public void open(Player player, boolean forceInventoryGui) {
+        if (isBedrock(player) && !forceInventoryGui) {
             openBedrockImpl(player);
         } else {
             openJavaImpl(player);
@@ -158,11 +178,21 @@ public class Gui implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (e.getInventory().equals(inventory)) {
+        Inventory inv = e.getClickedInventory();
+        if(inv == null) {
+            return;
+        }
+
+        if(e.getInventory().equals(inventory)) {
             e.setCancelled(true);
+        }
+        if (inv.equals(inventory)) {
             // Handle click
             for (PosMenuItem menuItem : menuItems) {
                 if (e.getSlot() == menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
+                    if(menuItem.menuItem().isDraggable()) {
+                        e.setCancelled(false);
+                    }
                     if (menuItem.menuItem().getOnClick() != null) {
                         menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                     }
