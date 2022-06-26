@@ -159,7 +159,10 @@ public class Gui implements Listener {
         for (PosMenuItem menuItem : menuItems) {
             inventory.setItem(menuItem.x() - 1 + (menuItem.y() - 1) * 9, menuItem.menuItem().getIcon());
         }
+
+        // GC
         HandlerList.unregisterAll(this);
+
         Bukkit.getPluginManager().registerEvents(this, Profundus.getInstance());
         player.openInventory(inventory);
     }
@@ -185,39 +188,38 @@ public class Gui implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         Inventory inv = e.getClickedInventory();
-        if (inv == null) {
+        if (inv == null || !inv.equals(inventory)) {
             return;
         }
-        if (inv.equals(inventory)) {
-            e.setCancelled(true);
-            // Handle click
-            for (PosMenuItem menuItem : menuItems) {
-                if (e.getSlot() == menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
-                    if (menuItem.menuItem().isDraggable()) {
-                        e.setCancelled(false);
-                        // 移動後のアイテムを取得するため1tick実行遅延
-                        Bukkit.getScheduler().runTaskLater(Profundus.getInstance(), () -> {
-                            menuItems.forEach(v -> {
-                                if (v.menuItem().isDraggable()) {
-                                    int id = v.x() - 1 + (v.y() - 1) * 9;
-                                    v.menuItem().setIcon(inventory.getItem(id));
-                                }
-                            });
-                            if (menuItem.menuItem().getOnClick() != null) {
-                                menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
-                            }
-                            if (menuItem.menuItem().isClose()) {
-                                inventory.close();
-                            }
-                        }, 1);
-                    } else {
-                        if (menuItem.menuItem().getOnClick() != null) {
-                            menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
+        e.setCancelled(true);
+        // Handle click
+        for (PosMenuItem menuItem : menuItems) {
+            if (e.getSlot() != menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
+                continue;
+            }
+            if (menuItem.menuItem().isDraggable()) {
+                e.setCancelled(false);
+                // 移動後のアイテムを取得するため1tick実行遅延
+                Bukkit.getScheduler().runTaskLater(Profundus.getInstance(), () -> {
+                    menuItems.forEach(v -> {
+                        if (v.menuItem().isDraggable()) {
+                            int id = v.x() - 1 + (v.y() - 1) * 9;
+                            v.menuItem().setIcon(inventory.getItem(id));
                         }
-                        if (menuItem.menuItem().isClose()) {
-                            inventory.close();
-                        }
+                    });
+                    if (menuItem.menuItem().getOnClick() != null) {
+                        menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                     }
+                    if (menuItem.menuItem().isClose()) {
+                        inventory.close();
+                    }
+                }, 1);
+            } else {
+                if (menuItem.menuItem().getOnClick() != null) {
+                    menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
+                }
+                if (menuItem.menuItem().isClose()) {
+                    inventory.close();
                 }
             }
         }
@@ -225,18 +227,19 @@ public class Gui implements Listener {
 
     @EventHandler
     public void onInventoryDragEvent(InventoryDragEvent e) {
-
-        Profundus.getInstance().getLogger().info(e.getEventName());
-
-        for (int key : e.getNewItems().keySet()) {
-            Profundus.getInstance().getLogger().info(
-                    key + ":" + e.getNewItems().get(key).getType().name());
+        Inventory inv = e.getInventory();
+        if (!inv.equals(inventory)) {
+            return;
         }
-
-//        if (e.getDestination().equals(inventory)) {
-//            Profundus.getInstance().getLogger().info("dest");
-//        } else if (e.getSource().equals(inventory)) {
-//            Profundus.getInstance().getLogger().info("src");
-//        }
+        for (PosMenuItem menuItem : menuItems) {
+            if (!menuItem.menuItem().isDraggable()) {
+                continue;
+            }
+            int id = menuItem.x() - 1 + (menuItem.y() - 1) * 9;
+            if (e.getNewItems().containsKey(id)) {
+                ItemStack item = e.getNewItems().get(id);
+                menuItem.menuItem().setIcon(item);
+            }
+        }
     }
 }
