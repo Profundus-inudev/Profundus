@@ -1,6 +1,7 @@
 package tech.inudev.profundus.define;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +15,7 @@ import java.util.function.BiConsumer;
 
 public class Metazon {
     Gui gui;
-    private int price = 1;
+    private int sellPrice = 1;
     private static final String METAZON_TITLE = "Metazon";
     private static final int EMERALD_X = 5;
     private static final int EMERALD_Y = 1;
@@ -23,6 +24,7 @@ public class Metazon {
 
     public void open(Player player) {
         this.gui = new Gui(METAZON_TITLE);
+        this.sellPrice = 1;
         this.gui.setMenuItems(initTopMenu());
         this.gui.open(player);
     }
@@ -54,7 +56,7 @@ public class Metazon {
     }
 
     private void openSellMode(Player player, ItemStack sellItem) {
-        this.gui = new Gui(METAZON_TITLE);
+        this.gui = new Gui(METAZON_TITLE + " 販売モード");
         List<Gui.PosMenuItem> menuItemList = initSellMenu(sellItem);
         this.gui.setMenuItems(menuItemList);
         this.gui.open(player);
@@ -75,7 +77,7 @@ public class Metazon {
         // 金額表示用アイテム
         MenuItem emerald = new MenuItem(
                 Component.text("金額"),
-                List.of(Component.text(this.price)),
+                List.of(Component.text(this.sellPrice)),
                 null,
                 new ItemStack(Material.EMERALD),
                 null,
@@ -100,6 +102,18 @@ public class Metazon {
         MenuItem itemBox = MenuItem.generateDraggable(null, sellItem);
         result.add(new Gui.PosMenuItem(itemBox, EMERALD_X, EMERALD_Y + 2));
 
+        // 戻るボタン用アイテム
+        MenuItem backPage = new MenuItem(
+                Component.text("前に戻る"),
+                null,
+                (menuItem, player) -> open(player),
+                new ItemStack(Material.PAPER),
+                null,
+                false,
+                false,
+                false);
+        result.add(new Gui.PosMenuItem(backPage, 1, 3));
+
         // ヘルプ用アイテム
         MenuItem help = new MenuItem(
                 Component.text("ヘルプ"),
@@ -112,7 +126,7 @@ public class Metazon {
                 false);
         result.add(new Gui.PosMenuItem(help, 9, EMERALD_Y + 2));
 
-        int[][] filledArray = {{2, 3, 4, 5, 6, 7, 8}, {5}, {5, 9}};
+        int[][] filledArray = {{2, 3, 4, 5, 6, 7, 8}, {5}, {1, 5, 9}};
         result.addAll(generateDisuses(filledArray));
         return result;
     }
@@ -139,7 +153,7 @@ public class Metazon {
     }
 
     private void openSellConfirm(Player player, ItemStack sellItem) {
-        this.gui = new Gui(METAZON_TITLE);
+        this.gui = new Gui(METAZON_TITLE + " 販売確認");
         List<Gui.PosMenuItem> menuItemList = initSellConfirmMenu(sellItem);
         this.gui.setMenuItems(menuItemList);
         this.gui.open(player);
@@ -148,21 +162,33 @@ public class Metazon {
     private List<Gui.PosMenuItem> initSellConfirmMenu(ItemStack sellItem) {
         List<Gui.PosMenuItem> result = new ArrayList<>();
 
-        MenuItem paper = new MenuItem(
-                Component.text("確認"),
-                List.of(Component.text("こちらのアイテムを販売します。"),
-                        Component.text("左：戻る 右：確定")),
+//        MenuItem paper = new MenuItem(
+//                Component.text("確認"),
+//                List.of(Component.text("こちらのアイテムを販売します。"),
+//                        Component.text("左：戻る 右：確定")),
+//                null,
+//                new ItemStack(Material.EMERALD),
+//                null,
+//                false,
+//                false,
+//                false);
+//        result.add(new Gui.PosMenuItem(paper, 5, 1));
+
+        // 金額表示用アイテム
+        MenuItem emerald = new MenuItem(
+                Component.text("金額"),
+                List.of(Component.text(this.sellPrice)),
                 null,
-                new ItemStack(Material.PAPER),
+                new ItemStack(Material.EMERALD),
                 null,
                 false,
                 false,
                 false);
-        result.add(new Gui.PosMenuItem(paper, 5, 1));
+        result.add(new Gui.PosMenuItem(emerald, 5, 1));
 
         MenuItem goods = new MenuItem(
-                sellItem.displayName(),
-                sellItem.lore(),
+                null,
+                null,
                 null,
                 sellItem,
                 null,
@@ -175,7 +201,7 @@ public class Metazon {
                 Component.text("前に戻る"),
                 null,
                 (menuItem, player) -> openSellMode(player, sellItem),
-                new ItemStack(Material.ORANGE_WOOL),
+                new ItemStack(Material.PAPER),
                 null,
                 false,
                 false,
@@ -183,10 +209,10 @@ public class Metazon {
         result.add(new Gui.PosMenuItem(backPage, 4, 3));
 
         MenuItem confirm = new MenuItem(
-                Component.text("販売を確定"),
+                Component.text("販売を確定").color(TextColor.color(0x55FF55)),
                 null,
-                (menuItem, player) -> confirmSell(),
-                new ItemStack(Material.GREEN_WOOL),
+                (menuItem, player) -> mockRegisterItem(sellItem, this.sellPrice, player),
+                new ItemStack(Material.PAPER),
                 null,
                 false,
                 true,
@@ -199,20 +225,19 @@ public class Metazon {
         return result;
     }
 
-    private void confirmSell() {
-
-
+    private void mockRegisterItem(ItemStack sellItem, int sellPrice, Player player) {
+        // 本来は外部の販売アイテム登録用メソッドを呼び出す
     }
 
     private Gui.PosMenuItem generatePriceChanger(int value, int x) {
         BiConsumer<MenuItem, Player> onClick = (menuItem, player) -> {
-            this.price += (int) menuItem.getCustomData();
-            if (this.price < 1) {
-                this.price = 1;
+            this.sellPrice += (int) menuItem.getCustomData();
+            if (this.sellPrice < 1) {
+                this.sellPrice = 1;
             }
             List<Gui.PosMenuItem> menuItemList = gui.cloneMenuItems().stream().peek(v -> {
                 if (v.x() == EMERALD_X && v.y() == EMERALD_Y) {
-                    v.menuItem().setLore(List.of(Component.text(this.price)));
+                    v.menuItem().setLore(List.of(Component.text(this.sellPrice)));
                 }
             }).toList();
             gui.setMenuItems(menuItemList);

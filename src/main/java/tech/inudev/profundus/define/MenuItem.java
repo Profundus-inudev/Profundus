@@ -68,7 +68,7 @@ public class MenuItem {
      * @param shiny      ブロックをキラキラさせるか
      */
     public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny) {
-        this(Component.text(title), lore, onClick, icon, customData, shiny, true, false);
+        this(title != null ? Component.text(title) : null, lore, onClick, icon, customData, shiny, true, false);
     }
 
     /**
@@ -117,7 +117,7 @@ public class MenuItem {
      * @param draggable アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
      */
     public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close, boolean draggable) {
-        this(Component.text(title), null, onClick, icon, null, shiny, close, draggable);
+        this(title != null ? Component.text(title) : null, null, onClick, icon, null, shiny, close, draggable);
     }
 
     /**
@@ -150,7 +150,7 @@ public class MenuItem {
      * @param draggable アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
      */
     public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean close, boolean draggable) {
-        this(Component.text(title), null, onClick, icon, null, false, close, draggable);
+        this(title != null ? Component.text(title) : null, null, onClick, icon, null, false, close, draggable);
     }
 
 
@@ -187,7 +187,7 @@ public class MenuItem {
         }
 
         if (lore != null) {
-            meta.lore(lore);
+            meta.lore(lore.size() > 0 ? lore : null);
         }
         this.icon.setItemMeta(meta);
     }
@@ -202,6 +202,6 @@ public class MenuItem {
     }
 
     public static MenuItem generateDraggable(BiConsumer<MenuItem, Player> onClick, ItemStack icon) {
-        return new MenuItem(Component.text(""), null, onClick, icon, null, false, false, true);
+        return new MenuItem(null, null, onClick, icon, null, false, false, true);
     }
 }
