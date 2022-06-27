@@ -14,10 +14,12 @@ import java.util.function.BiConsumer;
 
 public class Metazon {
     Gui gui;
-    private int price = 0;
+    private int price = 1;
     private static final String METAZON_TITLE = "Metazon";
     private static final int EMERALD_X = 5;
     private static final int EMERALD_Y = 1;
+    private static final int GOODS_X = 5;
+    private static final int GOODS_Y = 3;
 
     public void open(Player player) {
         this.gui = new Gui(METAZON_TITLE);
@@ -79,13 +81,31 @@ public class Metazon {
                 null,
                 false,
                 false,
-                false
-        );
+                false);
         result.add(new Gui.PosMenuItem(emerald, EMERALD_X, EMERALD_Y));
 
-        // 売却ボタン用アイテム
-        BiConsumer<MenuItem, Player> onPaperClick = (menuItem, player)
-                -> Profundus.getInstance().getLogger().info("on paper click");
+        // 販売ボタン用アイテム
+        BiConsumer<MenuItem, Player> onPaperClick = (menuItem, player) -> {
+            Gui.PosMenuItem goodsMenuItem = gui.cloneMenuItems().stream()
+                    .filter(v -> v.x() == GOODS_X && v.y() == GOODS_Y)
+                    .findFirst().orElse(null);
+            if (goodsMenuItem == null) {
+                throw new IllegalStateException();
+            }
+            ItemStack goods = goodsMenuItem.menuItem().getIcon();
+            if (goods == null) {
+                return;
+            }
+            // 商品の登録
+            // registerGoods(goods, this.price, player);
+            List<Gui.PosMenuItem> menuItemList = gui.cloneMenuItems().stream().peek(v -> {
+                if (v.x() == GOODS_X && v.y() == GOODS_Y) {
+                    v.menuItem().setIcon(null);
+                }
+            }).toList();
+            gui.setMenuItems(menuItemList);
+            gui.open(player);
+        };
         MenuItem paper = new MenuItem(
                 Component.text("売却ボタン"),
                 List.of(Component.text("下に売りたいアイテムをセットしてください")),
@@ -120,9 +140,13 @@ public class Metazon {
         return result;
     }
 
+
     private Gui.PosMenuItem generatePriceChanger(int value, int x) {
         BiConsumer<MenuItem, Player> onClick = (menuItem, player) -> {
             this.price += (int) menuItem.getCustomData();
+            if (this.price < 1) {
+                this.price = 1;
+            }
             List<Gui.PosMenuItem> menuItemList = gui.cloneMenuItems().stream().peek(v -> {
                 if (v.x() == EMERALD_X && v.y() == EMERALD_Y) {
                     v.menuItem().setLore(List.of(Component.text(this.price)));
