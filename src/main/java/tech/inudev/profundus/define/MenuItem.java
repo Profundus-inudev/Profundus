@@ -167,11 +167,14 @@ public class MenuItem {
         this.icon = icon;
 
         if (this.icon == null) {
-            if (!draggable) {
-                throw new IllegalArgumentException("draggableがfalseの場合、iconをnullにはできません");
-            } else {
+            if (draggable) {
                 return;
+            } else {
+                throw new IllegalArgumentException("draggableがfalseの場合、iconをnullにはできません");
             }
+        }
+        if (draggable) {
+            return;
         }
 
         if (shiny) {
@@ -187,9 +190,7 @@ public class MenuItem {
             meta.lore(lore);
         }
         this.icon.setItemMeta(meta);
-
     }
-
 
     /**
      * 不使用スロットを埋めるアイテムを生成する。
