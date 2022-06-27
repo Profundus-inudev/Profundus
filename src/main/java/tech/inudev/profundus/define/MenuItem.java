@@ -156,7 +156,7 @@ public class MenuItem {
 
     public void setLore(List<Component> lore) {
         this.lore = lore;
-        if (icon != null && lore != null) {
+        if (!isDraggable() && icon != null && lore != null) {
             ItemMeta meta = icon.getItemMeta();
             meta.lore(lore);
             icon.setItemMeta(meta);
@@ -199,5 +199,9 @@ public class MenuItem {
      */
     public static MenuItem generateDisuse() {
         return new MenuItem(Component.text(""), null, null, new ItemStack(Material.GRAY_STAINED_GLASS_PANE), null, false, false, false);
+    }
+
+    public static MenuItem generateDraggable(BiConsumer<MenuItem, Player> onClick, ItemStack icon) {
+        return new MenuItem(Component.text(""), null, onClick, icon, null, false, false, true);
     }
 }
