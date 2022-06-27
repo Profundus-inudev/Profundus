@@ -40,7 +40,7 @@ public class Metazon {
         MenuItem sellMode = new MenuItem(
                 "販売モード",
                 null,
-                (menuItem, player) -> openSellMode(player),
+                (menuItem, player) -> openSellMode(player, null),
                 new ItemStack(Material.ORANGE_WOOL));
         result.add(new Gui.PosMenuItem(sellMode, 6, 1));
 
@@ -53,14 +53,14 @@ public class Metazon {
 
     }
 
-    private void openSellMode(Player player) {
+    private void openSellMode(Player player, ItemStack sellItem) {
         this.gui = new Gui(METAZON_TITLE);
-        List<Gui.PosMenuItem> menuItemList = initSellMenu();
+        List<Gui.PosMenuItem> menuItemList = initSellMenu(sellItem);
         this.gui.setMenuItems(menuItemList);
         this.gui.open(player);
     }
 
-    private List<Gui.PosMenuItem> initSellMenu() {
+    private List<Gui.PosMenuItem> initSellMenu(ItemStack sellItem) {
         List<Gui.PosMenuItem> result = new ArrayList<>();
 
         // 金額変動用アイテム
@@ -85,31 +85,10 @@ public class Metazon {
         result.add(new Gui.PosMenuItem(emerald, EMERALD_X, EMERALD_Y));
 
         // 販売ボタン用アイテム
-        BiConsumer<MenuItem, Player> onPaperClick = (menuItem, player) -> {
-            Gui.PosMenuItem goodsMenuItem = gui.cloneMenuItems().stream()
-                    .filter(v -> v.x() == GOODS_X && v.y() == GOODS_Y)
-                    .findFirst().orElse(null);
-            if (goodsMenuItem == null) {
-                throw new IllegalStateException();
-            }
-            ItemStack goods = goodsMenuItem.menuItem().getIcon();
-            if (goods == null) {
-                return;
-            }
-            // 商品の登録
-            // registerGoods(goods, this.price, player);
-            List<Gui.PosMenuItem> menuItemList = gui.cloneMenuItems().stream().peek(v -> {
-                if (v.x() == GOODS_X && v.y() == GOODS_Y) {
-                    v.menuItem().setIcon(null);
-                }
-            }).toList();
-            gui.setMenuItems(menuItemList);
-            gui.open(player);
-        };
         MenuItem paper = new MenuItem(
-                Component.text("売却ボタン"),
+                Component.text("販売ボタン"),
                 List.of(Component.text("下に売りたいアイテムをセットしてください")),
-                onPaperClick,
+                (menuItem, player) -> onSellPaperClick(player),
                 new ItemStack(Material.PAPER),
                 null,
                 false,
@@ -118,16 +97,14 @@ public class Metazon {
         result.add(new Gui.PosMenuItem(paper, EMERALD_X, EMERALD_Y + 1));
 
         // 販売アイテムセット用の空欄
-        MenuItem itemBox = MenuItem.generateDraggable(null, null);
+        MenuItem itemBox = MenuItem.generateDraggable(null, sellItem);
         result.add(new Gui.PosMenuItem(itemBox, EMERALD_X, EMERALD_Y + 2));
 
         // ヘルプ用アイテム
-        BiConsumer<MenuItem, Player> onHelpClick = (menuItem, player) ->
-                HelpUtil.openHelp(player.getUniqueId(), HelpUtil.HelpType.Sample);
         MenuItem help = new MenuItem(
                 Component.text("ヘルプ"),
                 List.of(Component.text("Metazonのつかいかた")),
-                onHelpClick,
+                (menuItem, player) -> HelpUtil.openHelp(player.getUniqueId(), HelpUtil.HelpType.Sample),
                 new ItemStack(Material.WRITTEN_BOOK),
                 null,
                 true,
@@ -140,6 +117,92 @@ public class Metazon {
         return result;
     }
 
+    private void onSellPaperClick(Player player) {
+        Gui.PosMenuItem goodsMenuItem = gui.cloneMenuItems().stream()
+                .filter(v -> v.x() == GOODS_X && v.y() == GOODS_Y)
+                .findFirst().orElse(null);
+        if (goodsMenuItem == null) {
+            throw new IllegalStateException();
+        }
+        ItemStack goods = goodsMenuItem.menuItem().getIcon();
+        if (goods == null) {
+            return;
+        }
+        openSellConfirm(player, goods);
+//        List<Gui.PosMenuItem> menuItemList = gui.cloneMenuItems().stream().peek(v -> {
+//            if (v.x() == GOODS_X && v.y() == GOODS_Y) {
+//                v.menuItem().setIcon(null);
+//            }
+//        }).toList();
+//        gui.setMenuItems(menuItemList);
+//        gui.open(player);
+    }
+
+    private void openSellConfirm(Player player, ItemStack sellItem) {
+        this.gui = new Gui(METAZON_TITLE);
+        List<Gui.PosMenuItem> menuItemList = initSellConfirmMenu(sellItem);
+        this.gui.setMenuItems(menuItemList);
+        this.gui.open(player);
+    }
+
+    private List<Gui.PosMenuItem> initSellConfirmMenu(ItemStack sellItem) {
+        List<Gui.PosMenuItem> result = new ArrayList<>();
+
+        MenuItem paper = new MenuItem(
+                Component.text("確認"),
+                List.of(Component.text("こちらのアイテムを販売します。"),
+                        Component.text("左：戻る 右：確定")),
+                null,
+                new ItemStack(Material.PAPER),
+                null,
+                false,
+                false,
+                false);
+        result.add(new Gui.PosMenuItem(paper, 5, 1));
+
+        MenuItem goods = new MenuItem(
+                sellItem.displayName(),
+                sellItem.lore(),
+                null,
+                sellItem,
+                null,
+                sellItem.getItemMeta().hasEnchants(),
+                false,
+                false);
+        result.add(new Gui.PosMenuItem(goods, 5, 2));
+
+        MenuItem backPage = new MenuItem(
+                Component.text("前に戻る"),
+                null,
+                (menuItem, player) -> openSellMode(player, sellItem),
+                new ItemStack(Material.ORANGE_WOOL),
+                null,
+                false,
+                false,
+                false);
+        result.add(new Gui.PosMenuItem(backPage, 4, 3));
+
+        MenuItem confirm = new MenuItem(
+                Component.text("販売を確定"),
+                null,
+                (menuItem, player) -> confirmSell(),
+                new ItemStack(Material.GREEN_WOOL),
+                null,
+                false,
+                true,
+                false);
+        result.add(new Gui.PosMenuItem(confirm, 6, 3));
+
+        int[][] filledArray = {{5}, {5}, {4, 6}};
+        result.addAll(generateDisuses(filledArray));
+
+        return result;
+    }
+
+    private void confirmSell() {
+
+
+    }
 
     private Gui.PosMenuItem generatePriceChanger(int value, int x) {
         BiConsumer<MenuItem, Player> onClick = (menuItem, player) -> {
