@@ -135,15 +135,13 @@ public class Gui implements Listener {
                 builder.content(String.join("\n", buttonText));
             }
         }
-
         builder.responseHandler((form, data) -> {
             final SimpleFormResponse res = form.parseResponse(data);
             if (!res.isCorrect()) {
                 return;
             }
-
             final List<MenuItem> item = menuItems.stream().map(PosMenuItem::menuItem).toList();
-            final int id = Math.toIntExact(res.getClickedButtonId() + item.stream().filter(value -> !value.isClose()).count());
+            final int id = Math.toIntExact(res.getClickedButtonId());
             final BiConsumer<MenuItem, Player> callback = item.get(id).getOnClick();
             if (callback != null) {
                 callback.accept(item.get(id), player);
@@ -160,11 +158,17 @@ public class Gui implements Listener {
             inventory.setItem(menuItem.x() - 1 + (menuItem.y() - 1) * 9, menuItem.menuItem().getIcon());
         }
 
-        // GC
-        HandlerList.unregisterAll(this);
-
         Bukkit.getPluginManager().registerEvents(this, Profundus.getInstance());
         player.openInventory(inventory);
+    }
+
+    public void setItemLore(int x, int y, List<Component> lore) {
+        for (PosMenuItem menuItem : menuItems) {
+            if (menuItem.x() == x && menuItem.y() == y) {
+                menuItem.menuItem().setLore(lore);
+                inventory.setItem(x - 1 + (y - 1) * 9, menuItem.menuItem().getIcon());
+            }
+        }
     }
 
     /**
@@ -197,6 +201,9 @@ public class Gui implements Listener {
             if (e.getSlot() != menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
                 continue;
             }
+            if (menuItem.menuItem().isClose()) {
+                inventory.close();
+            }
             if (menuItem.menuItem().isDraggable()) {
                 e.setCancelled(false);
                 // 移動後のアイテムを取得するため1tick実行遅延
@@ -210,16 +217,17 @@ public class Gui implements Listener {
                     if (menuItem.menuItem().getOnClick() != null) {
                         menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                     }
-                    if (menuItem.menuItem().isClose()) {
-                        inventory.close();
-                    }
                 }, 1);
             } else {
                 if (menuItem.menuItem().getOnClick() != null) {
-                    menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
-                }
-                if (menuItem.menuItem().isClose()) {
-                    inventory.close();
+                    if (isBedrock((Player) e.getWhoClicked()) && menuItem.menuItem().isClose()) {
+                        // 統合版では、Java版インベントリを閉じてから統合版GUIを開くまでに2tickが必要となる
+                        Bukkit.getScheduler().runTaskLater(Profundus.getInstance(), () -> {
+                            menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
+                        }, 2);
+                    } else {
+                        menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
+                    }
                 }
             }
         }

@@ -197,8 +197,9 @@ public class MenuItem {
      *
      * @return 不使用スロットを埋めるアイテム
      */
-    public static MenuItem generateDisuse() {
-        return new MenuItem(Component.text(""), null, null, new ItemStack(Material.GRAY_STAINED_GLASS_PANE), null, false, false, false);
+    public static MenuItem generateDisuse(Player player) {
+        ItemStack icon = new ItemStack(Gui.isBedrock(player) ? Material.IRON_BARS : Material.GRAY_STAINED_GLASS_PANE);
+        return new MenuItem(Component.text(""), null, null, icon, null, false, false, false);
     }
 
     public static MenuItem generateDraggable(BiConsumer<MenuItem, Player> onClick, ItemStack icon) {
