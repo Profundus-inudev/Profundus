@@ -3,7 +3,6 @@ package tech.inudev.profundus.utils;
 import org.bukkit.entity.*;
 
 import lombok.Getter;
-import lombok.Setter;
 import tech.inudev.profundus.utils.DatabaseUtil.Table;
 
 import java.util.*;
@@ -11,13 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.*;
 
-public class User {
+public class User extends PFAgent{
 	private static Map<UUID,User> storedList = new HashMap<UUID,User>();
 	
-	String screenName;
 	UUID uuid;
-	UUID pfid;
-	Instant memberSince;
 	String mainLanguage;
 	String subLanguage;
 	
@@ -30,10 +26,9 @@ public class User {
 
 	
 	private User(Player p) {
+		super(Table.USER,p.getName()); //getNewPFID
 		uuid = p.getUniqueId();
-		pfid = PFID.newPFID(Table.USER);
-		screenName = p.getName();
-		memberSince = java.time.Instant.now();
+		createdAt = java.time.Instant.now();
 		lastLogin = java.time.Instant.now();
 		mainLanguage = "";
 		subLanguage = "";
@@ -49,8 +44,8 @@ public class User {
 	 * @param player BUKKIT API
 	 * @return User Profundus User クラスインスタンス
 	 */
-	public static User getUser(Player p) {
-		return getUser(p, false);
+	public static User getByPlayer(Player p) {
+		return getByPlayer(p, false);
 	}
 	
 	/**
@@ -62,9 +57,9 @@ public class User {
 	 * @param player BUKKIT API
 	 * @return User Profundus User クラスインスタンス
 	 */
-	public static User getUser(Player p,Boolean createIfNotExist) {
+	public static User getByPlayer(Player p,Boolean createIfNotExist) {
 		UUID queryUUID = p.getUniqueId();
-		User u = getUser(queryUUID, createIfNotExist);
+		User u = getByUUID(queryUUID);
 		if(u == null) {
 			if(!createIfNotExist) {return null;}
 			u = new User(p);
@@ -83,18 +78,18 @@ public class User {
 	 * @param createIfNotExist
 	 * @return User
 	 */
-	static User getUser(UUID queryUUID, Boolean createIfNotExist) {
+	static User getByUUID(UUID queryUUID) {
 		User u;
 		//まず高速化のためにstoredListを検索
 		if(storedList.containsKey(queryUUID)) {
 			u = storedList.get(queryUUID);
 			u.source = "StoredList";
 		//なければ，データベースを検索,storedListに追加。
-		}else if(isExistsOnDB(queryUUID)) {
-			//searchDBforExistingUser
-			u = fetch(queryUUID);
+		}else if(isExistOnDB(queryUUID)) {
+			u = fetchDB(queryUUID,"UUID");
 			u.source = "Database";
 			u.addToStoredList();
+
 		//それでもなければ，新規作成，データベース,storedListに追加。
 		}else {
 			return null;
@@ -102,12 +97,17 @@ public class User {
 		return u;
 	}
 	
+	public static User getByPFID(UUID pfid) {
+		User tmp = fetchDB(pfid,"PFID");
+		return getByUUID(tmp.uuid);
+	}
+	
 	/**
 	 * UserのUUIDが存在するかDB上で検索
 	 * @param q UUID
 	 * @return Boolean
 	 */
-	private static Boolean isExistsOnDB(UUID q) {
+	private static Boolean isExistOnDB(UUID q) {
 		try {
 			ResultSet rs = DatabaseUtil.selectUUID(Table.USER, "UUID", q);
 			if(rs == null) {return false;}
@@ -125,18 +125,19 @@ public class User {
 	 * @param q UUID
 	 * @return User class instance
 	 */
-	private static User fetch(UUID q) {
+	private static User fetchDB(UUID q, String ID) {
 		try {
-			ResultSet rs = DatabaseUtil.selectUUID(Table.USER, "UUID", q);
+			ResultSet rs = DatabaseUtil.selectUUID(Table.USER, ID, q);
 			rs.next();
 			User ret = new User();
-			ret.uuid = q;
+			ret.uuid = new UUID(rs.getLong("mostSignificantUUID"),rs.getLong("leastSignificantUUID"));
 			ret.pfid = new UUID(rs.getLong("mostSignificantPFID"),rs.getLong("leastSignificantPFID"));
 			ret.screenName = rs.getString("screenName");
-			ret.memberSince = rs.getTimestamp("memberSince").toInstant();
+			ret.createdAt = rs.getTimestamp("createdAt").toInstant();
 			ret.lastLogin = rs.getTimestamp("lastLogin").toInstant();
 			ret.mainLanguage = rs.getString("language1");
 			ret.subLanguage = rs.getString("language2");
+			ret.type = Table.USER;
 			return ret;
 		}catch(SQLException e) {
 			System.out.println("fetch:" + e);
@@ -147,21 +148,21 @@ public class User {
 	/**
 	 * UserインスタンスをDBに登録(INSERT INTO)
 	 */
-	private void addToDB() {
+	protected void addToDB() {
 		DatabaseUtil.insertUserEntry(this);
 	}
 	
 	/**
 	 * UserインスタンスでDBを更新(UPDATE)
 	 */
-	private void updateDB() {
+	protected void updateDB() {
 		DatabaseUtil.updateUserEntry(this);
 	}
 	
 	/**
 	 * UserのPFIDでDBから削除(DELETE FROM)
 	 */
-	private void removeFromDB() {
+	protected void removeFromDB() {
 		DatabaseUtil.deleteByPFID(Table.USER, pfid);
 	}
 	
@@ -174,7 +175,7 @@ public class User {
 	}
 	
 	/**
-	 * 検索高速化のためのstoredListから削除。長期ログインしていないユーザーとか。
+	 * 検索高速化のためのstoredListから削除。ログインしていないユーザーとか。
 	 */
 	void removeFromStoredList() {
 		storedList.remove(uuid);
@@ -204,6 +205,16 @@ public class User {
 	public void setSubLanguage(String lang) {
 		subLanguage = lang;
 		updateDB();
+	}
+
+	@Override
+	public void sendMessage(String str, Boolean sendOnLogin) {
+		if(player != null) {
+			player.sendMessage(str);
+		} else {
+			// TODO messageStore to send on Login
+		}
+		
 	}
 	
 	// TODO //

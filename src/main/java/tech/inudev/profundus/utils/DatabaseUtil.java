@@ -257,7 +257,7 @@ public class DatabaseUtil {
     				screenName VARCHAR NOT NULL,
     				mostSignificantUUID BIGINT NOT NULL,
     				leastSignificantUUID BIGINT NOT NULL,
-    				memberSince TIMESTAMP,
+    				createdAt TIMESTAMP,
     				lastLogin TIMESTAMP,
     				language1 VARCHAR,
     				language2 VARCHAR,
@@ -270,7 +270,7 @@ public class DatabaseUtil {
     				mostSignificantPFID BIGINT NOT NULL,
     				leastSignificantPFID BIGINT NOT NULL,
     				type VARCHAR NOT NULL,
-    				timeStamp TIMESTAMP NOT NULL
+    				createdAt TIMESTAMP NOT NULL
     				""");
     		break;
     	case GROUP:
@@ -278,8 +278,8 @@ public class DatabaseUtil {
     				seqID INTEGER PRIMARY KEY AUTOINCREMENT,
     				mostSignificantPFID BIGINT NOT NULL,
     				leastSignificantPFID BIGINT NOT NULL,
-    				groupName VARCHAR NOT NULL,
-    				timeStamp TIMESTAMP NOT NULL
+    				screenName VARCHAR NOT NULL,
+    				createdAt TIMESTAMP NOT NULL
     				""");
     		break;
     	case GMEMBER:
@@ -290,7 +290,7 @@ public class DatabaseUtil {
     				mostSignificantUserPFID BIGINT NOT NULL,
     				leastSignificantUserPFID BIGINT NOT NULL,
     				role VARCHAR,
-    				timeStamp TIMESTAMP NOT NULL
+    				createdAt TIMESTAMP NOT NULL
     				""");
     		break;
     	case ITEM:
@@ -304,7 +304,7 @@ public class DatabaseUtil {
     				leastSignificantUUID BIGINT NOT NULL,
        				note VARCHAR,
        				type VARCHAR,
-    				timeStamp TIMESTAMP NOT NULL
+    				createdAt TIMESTAMP NOT NULL
     				""");
     		break;
 
@@ -337,7 +337,7 @@ public class DatabaseUtil {
 	        return false;
 	    }
     }
-
+/*
     static Boolean insertItemEntry(PFItem item, UUID newPFID, String note) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("INSERT INTO " + Table.ITEM.toString());
@@ -351,7 +351,7 @@ public class DatabaseUtil {
     				leastSignificantUUID,
        				note,
        				type,
-    				timeStamp
+    				createdAt
     			) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
     			""");
     	
@@ -382,7 +382,7 @@ public class DatabaseUtil {
 	        return null;
       }
     }
-    
+    */
     static Boolean insertPFIDEntry(UUID pfid, Table type) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("INSERT INTO " + Table.PFID.toString());
@@ -391,7 +391,7 @@ public class DatabaseUtil {
     			mostSignificantPFID,
     			leastSignificantPFID,
     			type,
-    			timeStamp
+    			createdAt
     			) VALUES(?, ?, ?, ?)
     			""");
     	Connection con = getConnected();
@@ -422,7 +422,7 @@ public class DatabaseUtil {
     static Boolean insertUserEntry(User user) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("INSERT INTO " + Table.USER.toString());
-    	sql.append(" (mostSignificantPFID, leastSignificantPFID, screenName, mostSignificantUUID, leastSignificantUUID, memberSince, lastLogin) VALUES (?,?,?,?,?,?,?)");
+    	sql.append(" (mostSignificantPFID, leastSignificantPFID, screenName, mostSignificantUUID, leastSignificantUUID, createdAt, lastLogin) VALUES (?,?,?,?,?,?,?)");
     	Connection con = getConnected();
     	try {
 	    	PreparedStatement preparedStatement = con.prepareStatement(sql.toString());
@@ -431,7 +431,7 @@ public class DatabaseUtil {
 	    	preparedStatement.setString(3, user.screenName);
 	    	preparedStatement.setLong(4, user.uuid.getMostSignificantBits());
 	    	preparedStatement.setLong(5, user.uuid.getLeastSignificantBits());
-	    	preparedStatement.setTimestamp(6, Timestamp.from(user.memberSince));
+	    	preparedStatement.setTimestamp(6, Timestamp.from(user.createdAt));
 	    	preparedStatement.setTimestamp(7, Timestamp.from(user.getLastLogin()));
 	    	int r = preparedStatement.executeUpdate();
 	        con.commit();
@@ -449,8 +449,69 @@ public class DatabaseUtil {
 	        return false;
     	}
     }
+    
+    static Boolean insertGroupEntry(PFGroup g) {
+    	StringBuilder sql = new StringBuilder();
+    	sql.append("INSERT INTO " + Table.GROUP.toString());
+    	sql.append("""
+    			(mostSignificantPFID,
+    			leastSignificantPFID,
+    			screenName,
+    			createdAt)
+    			VALUES(?,?,?,?);
+    			""");
+    	Connection con = getConnected();
+    	try {
+    		PreparedStatement ps = con.prepareStatement(sql.toString());
+    		ps.setLong(1, g.pfid.getMostSignificantBits());
+    		ps.setLong(2, g.pfid.getLeastSignificantBits());
+    		ps.setString(3, g.screenName);
+    		ps.setTimestamp(4, Timestamp.from(g.createdAt));
+    		int r = ps.executeUpdate();
+    		con.commit();
+    		ps.close();
+    		System.out.println(r + " rows inserted to GROUP");
+    		return true;
+    	}catch(SQLException e) {
+	    	System.out.println("insertUserEntry:" + e);
 
-    static java.sql.ResultSet select(Table tableName, String query){
+	        try {
+	            con.rollback();
+	        } catch (SQLException e2) {
+		    	System.out.println("insertUserEntry:" + e2);
+	        }
+	        return false;
+    	}
+    }
+
+    
+    static Boolean insertGMemberEntry(PFGroup g, User u, String role) {
+    	StringBuilder sql = new StringBuilder();
+    	sql.append("INSERT INTO " + Table.GMEMBER.toString());
+    	sql.append("""
+    			(mostSignificantGroupPFID,
+    			leastSignificantGroupPFID,
+    			mostSignificantUserPFID,
+    			leastSignificantUserPFID,
+    			role,
+    			createdAt)
+    			VALUES(?,?,?,?,?,?)
+    			""");
+    	Connection con = getConnected();
+    	try {
+    		PreparedStatement ps = con.prepareStatement(sql.toString());
+    		ps.setLong(1, g.pfid.getMostSignificantBits());
+    		ps.setLong(2, g.pfid.getLeastSignificantBits());
+    		ps.setLong(3, u.pfid.getMostSignificantBits());
+    		ps.setLong(4, u.pfid.getLeastSignificantBits());
+    		ps.setString(5, role);
+    		ps.setTimestamp(6, Timestamp.from(Instant.now()));
+    	}catch(SQLException e) {
+    		
+    	}
+    	return false;
+    }
+    static ResultSet select(Table tableName, String query){
     	StringBuilder sql = new StringBuilder();
     	sql.append("SELECT * FROM ");
     	sql.append(tableName.toString());

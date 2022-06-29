@@ -1,11 +1,29 @@
 package tech.inudev.profundus.utils;
 
 import java.util.UUID;
+
+import lombok.Getter;
+
 import java.sql.*;
+import java.time.Instant;
+
 import tech.inudev.profundus.utils.DatabaseUtil.Table;
 
-public class PFID{
+public abstract class PFID{
 
+	@Getter
+	UUID pfid;
+	Table type;
+	Instant createdAt;
+
+	
+	PFID(Table t){
+		pfid = newPFID(t);
+		type = t;
+	}
+	
+	PFID(){}
+	
 	static UUID newPFID(Table type) {
 		//とりあえず，ランダムで発行。
 		UUID yourID = UUID.randomUUID();
@@ -28,5 +46,21 @@ public class PFID{
 		}
 		return null;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T extends PFID> T getByPFID(UUID pfid){
+		switch(getType(pfid)) {
+		case USER:
+			return (T) User.getByPFID(pfid);
+		case GROUP:
+			return (T) PFGroup.getByPFID(pfid);
+		default:
+			return null;
+		}
+	}
+	
+	protected abstract void addToDB();
+	protected abstract void updateDB();
+	protected abstract void removeFromDB();
 	
 }

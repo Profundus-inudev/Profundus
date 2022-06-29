@@ -15,11 +15,14 @@ public class LoginEvent implements Listener {
 		
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerJoinEvent(PlayerJoinEvent e) {
-		User user = User.getUser(e.getPlayer(), true);
+		User user = User.getByPlayer(e.getPlayer(), true);
 		String lastLoginStr = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.ofInstant(user.getLastLogin(), ZoneId.of("Asia/Tokyo")));
 		user.updateLastLogin();
 		user.getPlayer().sendMessage("Profundus[LOGIN]/DATA_SOURCE:" + user.getSource());
 		user.getPlayer().sendMessage("LastLogin:" + lastLoginStr);
+		
+		PFGroup g = PFGroup.newGroup("hogehoge");
+		g.newMember(user.getPfid(), "member");
 	}
 
 }
