@@ -20,6 +20,7 @@ public abstract class PFID{
 	PFID(Table t){
 		pfid = newPFID(t);
 		type = t;
+		createdAt = Instant.now();
 	}
 	
 	PFID(){}
@@ -52,7 +53,7 @@ public abstract class PFID{
 		switch(getType(pfid)) {
 		case USER:
 			return (T) User.getByPFID(pfid);
-		case GROUP:
+		case PFGROUP:
 			return (T) PFGroup.getByPFID(pfid);
 		default:
 			return null;

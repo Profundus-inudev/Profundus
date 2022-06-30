@@ -213,6 +213,7 @@ public class User extends PFAgent{
 			player.sendMessage(str);
 		} else {
 			// TODO messageStore to send on Login
+			System.out.println("Player is null");
 		}
 		
 	}

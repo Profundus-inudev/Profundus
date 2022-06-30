@@ -11,11 +11,11 @@ import tech.inudev.profundus.utils.DatabaseUtil.Table;
 
 public class PFGroup extends PFAgent{
 
-	LinkedList<User> members;
+	List<User> members;
 	
 	
 	PFGroup(String name) {
-		super(Table.GROUP,name);
+		super(Table.PFGROUP,name);
 	}
 	
 	PFGroup() {}
@@ -28,7 +28,7 @@ public class PFGroup extends PFAgent{
 
 	public static PFGroup getByPFID(UUID pfid) {
 		try {
-			ResultSet rs = DatabaseUtil.selectUUID(Table.GROUP, "PFID", pfid);
+			ResultSet rs = DatabaseUtil.selectUUID(Table.PFGROUP, "PFID", pfid);
 			rs.next();
 			PFGroup g = new PFGroup();
 			g.pfid = pfid;
@@ -43,7 +43,7 @@ public class PFGroup extends PFAgent{
 
 	public static PFGroup getByName(String name) {
 		try {
-			ResultSet rs = DatabaseUtil.select(Table.GROUP, "screenName='" + name + "'");
+			ResultSet rs = DatabaseUtil.select(Table.PFGROUP, "screenName='" + name + "'");
 			if(rs.next()) {
 				PFGroup g = new PFGroup();
 				g.pfid = new UUID(rs.getLong("mostSignificantPFID"),rs.getLong("leastSignificantPFID"));
@@ -63,6 +63,8 @@ public class PFGroup extends PFAgent{
 			DatabaseUtil.insertGMemberEntry(this, u, role);
 			members = getMembers();
 			this.sendMessage("NEW MEMBER to " + this.screenName +": "+u.screenName + " joined!", false);
+			System.out.println("NEW MEMBER to " + this.screenName +": "+u.screenName + " joined!");
+
 		}else {
 			System.out.println("No such a user:" + userPFID.toString());
 		}
@@ -70,17 +72,18 @@ public class PFGroup extends PFAgent{
 	private LinkedList<User> getMembers() {
 		LinkedList<User> r = new LinkedList<User>();
 		StringBuilder sql = new StringBuilder();
-		sql.append("mostSignificantGroupPFID=" + pfid.getMostSignificantBits());
-		sql.append("leastSignificantGroupPFID=" + pfid.getLeastSignificantBits());
+		sql.append("mostSignificantPFID=" + pfid.getMostSignificantBits());
+		sql.append(" AND leastSignificantPFID=" + pfid.getLeastSignificantBits());
+		System.out.println(sql.toString());
 		ResultSet rs = DatabaseUtil.select(Table.GMEMBER, sql.toString());
 		try {
 			while(rs.next()) {
 				r.add(User.getByPFID(new UUID(rs.getLong("mostSignificantUserPFID"),rs.getLong("leastSignificantUserPFID"))));
 			}
+			return r;
 		}catch(SQLException e) {
-			
+			return null;
 		}
-		return r;
 	}
 
 	@Override

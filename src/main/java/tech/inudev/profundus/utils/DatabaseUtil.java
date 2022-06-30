@@ -211,7 +211,10 @@ public class DatabaseUtil {
             }
         }
     }
-
+/**
+ * 確実にconnectedなインスタンスを取得する。
+ * @return
+ */
     static Connection getConnected(){
     	try {
 			if (connection == null || connection.isClosed()) {connect();}
@@ -220,21 +223,30 @@ public class DatabaseUtil {
     	}
     	return connection;
     }
-
+/**
+ * SQLデータベースで扱うテーブル一覧
+ * @author kidocchy
+ *
+ */
     public enum Table{
 	USER,	//ユーザー
-	GROUP,	//グループ
+	PFGROUP,	//グループ
 	GMEMBER, //グループメンバー
 	ITEM,	//アイテム
 	PFID;	//Profundus ID
     }
-    
+    /**
+     * SQLテーブルenumをStringから取得
+     * @param pfid
+     * @param type
+     * @return
+     */
     public static Table stringToEnum(String str) {
     	switch(str) {
     	case "USER":
     		return Table.USER;
-    	case "GROUP":
-    		return Table.GROUP;
+    	case "PFROUP":
+    		return Table.PFGROUP;
     	case "GMEMBER":
     		return Table.GMEMBER;
     	case "ITEM":
@@ -244,6 +256,14 @@ public class DatabaseUtil {
     	}
     	return null;
     }
+    
+    /**
+     * テーブル作成。
+     * 初回ぐらいしか呼ばないと思うのでまとめました。
+     * @param tableName
+     * @param dropIfExists
+     * @return success?
+     */
     public static Boolean createTable(Table tableName, Boolean dropIfExists) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("CREATE TABLE IF NOT EXISTS " + tableName.toString() +" (");
@@ -273,7 +293,7 @@ public class DatabaseUtil {
     				createdAt TIMESTAMP NOT NULL
     				""");
     		break;
-    	case GROUP:
+    	case PFGROUP:
     		sql.append("""
     				seqID INTEGER PRIMARY KEY AUTOINCREMENT,
     				mostSignificantPFID BIGINT NOT NULL,
@@ -285,8 +305,8 @@ public class DatabaseUtil {
     	case GMEMBER:
     		sql.append("""
     				seqID INTEGER PRIMARY KEY AUTOINCREMENT,
-    				mostSignificantGroupPFID BIGINT NOT NULL,
-    				leastSignificantGroupPFID BIGINT NOT NULL,
+    				mostSignificantPFID BIGINT NOT NULL,
+    				leastSignificantPFID BIGINT NOT NULL,
     				mostSignificantUserPFID BIGINT NOT NULL,
     				leastSignificantUserPFID BIGINT NOT NULL,
     				role VARCHAR,
@@ -383,6 +403,12 @@ public class DatabaseUtil {
       }
     }
     */
+    /**
+     * PFID関連　INSERT
+     * @param pfid
+     * @param type
+     * @return success?
+     */
     static Boolean insertPFIDEntry(UUID pfid, Table type) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("INSERT INTO " + Table.PFID.toString());
@@ -416,9 +442,15 @@ public class DatabaseUtil {
 	        } catch (SQLException e2) {
                 throw new RuntimeException(e2);
 	        }
-	        return null;
+	        return false;
       }
     }
+    
+    /**
+     * User関連　INSERT
+     * @param user
+     * @return success?
+     */
     static Boolean insertUserEntry(User user) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("INSERT INTO " + Table.USER.toString());
@@ -450,9 +482,14 @@ public class DatabaseUtil {
     	}
     }
     
+    /**
+     * PFGroup関連 INSERT
+     * @param g
+     * @return success?
+     */
     static Boolean insertGroupEntry(PFGroup g) {
     	StringBuilder sql = new StringBuilder();
-    	sql.append("INSERT INTO " + Table.GROUP.toString());
+    	sql.append("INSERT INTO " + Table.PFGROUP.toString());
     	sql.append("""
     			(mostSignificantPFID,
     			leastSignificantPFID,
@@ -484,13 +521,19 @@ public class DatabaseUtil {
     	}
     }
 
-    
+    /**
+     * GroupMember関連 INSERT
+     * @param g
+     * @param u
+     * @param role
+     * @return success?
+     */
     static Boolean insertGMemberEntry(PFGroup g, User u, String role) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("INSERT INTO " + Table.GMEMBER.toString());
     	sql.append("""
-    			(mostSignificantGroupPFID,
-    			leastSignificantGroupPFID,
+    			(mostSignificantPFID,
+    			leastSignificantPFID,
     			mostSignificantUserPFID,
     			leastSignificantUserPFID,
     			role,
@@ -506,22 +549,36 @@ public class DatabaseUtil {
     		ps.setLong(4, u.pfid.getLeastSignificantBits());
     		ps.setString(5, role);
     		ps.setTimestamp(6, Timestamp.from(Instant.now()));
+    		int r = ps.executeUpdate();
+    		con.commit();
+    		ps.close();
+    		System.out.println(r + " rows inserted to GMEMBER");
+    		return true;
     	}catch(SQLException e) {
-    		
+	        try {
+	            con.rollback();
+	        } catch (SQLException e2) {
+		    	System.out.println("insertUserEntry:" + e2);
+	        }
     	}
     	return false;
     }
+   
+    /**
+     * 汎用SELECT文
+     * @param tableName
+     * @param query
+     * @return success?
+     */
     static ResultSet select(Table tableName, String query){
     	StringBuilder sql = new StringBuilder();
     	sql.append("SELECT * FROM ");
     	sql.append(tableName.toString());
     	if(query!=null) {sql.append(" WHERE " + query);}
-    	sql.append(";");
        	Connection con = getConnected();
 	    try {
 	    	PreparedStatement preparedStatement = con.prepareStatement(sql.toString());
 	        ResultSet rs = preparedStatement.executeQuery();
-	        preparedStatement.close();
 	        return rs;
 	    } catch (SQLException e) {
 	    	System.out.println(e);
@@ -529,7 +586,9 @@ public class DatabaseUtil {
 	    }
     }
 
-    //PFIDテーブルのみ検索高速化のために，専用のpreparedStatementを準備。
+    /**
+     * PFIDテーブルのみ検索高速化のために，専用のpreparedStatementを準備。
+     */
     private static PreparedStatement psPFID;
     private static PreparedStatement preparePsPFID() {
    		try {
@@ -588,6 +647,11 @@ public class DatabaseUtil {
 	    }
     }
 
+    /**
+     * USER関連　UPDATE
+     * @param user
+     * @return
+     */
     static Boolean updateUserEntry(User user) {
       StringBuilder sql = new StringBuilder();
       sql.append("UPDATE " + Table.USER.toString());
@@ -632,6 +696,13 @@ public class DatabaseUtil {
 		return false;
 	}
 	}
+    
+    /**
+     * PFIDでデータ削除 DELETE
+     * @param tableName
+     * @param pfid
+     * @return
+     */
     static Boolean deleteByPFID(Table tableName, UUID pfid) {
     	//PFIDエントリーを削除
     	if(tableName != Table.PFID) {deleteByPFID(Table.PFID,pfid);}
