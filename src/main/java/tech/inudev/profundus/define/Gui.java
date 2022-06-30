@@ -245,7 +245,7 @@ public class Gui implements Listener {
                         Bukkit.getScheduler().runTaskLater(Profundus.getInstance(), () -> {
                             menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                         }, 2);
-                    } else {
+                    } else if (e.getClick() != ClickType.DOUBLE_CLICK) {
                         menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                     }
                 }
