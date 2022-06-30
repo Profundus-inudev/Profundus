@@ -64,6 +64,11 @@ public class MultiPageGui extends Gui {
     }
 
     @Override
+    public void addItem(MenuItem menuItem, int x, int y) {
+        Profundus.getInstance().getLogger().info("MultiPageGuiではaddItemは利用できません");
+    }
+
+    @Override
     public void open(Player p) {
         if (Gui.isBedrock(p)) {
             Gui gui = new Gui(title);
