@@ -63,9 +63,17 @@ public class MultiPageGui extends Gui {
         menuItems.addAll(menuItem);
     }
 
+    /**
+     * MultiPageGuiではGui#addItemが使用できないため、
+     * 無効なメソッドでOverride。
+     *
+     * @param menuItem 使用されない
+     * @param x        使用されない
+     * @param y        使用されない
+     */
     @Override
     public void addItem(MenuItem menuItem, int x, int y) {
-        Profundus.getInstance().getLogger().info("MultiPageGuiではaddItemは利用できません");
+        Profundus.getInstance().getLogger().info("MultiPageGuiではaddItemは無効です");
     }
 
     @Override

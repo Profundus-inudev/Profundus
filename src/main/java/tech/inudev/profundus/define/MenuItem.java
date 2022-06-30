@@ -21,6 +21,11 @@ public class MenuItem {
     @Getter
     private List<Component> lore;
 
+    /**
+     * アイテムの説明をセットする。
+     *
+     * @param lore アイテムの新しい説明
+     */
     public void setLore(List<Component> lore) {
         this.lore = lore;
         if (!isDraggable() && icon != null && lore != null) {
@@ -35,6 +40,11 @@ public class MenuItem {
     @Getter
     private ItemStack icon;
 
+    /**
+     * アイテムのブロックをセットする。
+     *
+     * @param icon アイテムの新しいブロック
+     */
     public void setIcon(ItemStack icon) {
         this.icon = icon;
 
@@ -196,13 +206,20 @@ public class MenuItem {
     /**
      * 不使用スロットを埋めるアイテムを生成する。
      *
-     * @return 不使用スロットを埋めるアイテム
+     * @return 生成された不使用スロットを埋めるアイテム
      */
     public static MenuItem generateDisuse(Player player) {
         ItemStack icon = new ItemStack(Gui.isBedrock(player) ? Material.IRON_BARS : Material.GRAY_STAINED_GLASS_PANE);
         return new MenuItem(Component.text(""), null, null, icon, null, false, false, false);
     }
 
+    /**
+     * draggableなアイテムを生成する。
+     *
+     * @param onClick クリック時のイベント
+     * @param icon    アイテムのブロック
+     * @return 生成されたdraggableなアイテム
+     */
     public static MenuItem generateDraggable(BiConsumer<MenuItem, Player> onClick, ItemStack icon) {
         return new MenuItem(null, null, onClick, icon, null, false, false, true);
     }

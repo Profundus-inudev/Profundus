@@ -159,6 +159,13 @@ public class Gui implements Listener {
         player.openInventory(inventory);
     }
 
+    /**
+     * (x,y)にあるアイテムの説明をセットする。
+     *
+     * @param x    アイテムのx座標
+     * @param y    アイテムのy座標
+     * @param lore アイテムの新しい説明
+     */
     public void setItemLore(int x, int y, List<Component> lore) {
         for (PosMenuItem menuItem : menuItems) {
             if (menuItem.x() == x && menuItem.y() == y) {
@@ -168,6 +175,14 @@ public class Gui implements Listener {
         }
     }
 
+    /**
+     * (x,y)にあるアイテムのItemStackのクローンを取得する。
+     * むやみに元のItemStackを変更させないため。
+     *
+     * @param x アイテムのx座標
+     * @param y アイテムのy座標
+     * @return (x, y)にあるアイテムのItemStackのクローン
+     */
     public ItemStack cloneItemStack(int x, int y) {
         PosMenuItem pos = menuItems.stream().filter(v -> v.x() == x && v.y() == y).findFirst().orElse(null);
         if (pos == null) {
@@ -238,6 +253,11 @@ public class Gui implements Listener {
         }
     }
 
+    /**
+     * GUIをドラッグしたときにアイテムの処理をするリスナー
+     *
+     * @param e イベント
+     */
     @EventHandler
     public void onInventoryDragEvent(InventoryDragEvent e) {
         Inventory inv = e.getInventory();

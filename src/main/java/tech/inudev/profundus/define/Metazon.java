@@ -12,6 +12,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+/**
+ * Metazonを実行するクラス
+ *
+ * @author toru-toruto
+ */
 public class Metazon {
     private static final String METAZON_TITLE = "Metazon";
     private static final int EMERALD_X = 5;
@@ -21,6 +26,12 @@ public class Metazon {
     private int sellPrice = 1;
 
     // region top
+
+    /**
+     * Metazonを起動する。
+     *
+     * @param player 起動したプレイヤー
+     */
     public void open(Player player) {
         this.sellPrice = 1;
         Gui gui = new Gui(METAZON_TITLE);
@@ -248,6 +259,7 @@ public class Metazon {
     private void mockRegisterItem(ItemStack sellItem, int sellPrice, Player player) {
         // 実際は他クラスの出品用メソッドを呼び出す
     }
+    // endregion
 
     // 不使用スロットを埋める
     private List<Gui.PosMenuItem> generateDisuses(Player player, int[][] filledArray) {
