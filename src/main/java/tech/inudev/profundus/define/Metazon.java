@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import tech.inudev.profundus.Profundus;
 import tech.inudev.profundus.utils.HelpUtil;
 
 import java.util.ArrayList;
@@ -44,18 +45,26 @@ public class Metazon {
 
         // 購入モードボタン
         MenuItem paper = new MenuItem(
-                "購入モード",
+                Component.text("購入モード"),
                 null,
                 (menuItem, _player) -> openBuyMode(_player),
-                new ItemStack(Material.GREEN_WOOL));
+                new ItemStack(Material.GREEN_WOOL),
+                null,
+                false,
+                false,
+                false);
         result.add(new Gui.PosMenuItem(paper, 4, 1));
 
         // 販売モードボタン
         MenuItem sellMode = new MenuItem(
-                "販売モード",
+                Component.text("販売モード"),
                 null,
                 (menuItem, _player) -> openSellMode(_player, null),
-                new ItemStack(Material.ORANGE_WOOL));
+                new ItemStack(Material.ORANGE_WOOL),
+                null,
+                false,
+                false,
+                false);
         result.add(new Gui.PosMenuItem(sellMode, 6, 1));
 
         int[][] filledArray = {{4, 6}};
@@ -129,7 +138,7 @@ public class Metazon {
                 new ItemStack(Material.PAPER),
                 null,
                 false,
-                true,
+                Gui.isBedrock(player),
                 false);
         result.add(new Gui.PosMenuItem(backPage, 1, 3));
 
@@ -156,6 +165,7 @@ public class Metazon {
             if (this.sellPrice < 1) {
                 this.sellPrice = 1;
             }
+            Profundus.getInstance().getLogger().info("" + this.sellPrice);
             gui.setItemLore(EMERALD_X, EMERALD_Y, List.of(Component.text(this.sellPrice)));
         };
         MenuItem newItem = new MenuItem(
