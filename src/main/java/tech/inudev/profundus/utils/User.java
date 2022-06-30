@@ -105,7 +105,7 @@ public class User extends PFAgent{
 	}
 	/**
 	 * PFIDで検索。UUIDに変換して，getByUUIDに渡す。
-	 * @param pfid
+	 * @param pfid PFID
 	 * @return Userクラス
 	 */
 	public static User getByPFID(UUID pfid) {
