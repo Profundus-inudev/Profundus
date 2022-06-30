@@ -9,6 +9,13 @@ import java.util.UUID;
 import tech.inudev.profundus.utils.*;
 import tech.inudev.profundus.utils.DatabaseUtil.Table;
 
+/**
+ * PLUGIN内でグループ情報をもつ為のクラス。
+ * 土地の所有者にはPFAgent型が入るので，
+ * サブクラスであるPFGroupも所有者になれる。
+ * @author kidocchy
+ *
+ */
 public class PFGroup extends PFAgent{
 
 	List<User> members;
@@ -19,13 +26,23 @@ public class PFGroup extends PFAgent{
 	}
 	
 	PFGroup() {}
-	
+	/**
+	 * nameという名前でGROUPを作成。
+	 * 名前の重複チェックはしていない。
+	 * 同じ名前で複数登録すると，別IDになる。
+	 * @param name 名称
+	 * @return PFGroup
+	 */
 	public static PFGroup newGroup(String name) {
 		PFGroup g = new PFGroup(name);
 		g.addToDB();
 		return g;
 	}
-
+/**
+ * IDでグループを検索
+ * @param pfid UUID型
+ * @return PFGroup
+ */
 	public static PFGroup getByPFID(UUID pfid) {
 		try {
 			ResultSet rs = DatabaseUtil.selectUUID(Table.PFGROUP, "PFID", pfid);
@@ -40,7 +57,11 @@ public class PFGroup extends PFAgent{
 		}
 		return null;
 	}
-
+/**
+ * 名前でグループ検索。完全一致
+ * @param name
+ * @return PFGroup。該当なければnull
+ */
 	public static PFGroup getByName(String name) {
 		try {
 			ResultSet rs = DatabaseUtil.select(Table.PFGROUP, "screenName='" + name + "'");
@@ -56,7 +77,11 @@ public class PFGroup extends PFAgent{
 		}
 		return null;
 	}
-
+/**
+ * 新規メンバー追加。roleに入る文字列に現在制限なし。
+ * @param userPFID マイクラのUUIDではない。
+ * @param role 役割を示す文字列。
+ */
 	public void newMember(UUID userPFID, String role) {
 		User u = User.getByPFID(userPFID);
 		if(u != null) {
@@ -69,6 +94,12 @@ public class PFGroup extends PFAgent{
 			System.out.println("No such a user:" + userPFID.toString());
 		}
 	}
+	
+	/**
+	 * インスタンス変数memberの更新用。
+	 * GMEMBERテーブルからメンバーを取得してUser型で格納。
+	 * @return
+	 */
 	private LinkedList<User> getMembers() {
 		LinkedList<User> r = new LinkedList<User>();
 		StringBuilder sql = new StringBuilder();
@@ -85,7 +116,9 @@ public class PFGroup extends PFAgent{
 			return null;
 		}
 	}
-
+/**
+ * members全員にsendMessage呼び出し。
+ */
 	@Override
 	public void sendMessage(String str, Boolean sendOnLogin) {
 		members.forEach(i -> i.sendMessage(str, sendOnLogin));

@@ -229,17 +229,31 @@ public class DatabaseUtil {
  *
  */
     public enum Table{
+    	/**
+    	 * SQLテーブル名:USER
+    	 */
 	USER,	//ユーザー
+	/**
+	 * SQLテーブル名:PFGROUP; GROUPだと，SQL予約語の関係で厄介なので.
+	 */
 	PFGROUP,	//グループ
+	/**
+	 * SQLテーブル名:GMEMBER
+	 */
 	GMEMBER, //グループメンバー
+	/**
+	 * SQLテーブル名:ITEM
+	 */
 	ITEM,	//アイテム
+	/**
+	 * SQLテーブル名:PFID
+	 */
 	PFID;	//Profundus ID
     }
     /**
      * SQLテーブルenumをStringから取得
-     * @param pfid
-     * @param type
-     * @return
+     * @param str TableType
+     * @return enum Table
      */
     public static Table stringToEnum(String str) {
     	switch(str) {
@@ -260,8 +274,8 @@ public class DatabaseUtil {
     /**
      * テーブル作成。
      * 初回ぐらいしか呼ばないと思うのでまとめました。
-     * @param tableName
-     * @param dropIfExists
+     * @param tableName Table enum
+     * @param dropIfExists true=>存在しても再作成(初期化) 
      * @return success?
      */
     public static Boolean createTable(Table tableName, Boolean dropIfExists) {

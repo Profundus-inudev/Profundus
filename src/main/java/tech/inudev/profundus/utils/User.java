@@ -10,6 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.*;
 
+/**
+ * プラグイン内ユーザー管理用クラス
+ * プラグイン依存のアクションはこのインスタンスから呼び出せるようにする想定。
+ * ＞最下部TODO参照。
+ * @author kidocchy
+ *
+ */
 public class User extends PFAgent{
 	private static Map<UUID,User> storedList = new HashMap<UUID,User>();
 	
@@ -40,8 +47,8 @@ public class User extends PFAgent{
 	 * 高速化のために，StoredListを内部で管理している。
 	 * 第二引数にtrueを指定すると，エントリーがない場合新規作成を行う。
 	 * ログイン時実行はtrue,その他情報検索時などはfalseで呼び出す想定。
-	 * @see getUser(Player, Booelan)
-	 * @param player BUKKIT API
+	 * @see getByPlayer(Player, Booelan)
+	 * @param p BUKKIT API Player
 	 * @return User Profundus User クラスインスタンス
 	 */
 	public static User getByPlayer(Player p) {
@@ -53,8 +60,8 @@ public class User extends PFAgent{
 	 * 高速化のために，StoredListを内部で管理している。
 	 * 第二引数にtrueを指定すると，エントリーがない場合新規作成を行う。
 	 * ログイン時実行はtrue,その他情報検索時などはfalseで呼び出す想定。
-	 * @see getUser(Player, Booelan)
-	 * @param player BUKKIT API
+	 * @see getByPlayer(Player, Booelan)
+	 * @param p BUKKIT API
 	 * @return User Profundus User クラスインスタンス
 	 */
 	public static User getByPlayer(Player p,Boolean createIfNotExist) {
@@ -73,9 +80,8 @@ public class User extends PFAgent{
 	
 	/**
 	 * これで呼び出すと，Playerインスタンスをラップしない。
-	 * @see getUser(Player)
+	 * @see getByPlayer(Player)
 	 * @param queryUUID
-	 * @param createIfNotExist
 	 * @return User
 	 */
 	static User getByUUID(UUID queryUUID) {
@@ -105,7 +111,7 @@ public class User extends PFAgent{
 	/**
 	 * UserのUUIDが存在するかDB上で検索
 	 * @param q UUID
-	 * @return Boolean
+	 * @return exist?
 	 */
 	private static Boolean isExistOnDB(UUID q) {
 		try {
@@ -120,9 +126,10 @@ public class User extends PFAgent{
 	
 	/**
 	 * DBからUserを検索，Userインスタンスに格納。
-	 * 外部からは，getUserで呼び出す。
-	 * @see getUser(Player)
+	 * 外部からは，getByPlayerで呼び出す。
+	 * @see getByPlayer(Player)
 	 * @param q UUID
+	 * @param ID UUID or PFID
 	 * @return User class instance
 	 */
 	private static User fetchDB(UUID q, String ID) {
@@ -145,23 +152,17 @@ public class User extends PFAgent{
 		return null;
 	}
 	
-	/**
-	 * UserインスタンスをDBに登録(INSERT INTO)
-	 */
+
 	protected void addToDB() {
 		DatabaseUtil.insertUserEntry(this);
 	}
 	
-	/**
-	 * UserインスタンスでDBを更新(UPDATE)
-	 */
+
 	protected void updateDB() {
 		DatabaseUtil.updateUserEntry(this);
 	}
 	
-	/**
-	 * UserのPFIDでDBから削除(DELETE FROM)
-	 */
+
 	protected void removeFromDB() {
 		DatabaseUtil.deleteByPFID(Table.USER, pfid);
 	}
@@ -191,7 +192,7 @@ public class User extends PFAgent{
 	
 	/**
 	 * ユーザープロフィール「mainLanguage」を更新。出番があるかは不明。
-	 * @param lang
+	 * @param lang 第１言語
 	 */
 	public void setMainLanguage(String lang) {
 		mainLanguage = lang;
@@ -200,7 +201,7 @@ public class User extends PFAgent{
 	
 	/**
 	 * ユーザープロフィール「subLanguage」を更新。出番があるかは不明。
-	 * @param lang
+	 * @param lang 第２言語
 	 */
 	public void setSubLanguage(String lang) {
 		subLanguage = lang;

@@ -16,7 +16,10 @@ import tech.inudev.profundus.utils.*;
  *
  */
 public class LoginEvent implements Listener {
-		
+		/**
+		 * PlayerJoin時呼び出し
+		 * @param e サーバーから渡される。
+		 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerJoinEvent(PlayerJoinEvent e) {
 		User user = User.getByPlayer(e.getPlayer(), true);

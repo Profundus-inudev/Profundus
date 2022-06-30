@@ -12,6 +12,7 @@ import tech.inudev.profundus.scheduler.DatabasePingRunnable;
 import tech.inudev.profundus.utils.DatabaseUtil;
 import tech.inudev.profundus.utils.DatabaseUtil.Table;
 import tech.inudev.profundus.utils.HelpUtil;
+import tech.inudev.profundus.utils.PFGroup;
 import tech.inudev.profundus.utils.StairSittingUtil;
 
 /**
@@ -40,9 +41,10 @@ public final class Profundus extends JavaPlugin {
         this.databasePingRunnable = new DatabasePingRunnable();
 
         DatabaseUtil.connect();
-        //ここの第二引数をtrueにすると，テーブル再作成（データ消えるよ）
-        DatabaseUtil.createTable(Table.USER,false);
-        DatabaseUtil.createTable(Table.PFID,false);
+        for(Table table : Table.values()) {
+            //ここの第二引数をtrueにすると，テーブル再作成（データ消えるよ）
+        	DatabaseUtil.createTable(table,true);
+        }
 
         if (!Money.bankAccountExists(this.configHandler.getMasterBankName())) {
             Money.createBankAccount(this.configHandler.getMasterBankName());

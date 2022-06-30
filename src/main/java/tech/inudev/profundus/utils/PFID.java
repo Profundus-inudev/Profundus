@@ -25,6 +25,11 @@ public abstract class PFID{
 	
 	PFID(){}
 	
+	/**
+	 * PFIDをランダム発行。
+	 * @param type Table
+	 * @return PFID
+	 */
 	static UUID newPFID(Table type) {
 		//とりあえず，ランダムで発行。
 		UUID yourID = UUID.randomUUID();
@@ -48,6 +53,12 @@ public abstract class PFID{
 		return null;
 	}
 	
+	/**
+	 * PFIDでエントリーを検索。
+	 * どの型が戻るかわからないので，ジェネリクスとした。
+	 * @param pfid PFID
+	 * @return USERまたはPFGROUPの返却を実装。
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends PFID> T getByPFID(UUID pfid){
 		switch(getType(pfid)) {
@@ -60,8 +71,17 @@ public abstract class PFID{
 		}
 	}
 	
+	/**
+	 * データベース追加用
+	 */
 	protected abstract void addToDB();
+	/**
+	 * データベース更新用
+	 */
 	protected abstract void updateDB();
+	/**
+	 * データベース削除用
+	 */
 	protected abstract void removeFromDB();
 	
 }
