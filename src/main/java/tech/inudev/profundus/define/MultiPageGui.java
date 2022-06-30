@@ -76,13 +76,13 @@ public class MultiPageGui extends Gui {
             gui.open(p);
         } else {
             inventory = Bukkit.createInventory(null, 27, Component.text(title));
-            update();
+            update(p);
             Bukkit.getPluginManager().registerEvents(this, Profundus.getInstance());
             p.openInventory(inventory);
         }
     }
 
-    private void update() {
+    private void update(Player player) {
         inventory.clear();
         final ItemStack back_button = new ItemStack(Material.RED_WOOL);
         ItemMeta itemMeta = back_button.getItemMeta();
@@ -99,12 +99,21 @@ public class MultiPageGui extends Gui {
         inventory.setItem(3, back_button);
         inventory.setItem(4, centerButton);
         inventory.setItem(5, up_button);
+        for (int i = 0; i < 9; i++) {
+            if (i != 3 && i != 4 && i != 5) {
+                inventory.setItem(i, MenuItem.generateDisuse(player).getIcon());
+            }
+        }
+
         int count = 0;
         for (MenuItem i : menuItems) {
             if ((page - 1) * 18 - 1 < count && count < page * 18) {
                 inventory.setItem(count + 9 - (page - 1) * 18, i.getIcon());
             }
             count++;
+        }
+        for (int i = count; i < page * 18; i++) {
+            inventory.setItem(i + 9 - (page - 1) * 18, MenuItem.generateDisuse(player).getIcon());
         }
     }
 
@@ -124,13 +133,13 @@ public class MultiPageGui extends Gui {
                 case 3 -> {
                     if (page != 1) {
                         page--;
-                        update();
+                        update((Player) e.getWhoClicked());
                     }
                 }
                 case 5 -> {
                     if (page < Math.floor(menuItems.size() / 18f) + 1) {
                         page++;
-                        update();
+                        update((Player) e.getWhoClicked());
                     }
                 }
                 case 4 -> {
