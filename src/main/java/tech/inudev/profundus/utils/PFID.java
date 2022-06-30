@@ -8,7 +8,12 @@ import java.sql.*;
 import java.time.Instant;
 
 import tech.inudev.profundus.utils.DatabaseUtil.Table;
-
+/**
+ * プラグインで管理するIDを実装するクラス
+ * 細かい実装はサブクラスで。
+ * @author kidocchy
+ *
+ */
 public abstract class PFID{
 
 	@Getter
@@ -56,6 +61,7 @@ public abstract class PFID{
 	/**
 	 * PFIDでエントリーを検索。
 	 * どの型が戻るかわからないので，ジェネリクスとした。
+	 * @param <T> PFIDのサブクラスのどれか。
 	 * @param pfid PFID
 	 * @return USERまたはPFGROUPの返却を実装。
 	 */

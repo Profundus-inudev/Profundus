@@ -59,7 +59,7 @@ public class PFGroup extends PFAgent{
 	}
 /**
  * 名前でグループ検索。完全一致
- * @param name
+ * @param name 検索する名前
  * @return PFGroup。該当なければnull
  */
 	public static PFGroup getByName(String name) {

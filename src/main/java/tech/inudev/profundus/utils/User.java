@@ -61,7 +61,8 @@ public class User extends PFAgent{
 	 * 第二引数にtrueを指定すると，エントリーがない場合新規作成を行う。
 	 * ログイン時実行はtrue,その他情報検索時などはfalseで呼び出す想定。
 	 * @see getByPlayer(Player, Booelan)
-	 * @param p BUKKIT API
+	 * @param p BUKKIT API Player
+	 * @param createIfNotExist エントリーがなければ新規作成するか
 	 * @return User Profundus User クラスインスタンス
 	 */
 	public static User getByPlayer(Player p,Boolean createIfNotExist) {
@@ -102,7 +103,11 @@ public class User extends PFAgent{
 		}
 		return u;
 	}
-	
+	/**
+	 * PFIDで検索。UUIDに変換して，getByUUIDに渡す。
+	 * @param pfid
+	 * @return Userクラス
+	 */
 	public static User getByPFID(UUID pfid) {
 		User tmp = fetchDB(pfid,"PFID");
 		return getByUUID(tmp.uuid);

@@ -11,12 +11,19 @@ import tech.inudev.profundus.utils.DatabaseUtil.Table;
 public abstract class PFAgent extends PFID{
 
 	String screenName;//表示名
-	
+	/**
+	 * コンストラクタ
+	 * @param type Table
+	 * @param name 表示名
+	 */
 	public PFAgent(Table type,String name) {
 		super(type);
 		screenName = name;
 	}
 	
+	/**
+	 * からのコンストラクタ
+	 */
 	public PFAgent() {}
 	/**
 	 * チャットメッセージ送信。グループ宛に送ると，メンバー全員に送信する想定。
