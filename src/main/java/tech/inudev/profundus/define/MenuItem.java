@@ -20,10 +20,50 @@ public class MenuItem {
     private final Component title;
     @Getter
     private List<Component> lore;
+
+    public void setLore(List<Component> lore) {
+        this.lore = lore;
+        if (!isDraggable() && icon != null && lore != null) {
+            ItemMeta meta = icon.getItemMeta();
+            meta.lore(lore);
+            icon.setItemMeta(meta);
+        }
+    }
+
     @Getter
     private final BiConsumer<MenuItem, Player> onClick;
     @Getter
     private ItemStack icon;
+
+    public void setIcon(ItemStack icon) {
+        this.icon = icon;
+
+        if (this.icon == null) {
+            if (draggable) {
+                return;
+            } else {
+                throw new IllegalArgumentException("draggableがfalseの場合、iconをnullにはできません");
+            }
+        }
+        if (draggable) {
+            return;
+        }
+
+        if (shiny) {
+            this.icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
+        }
+
+        ItemMeta meta = this.icon.getItemMeta();
+        if (title != null) {
+            meta.displayName(title);
+        }
+
+        if (lore != null) {
+            meta.lore(lore.size() > 0 ? lore : null);
+        }
+        this.icon.setItemMeta(meta);
+    }
+
     @Getter
     private final Object customData;
     @Getter
@@ -151,45 +191,6 @@ public class MenuItem {
      */
     public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean close, boolean draggable) {
         this(title != null ? Component.text(title) : null, null, onClick, icon, null, false, close, draggable);
-    }
-
-
-    public void setLore(List<Component> lore) {
-        this.lore = lore;
-        if (!isDraggable() && icon != null && lore != null) {
-            ItemMeta meta = icon.getItemMeta();
-            meta.lore(lore);
-            icon.setItemMeta(meta);
-        }
-    }
-
-    public void setIcon(ItemStack icon) {
-        this.icon = icon;
-
-        if (this.icon == null) {
-            if (draggable) {
-                return;
-            } else {
-                throw new IllegalArgumentException("draggableがfalseの場合、iconをnullにはできません");
-            }
-        }
-        if (draggable) {
-            return;
-        }
-
-        if (shiny) {
-            this.icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
-        }
-
-        ItemMeta meta = this.icon.getItemMeta();
-        if (title != null) {
-            meta.displayName(title);
-        }
-
-        if (lore != null) {
-            meta.lore(lore.size() > 0 ? lore : null);
-        }
-        this.icon.setItemMeta(meta);
     }
 
     /**

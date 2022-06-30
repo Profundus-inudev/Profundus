@@ -30,9 +30,10 @@ import java.util.function.BiConsumer;
 public class Gui implements Listener {
     /**
      * 内部で使用するMenuItemに座標データをつけたもの。
+     *
      * @param menuItem MenuItem
-     * @param x x座標
-     * @param y y座標
+     * @param x        x座標
+     * @param y        y座標
      */
     record PosMenuItem(MenuItem menuItem, int x, int y) {
     }
@@ -72,10 +73,6 @@ public class Gui implements Listener {
         menuItems.add(new PosMenuItem(menuItem, x, y));
     }
 
-    public List<PosMenuItem> cloneMenuItems() {
-        return new ArrayList<>(menuItems);
-    }
-
     /**
      * GUIを開く。
      *
@@ -92,7 +89,7 @@ public class Gui implements Listener {
     /**
      * GUIを開く。
      *
-     * @param player GUIを開くプレイヤー
+     * @param player            GUIを開くプレイヤー
      * @param forceInventoryGui 統合版でもインベントリGUIを使用するか
      */
     public void open(Player player, boolean forceInventoryGui) {
@@ -169,6 +166,14 @@ public class Gui implements Listener {
                 inventory.setItem(x - 1 + (y - 1) * 9, menuItem.menuItem().getIcon());
             }
         }
+    }
+
+    public ItemStack cloneItemStack(int x, int y) {
+        PosMenuItem pos = menuItems.stream().filter(v -> v.x() == x && v.y() == y).findFirst().orElse(null);
+        if (pos == null) {
+            throw new IllegalArgumentException();
+        }
+        return pos.menuItem().getIcon();
     }
 
     /**
