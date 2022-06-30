@@ -20,10 +20,50 @@ public class MenuItem {
     private final Component title;
     @Getter
     private List<Component> lore;
+
+    public void setLore(List<Component> lore) {
+        this.lore = lore;
+        if (!isDraggable() && icon != null && lore != null) {
+            ItemMeta meta = icon.getItemMeta();
+            meta.lore(lore);
+            icon.setItemMeta(meta);
+        }
+    }
+
     @Getter
     private final BiConsumer<MenuItem, Player> onClick;
     @Getter
     private ItemStack icon;
+
+    public void setIcon(ItemStack icon) {
+        this.icon = icon;
+
+        if (this.icon == null) {
+            if (draggable) {
+                return;
+            } else {
+                throw new IllegalArgumentException("draggableがfalseの場合、iconをnullにはできません");
+            }
+        }
+        if (draggable) {
+            return;
+        }
+
+        if (shiny) {
+            this.icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
+        }
+
+        ItemMeta meta = this.icon.getItemMeta();
+        if (title != null) {
+            meta.displayName(title);
+        }
+
+        if (lore != null) {
+            meta.lore(lore.size() > 0 ? lore : null);
+        }
+        this.icon.setItemMeta(meta);
+    }
+
     @Getter
     private final Object customData;
     @Getter
@@ -154,52 +194,18 @@ public class MenuItem {
     }
 
 
-    public void setLore(List<Component> lore) {
-        this.lore = lore;
-        if (!isDraggable() && icon != null && lore != null) {
-            ItemMeta meta = icon.getItemMeta();
-            meta.lore(lore);
-            icon.setItemMeta(meta);
-        }
-    }
-
-    public void setIcon(ItemStack icon) {
-        this.icon = icon;
-
-        if (this.icon == null) {
-            if (draggable) {
-                return;
-            } else {
-                throw new IllegalArgumentException("draggableがfalseの場合、iconをnullにはできません");
-            }
-        }
-        if (draggable) {
-            return;
-        }
-
-        if (shiny) {
-            this.icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
-        }
-
-        ItemMeta meta = this.icon.getItemMeta();
-        if (title != null) {
-            meta.displayName(title);
-        }
-
-        if (lore != null) {
-            meta.lore(lore.size() > 0 ? lore : null);
-        }
-        this.icon.setItemMeta(meta);
-    }
-
     /**
      * 不使用スロットを埋めるアイテムを生成する。
      *
      * @return 不使用スロットを埋めるアイテム
      */
     public static MenuItem generateDisuse(Player player) {
-        ItemStack icon = new ItemStack(Gui.isBedrock(player) ? Material.IRON_BARS : Material.GRAY_STAINED_GLASS_PANE);
+        ItemStack icon = new ItemStack(getDisuseMaterial(player));
         return new MenuItem(Component.text(""), null, null, icon, null, false, false, false);
+    }
+
+    private static Material getDisuseMaterial(Player player) {
+        return Gui.isBedrock(player) ? Material.IRON_BARS : Material.GRAY_STAINED_GLASS_PANE;
     }
 
     public static MenuItem generateDraggable(BiConsumer<MenuItem, Player> onClick, ItemStack icon) {

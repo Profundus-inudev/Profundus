@@ -30,15 +30,32 @@ import java.util.function.BiConsumer;
 public class Gui implements Listener {
     /**
      * 内部で使用するMenuItemに座標データをつけたもの。
+     *
      * @param menuItem MenuItem
-     * @param x x座標
-     * @param y y座標
+     * @param x        x座標
+     * @param y        y座標
      */
     record PosMenuItem(MenuItem menuItem, int x, int y) {
     }
 
-    @Setter
     private List<PosMenuItem> menuItems = new ArrayList<>();
+
+    public void setMenuItems(List<PosMenuItem> newItems, Player player) {
+        menuItems = new ArrayList<>();
+        menuItems.addAll(newItems);
+        // 不使用スロットを埋める
+        int maxY = newItems.stream().map(PosMenuItem::y).mapToInt(Integer::intValue).max().orElseThrow();
+        for (int i = 1; i <= maxY; i++) {
+            for (int j = 1; j <= 9; j++) {
+                int finalI = i;
+                int finalJ = j;
+                PosMenuItem newItem = newItems.stream().filter(v -> v.x == finalJ && v.y == finalI).findFirst().orElse(null);
+                if (newItem == null) {
+                    menuItems.add(new PosMenuItem(MenuItem.generateDisuse(player), j, i));
+                }
+            }
+        }
+    }
 
     /**
      * GUIのタイトル
@@ -70,10 +87,6 @@ public class Gui implements Listener {
      */
     public void addItem(MenuItem menuItem, int x, int y) {
         menuItems.add(new PosMenuItem(menuItem, x, y));
-    }
-
-    public List<PosMenuItem> cloneMenuItems() {
-        return new ArrayList<>(menuItems);
     }
 
     /**
@@ -169,6 +182,14 @@ public class Gui implements Listener {
                 inventory.setItem(x - 1 + (y - 1) * 9, menuItem.menuItem().getIcon());
             }
         }
+    }
+
+    public ItemStack cloneItemStack(int x, int y) {
+        PosMenuItem pos = menuItems.stream().filter(v -> v.x() == x && v.y() == y).findFirst().orElse(null);
+        if (pos == null) {
+            throw new IllegalArgumentException();
+        }
+        return pos.menuItem().getIcon();
     }
 
     /**

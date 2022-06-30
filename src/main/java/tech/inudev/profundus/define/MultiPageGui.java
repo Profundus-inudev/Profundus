@@ -67,7 +67,7 @@ public class MultiPageGui extends Gui {
     public void open(Player p) {
         if (Gui.isBedrock(p)) {
             Gui gui = new Gui(title);
-            gui.setMenuItems(menuItems.stream().map(n -> new Gui.PosMenuItem(n, 0, 0)).collect(Collectors.toList()));
+            gui.setMenuItems(menuItems.stream().map(n -> new Gui.PosMenuItem(n, 0, 0)).collect(Collectors.toList()), p);
             gui.open(p);
         } else {
             inventory = Bukkit.createInventory(null, 27, Component.text(title));
