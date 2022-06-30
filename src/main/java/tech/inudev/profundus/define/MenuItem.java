@@ -206,6 +206,7 @@ public class MenuItem {
     /**
      * 不使用スロットを埋めるアイテムを生成する。
      *
+     * @param player アイテムを表示するGuiを起動したプレイヤー
      * @return 生成された不使用スロットを埋めるアイテム
      */
     public static MenuItem generateDisuse(Player player) {
