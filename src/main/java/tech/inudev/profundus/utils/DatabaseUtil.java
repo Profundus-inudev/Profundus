@@ -6,6 +6,10 @@ import tech.inudev.profundus.config.ConfigHandler;
 import java.sql.*;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Databaseを管理するためのクラス
@@ -17,7 +21,6 @@ import java.util.UUID;
 public class DatabaseUtil {
 
     private static Connection connection;
-
     private static final String databaseUrl;
 
     static {
@@ -42,7 +45,7 @@ public class DatabaseUtil {
             connection = DriverManager.getConnection(databaseUrl, configHandler.getDatabaseUsername(), configHandler.getDatabasePassword());
             connection.setAutoCommit(false);
         } catch (SQLException e) {
-            System.out.println("Couldn't connect DB");
+            Profundus.logger().log(Level.SEVERE, "Couldn't connect DB");
             throw new RuntimeException(e);
         }
     }
@@ -74,26 +77,6 @@ public class DatabaseUtil {
         }
     }
 
-
-    private static void createMoneyTable() {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement("""
-                CREATE TABLE IF NOT EXISTS 'money' (
-                        'name' VARCHAR(36) NOT NULL,
-                        'amount' INT NOT NULL,
-                        PRIMARY KEY ('name'))
-                    """);
-            preparedStatement.execute();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException e2) {
-                throw new RuntimeException(e2);
-            }
-        }
-    }
-
     /**
      * Databaseに新たに金額データを登録する。
      * 処理が完了した場合は、トランザクションをコミットする。
@@ -103,8 +86,6 @@ public class DatabaseUtil {
      */
     public static void createMoneyRecord(String name) {
         try {
-            createMoneyTable();
-
             if (loadMoneyAmount(name) != null) {
                 throw new SQLException();
             }
@@ -135,16 +116,10 @@ public class DatabaseUtil {
      */
     public static Integer loadMoneyAmount(String name) {
         try {
-            createMoneyTable();
 
-            PreparedStatement preparedStatement = connection.prepareStatement("""
-                SELECT * FROM money WHERE name=?
-                """);
-            preparedStatement.setString(1, name);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
+            ResultSet resultSet = select(Table.MONEY,"name='"+name+"'");
             Integer result = resultSet.next() ? resultSet.getInt("amount") : null;
-            preparedStatement.close();
+            resultSet.close();
             return result;
         } catch (SQLException e) {
             try {
@@ -178,8 +153,6 @@ public class DatabaseUtil {
 
     private static void updateMoneyAmount(String bankName, int amount) {
         try {
-            createMoneyTable();
-
             if (loadMoneyAmount(bankName) == null) {
                 throw new SQLException();
             }
@@ -215,11 +188,11 @@ public class DatabaseUtil {
  * 確実にconnectedなインスタンスを取得する。
  * @return
  */
-    static Connection getConnected(){
+    static Connection getConnection(){
     	try {
 			if (connection == null || connection.isClosed()) {connect();}
     	} catch(SQLException e) {
-    		System.out.println("getConnected:" + e);
+    		Profundus.logger().log(Level.WARNING,"getConnection:" + e);
     	}
     	return connection;
     }
@@ -234,53 +207,30 @@ public class DatabaseUtil {
     	 */
 	USER,	//ユーザー
 	/**
-	 * SQLテーブル名:PFGROUP; GROUPだと，SQL予約語の関係で厄介なので.
-	 */
-	PFGROUP,	//グループ
-	/**
-	 * SQLテーブル名:GMEMBER
-	 */
-	GMEMBER, //グループメンバー
-	/**
 	 * SQLテーブル名:ITEM
 	 */
 	ITEM,	//アイテム
 	/**
 	 * SQLテーブル名:PFID
 	 */
-	PFID;	//Profundus ID
+	PFID,	//Profundus ID
+	/**
+	 * SQLテーブル名:MONEY
+	 */
+	MONEY;
     }
-    /**
-     * SQLテーブルenumをStringから取得
-     * @param str TableType
-     * @return enum Table
-     */
-    public static Table stringToEnum(String str) {
-    	switch(str) {
-    	case "USER":
-    		return Table.USER;
-    	case "PFROUP":
-    		return Table.PFGROUP;
-    	case "GMEMBER":
-    		return Table.GMEMBER;
-    	case "ITEM":
-    		return Table.ITEM;
-    	case "PFID":
-    		return Table.PFID;
-    	}
-    	return null;
-    }
-    
+
     /**
      * テーブル作成。
      * 初回ぐらいしか呼ばないと思うのでまとめました。
      * @param tableName Table enum
      * @param dropIfExists true=>存在しても再作成(初期化) 
      * @return success?
+     * TODO リリース時には第二引数dropIfExistsは削除。
      */
     public static Boolean createTable(Table tableName, Boolean dropIfExists) {
     	StringBuilder sql = new StringBuilder();
-    	sql.append("CREATE TABLE IF NOT EXISTS " + tableName.toString() +" (");
+    	sql.append("CREATE TABLE IF NOT EXISTS " + tableName.name() +" (");
 
     	switch(tableName) {
     	case USER:
@@ -307,26 +257,6 @@ public class DatabaseUtil {
     				createdAt TIMESTAMP NOT NULL
     				""");
     		break;
-    	case PFGROUP:
-    		sql.append("""
-    				seqID INTEGER PRIMARY KEY AUTOINCREMENT,
-    				mostSignificantPFID BIGINT NOT NULL,
-    				leastSignificantPFID BIGINT NOT NULL,
-    				screenName VARCHAR NOT NULL,
-    				createdAt TIMESTAMP NOT NULL
-    				""");
-    		break;
-    	case GMEMBER:
-    		sql.append("""
-    				seqID INTEGER PRIMARY KEY AUTOINCREMENT,
-    				mostSignificantPFID BIGINT NOT NULL,
-    				leastSignificantPFID BIGINT NOT NULL,
-    				mostSignificantUserPFID BIGINT NOT NULL,
-    				leastSignificantUserPFID BIGINT NOT NULL,
-    				role VARCHAR,
-    				createdAt TIMESTAMP NOT NULL
-    				""");
-    		break;
     	case ITEM:
     		sql.append("""
     				seqID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -341,17 +271,25 @@ public class DatabaseUtil {
     				createdAt TIMESTAMP NOT NULL
     				""");
     		break;
+    	case MONEY:
+    		sql.append("""
+                    'name' VARCHAR(36) NOT NULL,
+                    'amount' INT NOT NULL,
+                    PRIMARY KEY ('name')
+    				""");
+    		break;
 
     	}
     	sql.append(");");
     	
-    	Connection con = getConnected();
+    	Connection con = getConnection();
 	    try {
+	    	//TODO リリース時にはこのIFブロック丸々削除
 	    	if(dropIfExists) {
 		    	Statement st = con.createStatement();
-		    	st.executeUpdate("DROP TABLE IF EXISTS " + tableName.toString());
+		    	st.executeUpdate("DROP TABLE IF EXISTS " + tableName.name());
 		    	con.commit();
-		        System.out.println("DropTable  : " + tableName.toString());
+		        Profundus.logger().log(Level.INFO,"DropTable  : " + tableName.name());
 		    	st.close();
 	    	}
 
@@ -359,10 +297,10 @@ public class DatabaseUtil {
 	        st.executeUpdate(sql.toString());
 	        con.commit();
 	        st.close();
-	        System.out.println("Table created/exists : " + tableName.toString());
+			Profundus.logger().log(Level.INFO, "Table created/exists : " + tableName.name() );
 	        return true;
 	    } catch (SQLException e) {
-	    	System.out.println(e);
+	    	Profundus.logger().log(Level.WARNING,e.toString());
 	        try {
 	            con.rollback();
 	        } catch (SQLException e2) {
@@ -371,52 +309,6 @@ public class DatabaseUtil {
 	        return false;
 	    }
     }
-/*
-    static Boolean insertItemEntry(PFItem item, UUID newPFID, String note) {
-    	StringBuilder sql = new StringBuilder();
-    	sql.append("INSERT INTO " + Table.ITEM.toString());
-    	sql.append("""
-    			(
-    				mostSignificantOwnerPFID,
-    				leastSignificantOwnerPFID,
-    				mostSignificantPFID,
-    				leastSignificantPFID,
-     				mostSignificantUUID,
-    				leastSignificantUUID,
-       				note,
-       				type,
-    				createdAt
-    			) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
-    			""");
-    	
-    	Connection con = getConnected();
-	    try {
-	    	PreparedStatement preparedStatement = con.prepareStatement(sql.toString());
-	    	preparedStatement.setLong(1, item.getOwner().getMostSignificantBits());
-	    	preparedStatement.setLong(2, item.getOwner().getLeastSignificantBits());
-	    	preparedStatement.setLong(3, newPFID.getMostSignificantBits());
-	    	preparedStatement.setLong(4, newPFID.getLeastSignificantBits());
-	    	preparedStatement.setLong(5, item.getUniqueId().getMostSignificantBits());
-	    	preparedStatement.setLong(6, item.getUniqueId().getLeastSignificantBits());
-	    	preparedStatement.setString(7, note);
-	    	preparedStatement.setString(8, item.getItemStack().getType().toString());
-	    	preparedStatement.setTimestamp(9, Timestamp.from(Instant.now()) );
-	        int res = preparedStatement.executeUpdate();
-	        con.commit();
-	        preparedStatement.close();
-	        return true;
-	    } catch (SQLException e) {
-	    	System.out.println("insertItemEntry: " + e);
-
-	        try {
-	            con.rollback();
-	        } catch (SQLException e2) {
-                throw new RuntimeException(e2);
-	        }
-	        return null;
-      }
-    }
-    */
     /**
      * PFID関連　INSERT
      * @param pfid
@@ -425,7 +317,7 @@ public class DatabaseUtil {
      */
     static Boolean insertPFIDEntry(UUID pfid, Table type) {
     	StringBuilder sql = new StringBuilder();
-    	sql.append("INSERT INTO " + Table.PFID.toString());
+    	sql.append("INSERT INTO " + Table.PFID.name());
     	sql.append("""
     			(
     			mostSignificantPFID,
@@ -434,7 +326,7 @@ public class DatabaseUtil {
     			createdAt
     			) VALUES(?, ?, ?, ?)
     			""");
-    	Connection con = getConnected();
+    	Connection con = getConnection();
 
 	    try {
 
@@ -442,14 +334,14 @@ public class DatabaseUtil {
 
 	    	preparedStatement.setLong(1, pfid.getMostSignificantBits());
 	    	preparedStatement.setLong(2, pfid.getLeastSignificantBits());
-	    	preparedStatement.setString(3, type.toString());
+	    	preparedStatement.setString(3, type.name());
 	    	preparedStatement.setTimestamp(4, Timestamp.from(Instant.now()) );
 	        int res = preparedStatement.executeUpdate();
 	        con.commit();
 	        preparedStatement.close();
 	        return true;
 	    } catch (SQLException e) {
-	    	System.out.println("insertPFIDEntry: " + e);
+	    	Profundus.logger().log(Level.WARNING,"insertPFIDEntry: " + e);
 
 	        try {
 	            con.rollback();
@@ -467,9 +359,9 @@ public class DatabaseUtil {
      */
     static Boolean insertUserEntry(User user) {
     	StringBuilder sql = new StringBuilder();
-    	sql.append("INSERT INTO " + Table.USER.toString());
+    	sql.append("INSERT INTO " + Table.USER.name());
     	sql.append(" (mostSignificantPFID, leastSignificantPFID, screenName, mostSignificantUUID, leastSignificantUUID, createdAt, lastLogin) VALUES (?,?,?,?,?,?,?)");
-    	Connection con = getConnected();
+    	Connection con = getConnection();
     	try {
 	    	PreparedStatement preparedStatement = con.prepareStatement(sql.toString());
 	    	preparedStatement.setLong(1, user.pfid.getMostSignificantBits());
@@ -482,10 +374,10 @@ public class DatabaseUtil {
 	    	int r = preparedStatement.executeUpdate();
 	        con.commit();
 	    	preparedStatement.close();
-	    	System.out.println(r +" rows inserted to USER");
+	    	Profundus.logger().log(Level.INFO,r +" rows inserted to USER");
 	    	return true;
     	}catch(SQLException e) {
-	    	System.out.println("insertUserEntry:" + e);
+	    	Profundus.logger().log(Level.WARNING,"insertUserEntry:" + e);
 
 	        try {
 	            con.rollback();
@@ -497,88 +389,6 @@ public class DatabaseUtil {
     }
     
     /**
-     * PFGroup関連 INSERT
-     * @param g
-     * @return success?
-     */
-    static Boolean insertGroupEntry(PFGroup g) {
-    	StringBuilder sql = new StringBuilder();
-    	sql.append("INSERT INTO " + Table.PFGROUP.toString());
-    	sql.append("""
-    			(mostSignificantPFID,
-    			leastSignificantPFID,
-    			screenName,
-    			createdAt)
-    			VALUES(?,?,?,?);
-    			""");
-    	Connection con = getConnected();
-    	try {
-    		PreparedStatement ps = con.prepareStatement(sql.toString());
-    		ps.setLong(1, g.pfid.getMostSignificantBits());
-    		ps.setLong(2, g.pfid.getLeastSignificantBits());
-    		ps.setString(3, g.screenName);
-    		ps.setTimestamp(4, Timestamp.from(g.createdAt));
-    		int r = ps.executeUpdate();
-    		con.commit();
-    		ps.close();
-    		System.out.println(r + " rows inserted to GROUP");
-    		return true;
-    	}catch(SQLException e) {
-	    	System.out.println("insertUserEntry:" + e);
-
-	        try {
-	            con.rollback();
-	        } catch (SQLException e2) {
-		    	System.out.println("insertUserEntry:" + e2);
-	        }
-	        return false;
-    	}
-    }
-
-    /**
-     * GroupMember関連 INSERT
-     * @param g
-     * @param u
-     * @param role
-     * @return success?
-     */
-    static Boolean insertGMemberEntry(PFGroup g, User u, String role) {
-    	StringBuilder sql = new StringBuilder();
-    	sql.append("INSERT INTO " + Table.GMEMBER.toString());
-    	sql.append("""
-    			(mostSignificantPFID,
-    			leastSignificantPFID,
-    			mostSignificantUserPFID,
-    			leastSignificantUserPFID,
-    			role,
-    			createdAt)
-    			VALUES(?,?,?,?,?,?)
-    			""");
-    	Connection con = getConnected();
-    	try {
-    		PreparedStatement ps = con.prepareStatement(sql.toString());
-    		ps.setLong(1, g.pfid.getMostSignificantBits());
-    		ps.setLong(2, g.pfid.getLeastSignificantBits());
-    		ps.setLong(3, u.pfid.getMostSignificantBits());
-    		ps.setLong(4, u.pfid.getLeastSignificantBits());
-    		ps.setString(5, role);
-    		ps.setTimestamp(6, Timestamp.from(Instant.now()));
-    		int r = ps.executeUpdate();
-    		con.commit();
-    		ps.close();
-    		System.out.println(r + " rows inserted to GMEMBER");
-    		return true;
-    	}catch(SQLException e) {
-	        try {
-	            con.rollback();
-	        } catch (SQLException e2) {
-		    	System.out.println("insertUserEntry:" + e2);
-	        }
-    	}
-    	return false;
-    }
-   
-    /**
      * 汎用SELECT文
      * @param tableName
      * @param query
@@ -587,15 +397,15 @@ public class DatabaseUtil {
     static ResultSet select(Table tableName, String query){
     	StringBuilder sql = new StringBuilder();
     	sql.append("SELECT * FROM ");
-    	sql.append(tableName.toString());
+    	sql.append(tableName.name());
     	if(query!=null) {sql.append(" WHERE " + query);}
-       	Connection con = getConnected();
+       	Connection con = getConnection();
 	    try {
 	    	PreparedStatement preparedStatement = con.prepareStatement(sql.toString());
 	        ResultSet rs = preparedStatement.executeQuery();
 	        return rs;
 	    } catch (SQLException e) {
-	    	System.out.println(e);
+	    	Profundus.logger().log(Level.WARNING,e.toString());
 	        return null;
 	    }
     }
@@ -607,7 +417,7 @@ public class DatabaseUtil {
     private static PreparedStatement preparePsPFID() {
    		try {
    			if(psPFID==null || psPFID.isClosed()) {
-   		       	Connection con = getConnected();
+   		       	Connection con = getConnection();
        			psPFID = con.prepareStatement("""
        					SELECT PFID.type, USER.screenName FROM PFID
        					LEFT JOIN USER
@@ -623,7 +433,7 @@ public class DatabaseUtil {
        					""");
    			}
    		} catch (SQLException e) {
-   			System.out.println("prepare-psPFID:" + e);
+   			Profundus.logger().log(Level.WARNING,"prepare-psPFID:" + e);
    		}
    		return psPFID;
     }
@@ -641,11 +451,11 @@ public class DatabaseUtil {
 	    	if(tableName == Table.PFID) {
 	    		preparedStatement = preparePsPFID();
 	    	}else {
-	           	Connection con = getConnected();
+	           	Connection con = getConnection();
 
 	        	StringBuilder sql = new StringBuilder();
 	        	sql.append("SELECT * FROM ");
-	        	sql.append(tableName.toString());
+	        	sql.append(tableName.name());
 	        	sql.append(" WHERE mostSignificant"+idName+" = ?");
 	        	sql.append(" AND leastSignificant"+idName+" = ?");
 		    	preparedStatement = con.prepareStatement(sql.toString());
@@ -656,7 +466,7 @@ public class DatabaseUtil {
 	        ResultSet rs = preparedStatement.executeQuery();
 	        return rs;
 	    } catch (SQLException e) {
-	    	System.out.println("selectUUID: " + e);
+	    	Profundus.logger().log(Level.WARNING,"selectUUID: " + e);
 	        return null;
 	    }
     }
@@ -668,7 +478,7 @@ public class DatabaseUtil {
      */
     static Boolean updateUserEntry(User user) {
       StringBuilder sql = new StringBuilder();
-      sql.append("UPDATE " + Table.USER.toString());
+      sql.append("UPDATE " + Table.USER.name());
       sql.append("""
 		
 		SET
@@ -681,7 +491,7 @@ public class DatabaseUtil {
 		AND
 		leastSignificantPFID = ?
 		""");
-	Connection con = getConnected();
+	Connection con = getConnection();
 	try {
 		PreparedStatement preparedStatement = con.prepareStatement(sql.toString());
 		preparedStatement.setString(1,user.screenName);
@@ -700,12 +510,12 @@ public class DatabaseUtil {
 			return false;
 		}
 	}catch(SQLException e) {
-    	System.out.println("updateUserEntry:" + e);
+    	Profundus.logger().log(Level.WARNING,"updateUserEntry:" + e);
 
 		try {
 		    con.rollback();
 		} catch (SQLException e2) {
-	    	System.out.println("updateUserEntry:" + e2);
+	    	Profundus.logger().log(Level.WARNING,"updateUserEntry:" + e2);
 		}
 		return false;
 	}
@@ -721,16 +531,16 @@ public class DatabaseUtil {
     	//PFIDエントリーを削除
     	if(tableName != Table.PFID) {deleteByPFID(Table.PFID,pfid);}
     	
-    	Connection con = getConnected();
+    	Connection con = getConnection();
     	try {
-    		PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM " + tableName.toString() + " WHERE mostSignificantPFID = ? AND leastSignificantPFID = ?;");
+    		PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM " + tableName.name() + " WHERE mostSignificantPFID = ? AND leastSignificantPFID = ?;");
     		preparedStatement.setLong(1, pfid.getMostSignificantBits());
     		preparedStatement.setLong(2, pfid.getLeastSignificantBits());
     		con.commit();
     		preparedStatement.close();
     		return true;
     	}catch(SQLException e) {
-	    	System.out.println(e);
+	    	Profundus.logger().log(Level.WARNING,e.toString());
 
     		try {
     		    con.rollback();

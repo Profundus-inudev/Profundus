@@ -1,12 +1,16 @@
 package tech.inudev.profundus.utils;
 
 import java.util.UUID;
+import java.util.logging.Level;
+
+import org.bukkit.NamespacedKey;
 
 import lombok.Getter;
 
 import java.sql.*;
 import java.time.Instant;
 
+import tech.inudev.profundus.Profundus;
 import tech.inudev.profundus.utils.DatabaseUtil.Table;
 /**
  * プラグインで管理するIDを実装するクラス
@@ -21,7 +25,9 @@ public abstract class PFID{
 	Table type;
 	Instant createdAt;
 
-	
+	public static final NamespacedKey msbPFID = new NamespacedKey(Profundus.getInstance(),"pfid/msb");
+	public static final NamespacedKey lsbPFID = new NamespacedKey(Profundus.getInstance(),"pfid/lsb");
+
 	PFID(Table t){
 		pfid = newPFID(t);
 		type = t;
@@ -51,9 +57,9 @@ public abstract class PFID{
 		ResultSet rs = DatabaseUtil.selectUUID(Table.PFID, "PFID", pfid);
 		try {
 			rs.first();
-			return DatabaseUtil.stringToEnum(rs.getString("type"));
+			return Table.valueOf(rs.getString("type"));
 		}catch(SQLException e) {
-			System.out.println(e);
+			Profundus.logger().log(Level.WARNING,e.toString());
 		}
 		return null;
 	}
@@ -70,8 +76,7 @@ public abstract class PFID{
 		switch(getType(pfid)) {
 		case USER:
 			return (T) User.getByPFID(pfid);
-		case PFGROUP:
-			return (T) PFGroup.getByPFID(pfid);
+
 		default:
 			return null;
 		}

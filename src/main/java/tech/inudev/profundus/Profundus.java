@@ -1,8 +1,12 @@
 package tech.inudev.profundus;
 
 import lombok.Getter;
+
+import java.util.logging.Logger;
+
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import tech.inudev.profundus.config.ConfigHandler;
 import tech.inudev.profundus.config.StairsHandler;
 import tech.inudev.profundus.define.Money;
@@ -12,7 +16,6 @@ import tech.inudev.profundus.scheduler.DatabasePingRunnable;
 import tech.inudev.profundus.utils.DatabaseUtil;
 import tech.inudev.profundus.utils.DatabaseUtil.Table;
 import tech.inudev.profundus.utils.HelpUtil;
-import tech.inudev.profundus.utils.PFGroup;
 import tech.inudev.profundus.utils.StairSittingUtil;
 
 /**
@@ -31,19 +34,32 @@ public final class Profundus extends JavaPlugin {
     private StairsHandler stairsHandler;
     private DatabasePingRunnable databasePingRunnable;
 
+    //getterや，getLoggerを作ると，親クラスと衝突してエラーになるので苦肉の策。
+    private static Logger myLogger;
+    /**
+     * Pluginのloggerを取得する。static getLogger()をしたかったのだが，
+     * getLoggerは親クラスのnon staticメソッドと名前衝突のため不可。
+     * @return logger
+     */
+    public static Logger logger() {
+    	return myLogger;
+    }
+    
     @Override
     public void onEnable() {
         // Plugin startup logic
         instance = this;
-
+        myLogger = getLogger();
+        
         this.configHandler = new ConfigHandler(instance);
         this.stairsHandler = new StairsHandler(instance);
         this.databasePingRunnable = new DatabasePingRunnable();
 
         DatabaseUtil.connect();
         for(Table table : Table.values()) {
-            //ここの第二引数をtrueにすると，テーブル再作成（データ消えるよ）
-        	DatabaseUtil.createTable(table,true);
+            //ここの第二引数をtrueにすると，テーブル再作成（データ消える）
+        	//TODO リリース時には第二引数は削除
+        	DatabaseUtil.createTable(table,false);
         }
 
         if (!Money.bankAccountExists(this.configHandler.getMasterBankName())) {

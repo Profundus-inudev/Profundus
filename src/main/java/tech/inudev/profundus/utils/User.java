@@ -3,9 +3,11 @@ package tech.inudev.profundus.utils;
 import org.bukkit.entity.*;
 
 import lombok.Getter;
+import tech.inudev.profundus.Profundus;
 import tech.inudev.profundus.utils.DatabaseUtil.Table;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.*;
@@ -124,7 +126,7 @@ public class User extends PFAgent{
 			if(rs == null) {return false;}
 			return rs.next();
 		}catch(SQLException e) {
-			System.out.println(e);
+			Profundus.logger().log(Level.WARNING,e.toString());
 		}
 		return false;
 	}
@@ -152,7 +154,7 @@ public class User extends PFAgent{
 			ret.type = Table.USER;
 			return ret;
 		}catch(SQLException e) {
-			System.out.println("fetch:" + e);
+			Profundus.logger().log(Level.WARNING,"fetch:" + e);
 		}
 		return null;
 	}
@@ -219,7 +221,7 @@ public class User extends PFAgent{
 			player.sendMessage(str);
 		} else {
 			// TODO messageStore to send on Login
-			System.out.println("Player is null");
+			Profundus.logger().log(Level.INFO,"Player is null");
 		}
 		
 	}
