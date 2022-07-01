@@ -25,7 +25,13 @@ public abstract class PFID{
 	Table type;
 	Instant createdAt;
 
+	/**
+	 * PFID上位ビット用NamespacedKey
+	 */
 	public static final NamespacedKey msbPFID = new NamespacedKey(Profundus.getInstance(),"pfid/msb");
+	/**
+	 * PFID下位ビット用NamespacedKey
+	 */
 	public static final NamespacedKey lsbPFID = new NamespacedKey(Profundus.getInstance(),"pfid/lsb");
 
 	PFID(Table t){
