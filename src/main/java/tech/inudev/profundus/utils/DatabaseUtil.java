@@ -27,7 +27,7 @@ public class DatabaseUtil {
 
     static {
         ConfigHandler configHandler = Profundus.getInstance().getConfigHandler();
-        if(configHandler.getDatabaseType().equals("mysql")) {
+        if (configHandler.getDatabaseType().equals("mysql")) {
             databaseUrl = "jdbc:mysql://$address/$name?useUnicode=true&characterEncoding=utf8&autoReconnect=true&maxReconnects=10&useSSL=false"
                     .replace("$address", configHandler.getDatabaseAddress())
                     .replace("$name", configHandler.getDatabaseName());
@@ -69,8 +69,8 @@ public class DatabaseUtil {
     public static void ping() {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("""
-            VALUES('ping', current_timestamp)
-            """);
+                    VALUES('ping', current_timestamp)
+                    """);
             preparedStatement.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -81,11 +81,11 @@ public class DatabaseUtil {
     private static void createMoneyTable() {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("""
-                CREATE TABLE IF NOT EXISTS 'money' (
-                        'name' VARCHAR(36) NOT NULL,
-                        'amount' INT NOT NULL,
-                        PRIMARY KEY ('name'))
-                    """);
+                    CREATE TABLE IF NOT EXISTS 'money' (
+                            'name' VARCHAR(36) NOT NULL,
+                            'amount' INT NOT NULL,
+                            PRIMARY KEY ('name'))
+                        """);
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
@@ -141,8 +141,8 @@ public class DatabaseUtil {
             createMoneyTable();
 
             PreparedStatement preparedStatement = connection.prepareStatement("""
-                SELECT * FROM money WHERE name=?
-                """);
+                    SELECT * FROM money WHERE name=?
+                    """);
             preparedStatement.setString(1, name);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -226,7 +226,13 @@ public class DatabaseUtil {
         }
     }
 
-
+    /**
+     * Metazonの商品を新たに登録する。
+     *
+     * @param item   商品アイテム
+     * @param price  商品の価格
+     * @param seller 出品者の名前（プレイヤーであればUUIDの文字列)
+     */
     public static void createGoodsRecord(ItemStack item, int price, String seller) {
         if (item == null) {
             throw new IllegalArgumentException();
@@ -267,10 +273,22 @@ public class DatabaseUtil {
         }
     }
 
+    /**
+     * Metazonの商品データ（商品アイテム、価格、出品者）をまとめたもの。
+     *
+     * @param goods  商品アイテム
+     * @param price  価格
+     * @param seller 出品者
+     */
     public record GoodsData(ItemStack goods, int price, String seller) {
 
     }
 
+    /**
+     * Metazonの商品データのリストを取得する。
+     *
+     * @return 商品データのリスト
+     */
     public static List<GoodsData> loadGoodsList() {
         try {
             createMoneyTable();
