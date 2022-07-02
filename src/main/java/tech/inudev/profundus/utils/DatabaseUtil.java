@@ -45,7 +45,7 @@ public class DatabaseUtil {
             connection = DriverManager.getConnection(databaseUrl, configHandler.getDatabaseUsername(), configHandler.getDatabasePassword());
             connection.setAutoCommit(false);
         } catch (SQLException e) {
-            Profundus.logger().log(Level.SEVERE, "Couldn't connect DB");
+            Profundus.getInstance().getLogger().log(Level.SEVERE, "Couldn't connect DB");
             throw new RuntimeException(e);
         }
     }
@@ -192,7 +192,7 @@ public class DatabaseUtil {
     	try {
 			if (connection == null || connection.isClosed()) {connect();}
     	} catch(SQLException e) {
-    		Profundus.logger().log(Level.WARNING,"getConnection:" + e);
+    		Profundus.getInstance().getLogger().log(Level.WARNING,"getConnection:" + e);
     	}
     	return connection;
     }
@@ -289,7 +289,7 @@ public class DatabaseUtil {
 		    	Statement st = con.createStatement();
 		    	st.executeUpdate("DROP TABLE IF EXISTS " + tableName.name());
 		    	con.commit();
-		        Profundus.logger().log(Level.INFO,"DropTable  : " + tableName.name());
+		        Profundus.getInstance().getLogger().log(Level.INFO,"DropTable  : " + tableName.name());
 		    	st.close();
 	    	}
 
@@ -297,10 +297,10 @@ public class DatabaseUtil {
 	        st.executeUpdate(sql.toString());
 	        con.commit();
 	        st.close();
-			Profundus.logger().log(Level.INFO, "Table created/exists : " + tableName.name() );
+			Profundus.getInstance().getLogger().log(Level.INFO, "Table created/exists : " + tableName.name() );
 	        return true;
 	    } catch (SQLException e) {
-	    	Profundus.logger().log(Level.WARNING,e.toString());
+	    	Profundus.getInstance().getLogger().log(Level.WARNING,e.toString());
 	        try {
 	            con.rollback();
 	        } catch (SQLException e2) {
@@ -341,7 +341,7 @@ public class DatabaseUtil {
 	        preparedStatement.close();
 	        return true;
 	    } catch (SQLException e) {
-	    	Profundus.logger().log(Level.WARNING,"insertPFIDEntry: " + e);
+	    	Profundus.getInstance().getLogger().log(Level.WARNING,"insertPFIDEntry: " + e);
 
 	        try {
 	            con.rollback();
@@ -374,10 +374,10 @@ public class DatabaseUtil {
 	    	int r = preparedStatement.executeUpdate();
 	        con.commit();
 	    	preparedStatement.close();
-	    	Profundus.logger().log(Level.INFO,r +" rows inserted to USER");
+	    	Profundus.getInstance().getLogger().log(Level.INFO,r +" rows inserted to USER");
 	    	return true;
     	}catch(SQLException e) {
-	    	Profundus.logger().log(Level.WARNING,"insertUserEntry:" + e);
+	    	Profundus.getInstance().getLogger().log(Level.WARNING,"insertUserEntry:" + e);
 
 	        try {
 	            con.rollback();
@@ -405,7 +405,7 @@ public class DatabaseUtil {
 	        ResultSet rs = preparedStatement.executeQuery();
 	        return rs;
 	    } catch (SQLException e) {
-	    	Profundus.logger().log(Level.WARNING,e.toString());
+	    	Profundus.getInstance().getLogger().log(Level.WARNING,e.toString());
 	        return null;
 	    }
     }
@@ -433,7 +433,7 @@ public class DatabaseUtil {
        					""");
    			}
    		} catch (SQLException e) {
-   			Profundus.logger().log(Level.WARNING,"prepare-psPFID:" + e);
+   			Profundus.getInstance().getLogger().log(Level.WARNING,"prepare-psPFID:" + e);
    		}
    		return psPFID;
     }
@@ -466,7 +466,7 @@ public class DatabaseUtil {
 	        ResultSet rs = preparedStatement.executeQuery();
 	        return rs;
 	    } catch (SQLException e) {
-	    	Profundus.logger().log(Level.WARNING,"selectUUID: " + e);
+	    	Profundus.getInstance().getLogger().log(Level.WARNING,"selectUUID: " + e);
 	        return null;
 	    }
     }
@@ -510,12 +510,12 @@ public class DatabaseUtil {
 			return false;
 		}
 	}catch(SQLException e) {
-    	Profundus.logger().log(Level.WARNING,"updateUserEntry:" + e);
+    	Profundus.getInstance().getLogger().log(Level.WARNING,"updateUserEntry:" + e);
 
 		try {
 		    con.rollback();
 		} catch (SQLException e2) {
-	    	Profundus.logger().log(Level.WARNING,"updateUserEntry:" + e2);
+	    	Profundus.getInstance().getLogger().log(Level.WARNING,"updateUserEntry:" + e2);
 		}
 		return false;
 	}
@@ -540,7 +540,7 @@ public class DatabaseUtil {
     		preparedStatement.close();
     		return true;
     	}catch(SQLException e) {
-	    	Profundus.logger().log(Level.WARNING,e.toString());
+	    	Profundus.getInstance().getLogger().log(Level.WARNING,e.toString());
 
     		try {
     		    con.rollback();

@@ -33,23 +33,11 @@ public final class Profundus extends JavaPlugin {
     @Getter
     private StairsHandler stairsHandler;
     private DatabasePingRunnable databasePingRunnable;
-
-    //getterや，getLoggerを作ると，親クラスと衝突してエラーになるので苦肉の策。
-    private static Logger myLogger;
-    /**
-     * Pluginのloggerを取得する。static getLogger()をしたかったのだが，
-     * getLoggerは親クラスのnon staticメソッドと名前衝突のため不可。
-     * @return logger
-     */
-    public static Logger logger() {
-    	return myLogger;
-    }
     
     @Override
     public void onEnable() {
         // Plugin startup logic
         instance = this;
-        myLogger = getLogger();
         
         this.configHandler = new ConfigHandler(instance);
         this.stairsHandler = new StairsHandler(instance);

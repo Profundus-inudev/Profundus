@@ -65,7 +65,7 @@ public abstract class PFID{
 			rs.first();
 			return Table.valueOf(rs.getString("type"));
 		}catch(SQLException e) {
-			Profundus.logger().log(Level.WARNING,e.toString());
+			Profundus.getInstance().getLogger().log(Level.WARNING,e.toString());
 		}
 		return null;
 	}

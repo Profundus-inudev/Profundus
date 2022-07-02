@@ -126,7 +126,7 @@ public class User extends PFAgent{
 			if(rs == null) {return false;}
 			return rs.next();
 		}catch(SQLException e) {
-			Profundus.logger().log(Level.WARNING,e.toString());
+			Profundus.getInstance().getLogger().log(Level.WARNING,e.toString());
 		}
 		return false;
 	}
@@ -154,7 +154,7 @@ public class User extends PFAgent{
 			ret.type = Table.USER;
 			return ret;
 		}catch(SQLException e) {
-			Profundus.logger().log(Level.WARNING,"fetch:" + e);
+			Profundus.getInstance().getLogger().log(Level.WARNING,"fetch:" + e);
 		}
 		return null;
 	}
@@ -221,7 +221,7 @@ public class User extends PFAgent{
 			player.sendMessage(str);
 		} else {
 			// TODO messageStore to send on Login
-			Profundus.logger().log(Level.INFO,"Player is null");
+			Profundus.getInstance().getLogger().log(Level.INFO,"Player is null");
 		}
 		
 	}
