@@ -203,7 +203,7 @@ public class DatabaseUtil {
         }
     }
 
-    public static void createGoodsTable() {
+    private static void createGoodsTable() {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("""
                     CREATE TABLE IF NOT EXISTS 'goods' (
@@ -291,7 +291,7 @@ public class DatabaseUtil {
      */
     public static List<GoodsData> loadGoodsList() {
         try {
-            createMoneyTable();
+            createGoodsTable();
 
             PreparedStatement preparedStatement = connection.prepareStatement("""
                     SELECT * FROM goods
