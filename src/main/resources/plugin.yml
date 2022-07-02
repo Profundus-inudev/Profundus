@@ -8,3 +8,10 @@ website: https://www.inu-dev.tech/
 depend:
   - floodgate
   - Geyser-Spigot
+commands:
+  test:
+    description: This is test command
+  permissions:
+    test:
+      description: test command permission
+      default: true
