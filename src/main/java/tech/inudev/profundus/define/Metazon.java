@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import tech.inudev.profundus.utils.DatabaseUtil;
 import tech.inudev.profundus.utils.HelpUtil;
 
 import java.util.ArrayList;
@@ -250,7 +251,9 @@ public class Metazon {
         MenuItem confirm = new MenuItem(
                 Component.text("販売を確定").color(TextColor.color(0x55FF55)),
                 null,
-                (menuItem, _player) -> mockRegisterItem(sellItem, this.sellPrice, _player),
+//                (menuItem, _player) -> mockRegisterItem(sellItem, this.sellPrice, _player),
+                (menuItem, _player) -> DatabaseUtil.createGoodsRecord(
+                        sellItem, this.sellPrice, _player.getUniqueId().toString()),
                 new ItemStack(Material.PAPER),
                 null,
                 false,
@@ -264,9 +267,9 @@ public class Metazon {
         return result;
     }
 
-    private void mockRegisterItem(ItemStack sellItem, int sellPrice, Player player) {
-        // 実際は他クラスの出品用メソッドを呼び出す
-    }
+//    private void mockRegisterItem(ItemStack sellItem, int sellPrice, Player player) {
+//        // 実際は他クラスの出品用メソッドを呼び出す
+//    }
     // endregion
 
     // 不使用スロットを埋める

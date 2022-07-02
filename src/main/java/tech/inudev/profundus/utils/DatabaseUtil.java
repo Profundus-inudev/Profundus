@@ -1,9 +1,16 @@
 package tech.inudev.profundus.utils;
 
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
 import tech.inudev.profundus.Profundus;
 import tech.inudev.profundus.config.ConfigHandler;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Databaseを管理するためのクラス
@@ -190,6 +197,116 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
+        }
+    }
+
+    public static void createGoodsTable() {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    CREATE TABLE IF NOT EXISTS 'goods' (
+                            'id' INT AUTO_INCREMENT,
+                            'material' VARCHAR(34) NOT NULL,
+                            'enchantments' TEXT,
+                            'amount' INT NOT NULL,
+                            'price' INT NOT NULL,
+                            'seller' VARCHAR(36) NOT NULL,
+                            PRIMARY KEY ('id'))
+                            """);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
+        }
+    }
+
+
+    public static void createGoodsRecord(ItemStack item, int price, String seller) {
+        if (item == null) {
+            throw new IllegalArgumentException();
+        }
+        try {
+            createGoodsTable();
+
+            StringBuilder enchantments = new StringBuilder();
+            item.getEnchantments().keySet().forEach(key -> {
+                enchantments.append((key.getKey()))
+                        .append(":>")
+                        .append(item.getEnchantments().get(key))
+                        .append(",");
+            });
+            if (!enchantments.toString().equals("")) {
+                enchantments.deleteCharAt(enchantments.length() - 1);
+            }
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    INSERT INTO goods (material, enchantments, amount, price, seller)
+                    VALUES (?, ?, ?, ?, ?)
+                    """);
+            preparedStatement.setString(1, item.getType().name());
+            preparedStatement.setString(2, enchantments.toString());
+            preparedStatement.setInt(3, item.getAmount());
+            preparedStatement.setInt(4, price);
+            preparedStatement.setString(5, seller);
+            preparedStatement.execute();
+            preparedStatement.close();
+
+            commitTransaction();
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
+        }
+    }
+
+    public record GoodsData(ItemStack goods, int price, String seller) {
+
+    }
+
+    public static List<GoodsData> loadGoodsList() {
+        try {
+            createMoneyTable();
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    SELECT * FROM goods
+                    """);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            List<GoodsData> result = new ArrayList<>();
+            while (resultSet.next()) {
+                Material material = Material.getMaterial(resultSet.getString("material"));
+                ItemStack goods = new ItemStack(
+                        (material != null) ? material : Material.BARRIER);
+                goods.setAmount(resultSet.getInt("amount"));
+
+                for (String ench : resultSet.getString("enchantments").split(",")) {
+                    if (ench.isEmpty()) {
+                        break;
+                    }
+                    String[] s = ench.split(":>");
+                    goods.addEnchantment(
+                            Objects.requireNonNull(Enchantment.getByKey(NamespacedKey.fromString(s[0]))),
+                            Integer.parseInt(s[1]));
+                }
+                result.add(new GoodsData(
+                        goods,
+                        resultSet.getInt("price"),
+                        resultSet.getString("seller")));
+            }
+            preparedStatement.close();
+            return result;
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+                return null;
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
             }
