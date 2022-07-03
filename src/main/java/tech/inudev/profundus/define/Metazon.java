@@ -43,9 +43,9 @@ public class Metazon {
     private List<Gui.PosMenuItem> generateTopMenu(Player player) {
         List<Gui.PosMenuItem> result = new ArrayList<>();
 
-        // 購入モードボタン
+        // 購入するボタン
         MenuItem paper = new MenuItem(
-                Component.text("購入モード"),
+                Component.text("購入する"),
                 null,
                 (menuItem, _player) -> openBuyMode(_player),
                 new ItemStack(Material.GREEN_WOOL),
@@ -55,9 +55,9 @@ public class Metazon {
                 false);
         result.add(new Gui.PosMenuItem(paper, 4, 1));
 
-        // 販売モードボタン
+        // 販売するボタン
         MenuItem sellMode = new MenuItem(
-                Component.text("販売モード"),
+                Component.text("販売する"),
                 null,
                 (menuItem, _player) -> openSellMode(_player, null),
                 new ItemStack(Material.ORANGE_WOOL),
@@ -81,7 +81,7 @@ public class Metazon {
 
     // region sellMode
     private void openSellMode(Player player, ItemStack sellItem) {
-        Gui gui = new Gui(METAZON_TITLE + " 販売モード");
+        Gui gui = new Gui(METAZON_TITLE + " 販売する");
         gui.setMenuItems(generateSellMenu(gui, player, sellItem));
         gui.open(player, true);
     }
@@ -114,9 +114,9 @@ public class Metazon {
                 false);
         result.add(new Gui.PosMenuItem(emerald, EMERALD_X, EMERALD_Y));
 
-        // 販売ボタン
+        // 販売するボタン
         MenuItem paper = new MenuItem(
-                Component.text("販売ボタン"),
+                Component.text("販売する"),
                 List.of(Component.text("下に売りたいアイテムをセットしてください")),
                 (menuItem, _player) -> onSellPaperClick(gui, _player),
                 new ItemStack(Material.PAPER),

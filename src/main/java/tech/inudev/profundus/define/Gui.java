@@ -185,10 +185,7 @@ public class Gui implements Listener {
      */
     public ItemStack cloneItemStack(int x, int y) {
         PosMenuItem pos = menuItems.stream().filter(v -> v.x() == x && v.y() == y).findFirst().orElse(null);
-        if (pos == null) {
-            throw new IllegalArgumentException();
-        }
-        return pos.menuItem().getIcon();
+        return pos != null ? pos.menuItem().getIcon() : null;
     }
 
     /**
