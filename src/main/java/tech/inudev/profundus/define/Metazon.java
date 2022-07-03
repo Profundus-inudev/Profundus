@@ -211,18 +211,6 @@ public class Metazon {
                 false);
         result.add(new Gui.PosMenuItem(paper, 3, 1));
 
-        // 販売アイテム表示
-        MenuItem goods = new MenuItem(
-                null,
-                null,
-                null,
-                sellItem,
-                null,
-                sellItem.getItemMeta().hasEnchants(),
-                false,
-                false);
-        result.add(new Gui.PosMenuItem(goods, 5, 1));
-
         // 販売金額表示
         MenuItem emerald = new MenuItem(
                 Component.text("金額"),
@@ -233,7 +221,19 @@ public class Metazon {
                 false,
                 false,
                 false);
-        result.add(new Gui.PosMenuItem(emerald, 5, 2));
+        result.add(new Gui.PosMenuItem(emerald, 5, 1));
+
+        // 販売アイテム表示
+        MenuItem goods = new MenuItem(
+                null,
+                null,
+                null,
+                sellItem,
+                null,
+                sellItem.getItemMeta().hasEnchants(),
+                false,
+                false);
+        result.add(new Gui.PosMenuItem(goods, 5, 2));
 
         // 戻るボタン
         MenuItem backPage = new MenuItem(
