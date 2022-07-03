@@ -70,6 +70,7 @@ public class MultiPageGui extends Gui {
      * @param menuItem 使用されない
      * @param x        使用されない
      * @param y        使用されない
+     * @deprecated このメソッドは無効です。
      */
     @Override
     public void addItem(MenuItem menuItem, int x, int y) {
