@@ -17,9 +17,7 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import tech.inudev.profundus.Profundus;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -112,9 +110,10 @@ public class Gui implements Listener {
 
     private void openBedrockImpl(Player player) {
         final SimpleForm.Builder builder = SimpleForm.builder().title(title);
+        Map<Integer, Integer> bedrockIdMap = new HashMap<>();
 
-        for (PosMenuItem posItem : menuItems) {
-            MenuItem item = posItem.menuItem();
+        for (int i = 0; i < menuItems.size(); i++) {
+            MenuItem item = menuItems.get(i).menuItem();
             List<String> buttonText = new ArrayList<>();
             if (item.getIcon() != null) {
                 String text = item.getIcon().getItemMeta().getDisplayName();
@@ -128,6 +127,7 @@ public class Gui implements Listener {
             }
             if (item.isClose()) {
                 builder.button(String.join("\n", buttonText));
+                bedrockIdMap.put(bedrockIdMap.size(), i);
             } else {
                 builder.content(String.join("\n", buttonText));
             }
@@ -138,7 +138,7 @@ public class Gui implements Listener {
                 return;
             }
             final List<MenuItem> item = menuItems.stream().map(PosMenuItem::menuItem).toList();
-            final int id = Math.toIntExact(res.getClickedButtonId());
+            final int id = Math.toIntExact(bedrockIdMap.get(res.getClickedButtonId()));
             final BiConsumer<MenuItem, Player> callback = item.get(id).getOnClick();
             if (callback != null) {
                 callback.accept(item.get(id), player);
