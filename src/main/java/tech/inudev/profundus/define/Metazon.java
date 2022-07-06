@@ -117,7 +117,7 @@ public class Metazon {
         // 販売するボタン
         MenuItem paper = new MenuItem(
                 Component.text("販売する"),
-                List.of(Component.text("下に売りたいアイテムをセットしてください")),
+                sellItem != null ? null : List.of(Component.text("下に売りたいアイテムをセットしてください")),
                 (menuItem, _player) -> onSellPaperClick(gui, _player),
                 new ItemStack(Material.PAPER),
                 null,

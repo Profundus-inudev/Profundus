@@ -226,7 +226,7 @@ public class Gui implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         Inventory inv = e.getClickedInventory();
-        if (inv == null || !inv.equals(inventory)) {
+        if (inv == null || !inv.equals(inventory) || e.getClick() == ClickType.DOUBLE_CLICK) {
             return;
         }
         e.setCancelled(true);
@@ -262,7 +262,7 @@ public class Gui implements Listener {
                         Bukkit.getScheduler().runTaskLater(Profundus.getInstance(), () -> {
                             menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                         }, 2);
-                    } else if (e.getClick() != ClickType.DOUBLE_CLICK) {
+                    } else {
                         menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                     }
                 }
