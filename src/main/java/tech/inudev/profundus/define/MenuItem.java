@@ -81,6 +81,11 @@ public class MenuItem {
     @Getter
     private boolean shiny;
 
+    /**
+     * アイテムのキラキラをセットする。
+     *
+     * @param shiny アイテムをキラキラさせるか
+     */
     public void setShiny(boolean shiny) {
         this.shiny = shiny;
         if (!isDraggable() && icon != null) {
