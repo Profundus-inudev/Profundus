@@ -227,12 +227,20 @@ public class Gui implements Listener {
     public void onInventoryClick(InventoryClickEvent e) {
         Inventory inv = e.getClickedInventory();
 
-        // Java版ではアイテム配置の操作・処理が複雑なため、とりあえず手持ちのインベントリでは左右クリックのみに動作制限している
-        // 統合版では制限されない（おそらく統合版では左右クリックのみで諸々の処理が行われるため） by toru-toruto
+        // 手持ちのインベントリに対するクリックの場合、draggableなアイテムの更新処理のみ行う
         if (inv != null && !inv.equals(inventory) && e.getClick() != ClickType.LEFT && e.getClick() != ClickType.RIGHT) {
-            e.setCancelled(true);
+            Bukkit.getScheduler().runTaskLater(Profundus.getInstance(), () -> {
+                menuItems.forEach(v -> {
+                    if (v.menuItem().isDraggable()) {
+                        int id = v.x() - 1 + (v.y() - 1) * 9;
+                        v.menuItem().setIcon(inventory.getItem(id));
+                        v.menuItem().getOnClick().accept(v.menuItem(), (Player) e.getWhoClicked());
+                    }
+                });
+            }, 1);
             return;
         }
+        
         if (inv == null || !inv.equals(inventory) || e.getClick() == ClickType.DOUBLE_CLICK) {
             return;
         }
@@ -296,6 +304,7 @@ public class Gui implements Listener {
             if (e.getNewItems().containsKey(id)) {
                 ItemStack item = e.getNewItems().get(id);
                 menuItem.menuItem().setIcon(item);
+                menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
             }
         }
     }
