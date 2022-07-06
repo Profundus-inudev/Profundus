@@ -226,6 +226,13 @@ public class Gui implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         Inventory inv = e.getClickedInventory();
+
+        // Java版ではアイテム配置の操作・処理が複雑なため、とりあえず手持ちのインベントリでは左右クリックのみに動作制限している
+        // 統合版では制限されない（おそらく統合版では左右クリックのみで諸々の処理が行われるため） by toru-toruto
+        if (inv != null && !inv.equals(inventory) && e.getClick() != ClickType.LEFT && e.getClick() != ClickType.RIGHT) {
+            e.setCancelled(true);
+            return;
+        }
         if (inv == null || !inv.equals(inventory) || e.getClick() == ClickType.DOUBLE_CLICK) {
             return;
         }
