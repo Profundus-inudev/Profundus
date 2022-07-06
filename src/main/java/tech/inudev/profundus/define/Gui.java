@@ -176,6 +176,13 @@ public class Gui implements Listener {
         }
     }
 
+    /**
+     * (x,y)にあるアイテムのキラキラをセットする。
+     *
+     * @param x     アイテムのx座標
+     * @param y     アイテムのy座標
+     * @param shiny アイテムをキラキラさせるか
+     */
     public void setItemShiny(int x, int y, boolean shiny) {
         for (PosMenuItem menuItem : menuItems) {
             if (menuItem.x() == x && menuItem.y() == y) {

@@ -128,15 +128,7 @@ public class Metazon {
 
         // 販売アイテムセット用の空欄
         MenuItem itemBox = MenuItem.generateDraggable(
-                (menuItem, _player) -> {
-                    if (menuItem.getIcon() != null) {
-                        gui.setItemLore(EMERALD_X, EMERALD_Y + 1, null);
-                        gui.setItemShiny(EMERALD_X, EMERALD_Y + 1, true);
-                    } else {
-                        gui.setItemLore(EMERALD_X, EMERALD_Y + 1, List.of(Component.text("下に売りたいアイテムをセットしてください")));
-                        gui.setItemShiny(EMERALD_X, EMERALD_Y + 1, false);
-                    }
-                },
+                (menuItem, _player) -> onItemBoxClick(gui, menuItem),
                 sellItem);
         result.add(new Gui.PosMenuItem(itemBox, EMERALD_X, EMERALD_Y + 2));
 
@@ -195,6 +187,16 @@ public class Metazon {
             return;
         }
         openSellConfirm(player, goods);
+    }
+
+    private void onItemBoxClick(Gui gui, MenuItem menuItem) {
+        if (menuItem.getIcon() != null) {
+            gui.setItemLore(EMERALD_X, EMERALD_Y + 1, null);
+            gui.setItemShiny(EMERALD_X, EMERALD_Y + 1, true);
+        } else {
+            gui.setItemLore(EMERALD_X, EMERALD_Y + 1, List.of(Component.text("下に売りたいアイテムをセットしてください")));
+            gui.setItemShiny(EMERALD_X, EMERALD_Y + 1, false);
+        }
     }
     // endregion
 
