@@ -3,6 +3,7 @@ package tech.inudev.profundus.define;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,7 +29,7 @@ public class MenuItem {
      */
     public void setLore(List<Component> lore) {
         this.lore = lore;
-        if (!isDraggable() && icon != null && lore != null) {
+        if (!isDraggable() && icon != null) {
             ItemMeta meta = icon.getItemMeta();
             meta.lore(lore);
             icon.setItemMeta(meta);
@@ -59,9 +60,6 @@ public class MenuItem {
             return;
         }
 
-        if (shiny) {
-            this.icon.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 1);
-        }
 
         ItemMeta meta = this.icon.getItemMeta();
         if (title != null) {
@@ -71,13 +69,33 @@ public class MenuItem {
         if (lore != null) {
             meta.lore(lore.size() > 0 ? lore : null);
         }
+
+        if (shiny) {
+            meta.addEnchant(Enchantment.DURABILITY, 1, false);
+        }
         this.icon.setItemMeta(meta);
     }
 
     @Getter
     private final Object customData;
     @Getter
-    private final boolean shiny;
+    private boolean shiny;
+
+    public void setShiny(boolean shiny) {
+        this.shiny = shiny;
+        if (!isDraggable() && icon != null) {
+            ItemMeta meta = icon.getItemMeta();
+            if (shiny) {
+                if (!meta.hasEnchant(Enchantment.DURABILITY)) {
+                    meta.addEnchant(Enchantment.DURABILITY, 1, false);
+                }
+            } else {
+                meta.removeEnchant(Enchantment.DURABILITY);
+            }
+            icon.setItemMeta(meta);
+        }
+    }
+
     @Getter
     private final boolean close;
 

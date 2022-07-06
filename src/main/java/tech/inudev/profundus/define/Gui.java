@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -175,6 +176,15 @@ public class Gui implements Listener {
         }
     }
 
+    public void setItemShiny(int x, int y, boolean shiny) {
+        for (PosMenuItem menuItem : menuItems) {
+            if (menuItem.x() == x && menuItem.y() == y) {
+                menuItem.menuItem().setShiny(shiny);
+                inventory.setItem(x - 1 + (y - 1) * 9, menuItem.menuItem().getIcon());
+            }
+        }
+    }
+
     /**
      * (x,y)にあるアイテムのItemStackのクローンを取得する。
      * むやみに元のItemStackを変更させないため。
@@ -237,6 +247,9 @@ public class Gui implements Listener {
                 }, 1);
             } else {
                 if (menuItem.menuItem().getOnClick() != null) {
+                    Player p = (Player) e.getWhoClicked();
+                    p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1, 1);
+
                     if (isBedrock((Player) e.getWhoClicked()) && menuItem.menuItem().isClose()) {
                         // 統合版では、Java版インベントリを閉じてから統合版GUIを開くまでに2tickが必要となる
                         Bukkit.getScheduler().runTaskLater(Profundus.getInstance(), () -> {

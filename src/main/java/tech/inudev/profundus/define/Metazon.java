@@ -105,7 +105,7 @@ public class Metazon {
         // 金額表示
         MenuItem emerald = new MenuItem(
                 Component.text("金額"),
-                List.of(Component.text(this.sellPrice)),
+                List.of(Component.text(this.sellPrice + "円")),
                 null,
                 new ItemStack(Material.EMERALD),
                 null,
@@ -121,13 +121,23 @@ public class Metazon {
                 (menuItem, _player) -> onSellPaperClick(gui, _player),
                 new ItemStack(Material.PAPER),
                 null,
-                false,
+                sellItem != null,
                 false,
                 false);
         result.add(new Gui.PosMenuItem(paper, EMERALD_X, EMERALD_Y + 1));
 
         // 販売アイテムセット用の空欄
-        MenuItem itemBox = MenuItem.generateDraggable(null, sellItem);
+        MenuItem itemBox = MenuItem.generateDraggable(
+                (menuItem, _player) -> {
+                    if (menuItem.getIcon() != null) {
+                        gui.setItemLore(EMERALD_X, EMERALD_Y + 1, null);
+                        gui.setItemShiny(EMERALD_X, EMERALD_Y + 1, true);
+                    } else {
+                        gui.setItemLore(EMERALD_X, EMERALD_Y + 1, List.of(Component.text("下に売りたいアイテムをセットしてください")));
+                        gui.setItemShiny(EMERALD_X, EMERALD_Y + 1, false);
+                    }
+                },
+                sellItem);
         result.add(new Gui.PosMenuItem(itemBox, EMERALD_X, EMERALD_Y + 2));
 
         // 戻るボタン
@@ -165,11 +175,11 @@ public class Metazon {
             if (this.sellPrice < 1) {
                 this.sellPrice = 1;
             }
-            gui.setItemLore(EMERALD_X, EMERALD_Y, List.of(Component.text(this.sellPrice)));
+            gui.setItemLore(EMERALD_X, EMERALD_Y, List.of(Component.text(this.sellPrice + "円")));
         };
         MenuItem newItem = new MenuItem(
-                Component.text(String.valueOf(value)),
-                List.of(Component.text(value)),
+                Component.text(Math.abs(value) + (value > 0 ? "円増やす" : "円減らす")),
+                null,
                 onClick,
                 new ItemStack(value > 0 ? Material.BLUE_WOOL : Material.RED_WOOL),
                 value,
@@ -214,7 +224,7 @@ public class Metazon {
         // 販売金額表示
         MenuItem emerald = new MenuItem(
                 Component.text("金額"),
-                List.of(Component.text(this.sellPrice)),
+                List.of(Component.text(this.sellPrice + "円")),
                 null,
                 new ItemStack(Material.EMERALD),
                 null,
@@ -255,7 +265,7 @@ public class Metazon {
                         sellItem, this.sellPrice, _player.getUniqueId().toString()),
                 new ItemStack(Material.PAPER),
                 null,
-                false,
+                true,
                 true,
                 false);
         result.add(new Gui.PosMenuItem(confirm, 6, 3));
