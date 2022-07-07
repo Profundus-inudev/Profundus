@@ -234,14 +234,16 @@ public class Gui implements Listener {
                     if (v.menuItem().isDraggable()) {
                         int id = v.x() - 1 + (v.y() - 1) * 9;
                         v.menuItem().setIcon(inventory.getItem(id));
-                        v.menuItem().getOnClick().accept(v.menuItem(), (Player) e.getWhoClicked());
+                        if (v.menuItem().getOnClick() != null) {
+                            v.menuItem().getOnClick().accept(v.menuItem(), (Player) e.getWhoClicked());
+                        }
                     }
                 });
             }, 1);
             return;
         }
-        
-        if (inv == null || !inv.equals(inventory) || e.getClick() == ClickType.DOUBLE_CLICK) {
+
+        if (inv == null || !inv.equals(inventory)) {
             return;
         }
         e.setCancelled(true);
@@ -261,13 +263,16 @@ public class Gui implements Listener {
                         if (v.menuItem().isDraggable()) {
                             int id = v.x() - 1 + (v.y() - 1) * 9;
                             v.menuItem().setIcon(inventory.getItem(id));
+                            if (v.menuItem().getOnClick() != null) {
+                                v.menuItem().getOnClick().accept(v.menuItem(), (Player) e.getWhoClicked());
+                            }
                         }
                     });
-                    if (menuItem.menuItem().getOnClick() != null) {
-                        menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
-                    }
                 }, 1);
             } else {
+                if (e.getClick() == ClickType.DOUBLE_CLICK) {
+                    return;
+                }
                 if (menuItem.menuItem().getOnClick() != null) {
                     Player p = (Player) e.getWhoClicked();
                     p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1, 1);
@@ -304,7 +309,9 @@ public class Gui implements Listener {
             if (e.getNewItems().containsKey(id)) {
                 ItemStack item = e.getNewItems().get(id);
                 menuItem.menuItem().setIcon(item);
-                menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
+                if (menuItem.menuItem().getOnClick() != null) {
+                    menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
+                }
             }
         }
     }
