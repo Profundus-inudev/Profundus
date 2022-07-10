@@ -70,6 +70,10 @@ public abstract class PFID{
 		return null;
 	}
 	
+	Table getType() {
+		return getType(this.pfid);
+	}
+	
 	/**
 	 * PFIDでエントリーを検索。
 	 * どの型が戻るかわからないので，ジェネリクスとした。

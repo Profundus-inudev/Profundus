@@ -7,9 +7,7 @@ import java.sql.*;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Databaseを管理するためのクラス
@@ -188,7 +186,7 @@ public class DatabaseUtil {
  * 確実にconnectedなインスタンスを取得する。
  * @return
  */
-    static Connection getConnection(){
+    protected static Connection getConnection(){
     	try {
 			if (connection == null || connection.isClosed()) {connect();}
     	} catch(SQLException e) {
@@ -217,7 +215,15 @@ public class DatabaseUtil {
 	/**
 	 * SQLテーブル名:MONEY
 	 */
-	MONEY;
+	MONEY,
+	/**
+	 * SQLテーブル名:CHUNK
+	 */
+	CHUNK,
+	/**
+	 * SQLテーブル名:TRANSACTION
+	 */
+	TRANSACTION;
     }
 
     /**
@@ -276,6 +282,43 @@ public class DatabaseUtil {
                     'name' VARCHAR(36) NOT NULL,
                     'amount' INT NOT NULL,
                     PRIMARY KEY ('name')
+    				""");
+    		break;
+    	case CHUNK:
+    		sql.append("""
+    				seqID INTEGER PRIMARY KEY AUTOINCREMENT,
+    				mostSignificantWorldUUID BIGINT NOT NULL,
+    				leastSignificantWorldUUID BIGINT NOT NULL,
+    				chunkX INT NOT NULL,
+    				chunkZ INT NOT NULL,
+    				mostSignificantOwnerPFID BIGINT,
+    				leastSignificantOwnerPFID BIGINT,
+    				mostSignificantEditorPFID BIGINT,
+    				leastSignificantEditorPFID BIGINT,
+    				createdAt TIMESTAMP NOT NULL,
+    				saleSignX INT,
+    				saleSignY INT,
+    				saleSignZ INT,
+    				mostSignificantTransactionPFID BIGINT,
+    				leastSignificantTransactionPFID BIGINT
+    				""");
+    		break;
+    	case TRANSACTION:
+    		sql.append("""
+    				seqID INTEGER PRIMARY KEY AUTOINCREMENT,
+    				mostSignificantPFID BIGINT NOT NULL,
+    				leastSignificantPFID BIGINT NOT NULL,
+    				mostSignificantSellerPFID BIGINT NOT NULL,
+    				leastSignificantSellerPFID BIGINT NOT NULL,
+    				mostSignificantBuyerPFID BIGINT,
+    				leastSignificantBuyerPFID BIGINT,
+    				price INT NOT NULL,
+    				payMethod VARCHAR,
+    				onSale BIT NOT NULL,
+    				description VARCHAR NOT NULL,
+    				createdAt TIMESTAMP NOT NULL,
+    				closedAt TIMESTAMP,
+    				result VARCHAR
     				""");
     		break;
 

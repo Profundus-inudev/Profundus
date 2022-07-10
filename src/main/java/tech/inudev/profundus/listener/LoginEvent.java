@@ -19,8 +19,11 @@ public class LoginEvent implements Listener {
 		 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerJoinEvent(PlayerJoinEvent e) {
-		User.getByPlayer(e.getPlayer(), true).updateLastLogin();
-
+		User u = User.getByPlayer(e.getPlayer(), true);
+		u.updateLastLogin();
+		PFChunk pfc = PFChunk.getByChunk(e.getPlayer().getChunk());
+		pfc.setOwner(u);
+		u.sendMessage(pfc.getOwner().getScreenName(),false);
 	}
 
 }

@@ -11,6 +11,8 @@ import tech.inudev.profundus.config.ConfigHandler;
 import tech.inudev.profundus.config.StairsHandler;
 import tech.inudev.profundus.define.Money;
 import tech.inudev.profundus.listener.StairSittingListener;
+import tech.inudev.profundus.listener.BlockEvent;
+import tech.inudev.profundus.listener.CommandClass;
 import tech.inudev.profundus.listener.LoginEvent;
 import tech.inudev.profundus.scheduler.DatabasePingRunnable;
 import tech.inudev.profundus.utils.DatabaseUtil;
@@ -56,7 +58,8 @@ public final class Profundus extends JavaPlugin {
 
         registerSchedulers();
         registerListeners();
-
+        getCommand("sell_chunk").setExecutor(new CommandClass());
+        
         HelpUtil.initializeHelp();
 
         getLogger().info("Profundus plugin enabled!");
@@ -70,6 +73,7 @@ public final class Profundus extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new StairSittingListener(), this);
         pm.registerEvents(new LoginEvent(), this);
+        pm.registerEvents(new BlockEvent(), this);
     }
 
     @Override

@@ -7,4 +7,10 @@ description: めたばーすぷらぐいん（仮）
 website: https://www.inu-dev.tech/
 depend:
   - floodgate
-  - Geyser-Spigot
+#  - Geyser-Spigot
+
+commands:
+  sell_chunk:
+    aliases: [ sellchunk, sellChunk ]
+    description: sell chunk
+    usage: sell_chunk x y price [username]
