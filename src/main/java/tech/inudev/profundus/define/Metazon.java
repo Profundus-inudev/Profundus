@@ -239,10 +239,7 @@ public class Metazon {
         MenuItem goods = new MenuItem(
                 null,
                 null,
-                null,
                 sellItem,
-                null,
-                sellItem.getItemMeta().hasEnchants(),
                 false,
                 false);
         result.add(new Gui.PosMenuItem(goods, 5, 2));

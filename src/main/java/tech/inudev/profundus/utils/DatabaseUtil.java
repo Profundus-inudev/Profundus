@@ -91,6 +91,7 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+                Profundus.getInstance().getLogger().info("rollback");
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
             }
@@ -123,6 +124,7 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+                Profundus.getInstance().getLogger().info("rollback");
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
             }
@@ -152,6 +154,7 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+                Profundus.getInstance().getLogger().info("rollback");
                 return null;
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
@@ -197,6 +200,7 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+                Profundus.getInstance().getLogger().info("rollback");
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
             }
@@ -208,9 +212,7 @@ public class DatabaseUtil {
             PreparedStatement preparedStatement = connection.prepareStatement("""
                     CREATE TABLE IF NOT EXISTS 'goods' (
                             'id' INT AUTO_INCREMENT,
-                            'material' VARCHAR(34) NOT NULL,
-                            'enchantments' TEXT,
-                            'amount' INT NOT NULL,
+                            'item' VARBINARY(511) NOT NULL,
                             'price' INT NOT NULL,
                             'seller' VARCHAR(36) NOT NULL,
                             PRIMARY KEY ('id'))
@@ -220,6 +222,7 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+                Profundus.getInstance().getLogger().info("rollback");
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
             }
@@ -240,26 +243,13 @@ public class DatabaseUtil {
         try {
             createGoodsTable();
 
-            StringBuilder enchantments = new StringBuilder();
-            item.getEnchantments().keySet().forEach(key -> {
-                enchantments.append((key.getKey()))
-                        .append(":>")
-                        .append(item.getEnchantments().get(key))
-                        .append(",");
-            });
-            if (!enchantments.toString().equals("")) {
-                enchantments.deleteCharAt(enchantments.length() - 1);
-            }
-
             PreparedStatement preparedStatement = connection.prepareStatement("""
-                    INSERT INTO goods (material, enchantments, amount, price, seller)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO goods (item, price, seller)
+                    VALUES (?, ?, ?)
                     """);
-            preparedStatement.setString(1, item.getType().name());
-            preparedStatement.setString(2, enchantments.toString());
-            preparedStatement.setInt(3, item.getAmount());
-            preparedStatement.setInt(4, price);
-            preparedStatement.setString(5, seller);
+            preparedStatement.setBytes(1, item.serializeAsBytes());
+            preparedStatement.setInt(2, price);
+            preparedStatement.setString(3, seller);
             preparedStatement.execute();
             preparedStatement.close();
 
@@ -267,6 +257,7 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+                Profundus.getInstance().getLogger().info("rollback");
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
             }
@@ -276,11 +267,11 @@ public class DatabaseUtil {
     /**
      * Metazonの商品データ（商品アイテム、価格、出品者）をまとめたもの。
      *
-     * @param goods  商品アイテム
+     * @param item   商品アイテム
      * @param price  価格
      * @param seller 出品者
      */
-    public record GoodsData(ItemStack goods, int price, String seller) {
+    public record GoodsData(ItemStack item, int price, String seller) {
 
     }
 
@@ -300,22 +291,8 @@ public class DatabaseUtil {
 
             List<GoodsData> result = new ArrayList<>();
             while (resultSet.next()) {
-                Material material = Material.getMaterial(resultSet.getString("material"));
-                ItemStack goods = new ItemStack(
-                        (material != null) ? material : Material.BARRIER);
-                goods.setAmount(resultSet.getInt("amount"));
-
-                for (String ench : resultSet.getString("enchantments").split(",")) {
-                    if (ench.isEmpty()) {
-                        break;
-                    }
-                    String[] s = ench.split(":>");
-                    goods.addEnchantment(
-                            Objects.requireNonNull(Enchantment.getByKey(NamespacedKey.fromString(s[0]))),
-                            Integer.parseInt(s[1]));
-                }
                 result.add(new GoodsData(
-                        goods,
+                        ItemStack.deserializeBytes(resultSet.getBytes("item")),
                         resultSet.getInt("price"),
                         resultSet.getString("seller")));
             }
@@ -324,6 +301,7 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+                Profundus.getInstance().getLogger().info("rollback");
                 return null;
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
@@ -337,6 +315,7 @@ public class DatabaseUtil {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+                Profundus.getInstance().getLogger().info("rollback");
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
             }
