@@ -3,6 +3,7 @@ package tech.inudev.profundus.define;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import tech.inudev.profundus.utils.DatabaseUtil;
@@ -184,6 +185,7 @@ public class Metazon {
     private void onSellPaperClick(Gui gui, Player player) {
         ItemStack goods = gui.cloneItemStack(GOODS_X, GOODS_Y);
         if (goods == null) {
+            player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.3f, 1);
             return;
         }
         openSellConfirm(player, goods);
