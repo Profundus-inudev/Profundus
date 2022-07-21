@@ -110,6 +110,9 @@ public class MenuItem {
     @Getter
     private final boolean returnOnClose;
 
+    @Getter
+    private final boolean cancelReturn;
+
     /**
      * メニューのアイテム。
      *
@@ -122,8 +125,9 @@ public class MenuItem {
      * @param close         クリック時にGUIを閉じるか
      * @param draggable     アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
      * @param returnOnClose GUIが閉じられたときにアイテムを返却するか
+     * @param cancelReturn  クリック時にアイテム返却をキャンセルするか
      */
-    public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, boolean draggable, boolean returnOnClose) {
+    public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, boolean draggable, boolean returnOnClose, boolean cancelReturn) {
         this.title = title;
         this.lore = lore;
         this.onClick = onClick;
@@ -132,6 +136,7 @@ public class MenuItem {
         this.close = close;
         this.draggable = draggable;
         this.returnOnClose = returnOnClose;
+        this.cancelReturn = cancelReturn;
         setIcon(icon);
     }
 
@@ -146,7 +151,7 @@ public class MenuItem {
      * @param shiny      ブロックをキラキラさせるか
      */
     public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny) {
-        this(title != null ? Component.text(title) : null, lore, onClick, icon, customData, shiny, true, false, false);
+        this(title != null ? Component.text(title) : null, lore, onClick, icon, customData, shiny, true, false, false, false);
     }
 
     /**
@@ -196,7 +201,7 @@ public class MenuItem {
      * @param returnOnClose GUIが閉じられたときにアイテムを返却するか
      */
     public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close, boolean draggable, boolean returnOnClose) {
-        this(title != null ? Component.text(title) : null, null, onClick, icon, null, shiny, close, draggable, returnOnClose);
+        this(title != null ? Component.text(title) : null, null, onClick, icon, null, shiny, close, draggable, returnOnClose, false);
     }
 
     /**
@@ -230,7 +235,7 @@ public class MenuItem {
      * @param returnOnClose GUIが閉じられたときにアイテムを返却するか
      */
     public MenuItem(String title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean close, boolean draggable, boolean returnOnClose) {
-        this(title != null ? Component.text(title) : null, null, onClick, icon, null, false, close, draggable, returnOnClose);
+        this(title != null ? Component.text(title) : null, null, onClick, icon, null, false, close, draggable, returnOnClose, false);
     }
 
     /**
@@ -241,7 +246,7 @@ public class MenuItem {
      */
     public static MenuItem generateDisuse(Player player) {
         ItemStack icon = new ItemStack(Gui.isBedrock(player) ? Material.IRON_BARS : Material.GRAY_STAINED_GLASS_PANE);
-        return new MenuItem(Component.text(""), null, null, icon, null, false, false, false, false);
+        return new MenuItem(Component.text(""), null, null, icon, null, false, false, false, false, false);
     }
 
     /**
@@ -252,6 +257,6 @@ public class MenuItem {
      * @return 生成されたdraggableなアイテム
      */
     public static MenuItem generateDraggable(BiConsumer<MenuItem, Player> onClick, ItemStack icon) {
-        return new MenuItem(null, null, onClick, icon, null, false, false, true, true);
+        return new MenuItem(null, null, onClick, icon, null, false, false, true, true, false);
     }
 }

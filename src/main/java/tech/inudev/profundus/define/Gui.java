@@ -17,6 +17,7 @@ import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import tech.inudev.profundus.Profundus;
+import tech.inudev.profundus.utils.ItemUtil;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -224,7 +225,7 @@ public class Gui implements Listener {
                         .forEach(v -> {
                             if (v.menuItem().getIcon() != null) {
                                 Profundus.getInstance().getLogger().info(v.menuItem.getIcon().getType().name());
-                                e.getPlayer().getInventory().addItem(v.menuItem().getIcon());
+                                ItemUtil.addItem(v.menuItem().getIcon(), e.getPlayer().getInventory(), (Player) e.getPlayer());
                             }
                         });
             }
@@ -267,6 +268,12 @@ public class Gui implements Listener {
             if (e.getSlot() != menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
                 continue;
             }
+            if (menuItem.menuItem().isCancelReturn()) {
+                setItemReturn(false);
+            }
+            if (menuItem.menuItem().isClose()) {
+                inventory.close();
+            }
             if (menuItem.menuItem().isDraggable()) {
                 e.setCancelled(false);
                 // 移動後のアイテムを取得するため1tick実行遅延
@@ -298,9 +305,6 @@ public class Gui implements Listener {
                         menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                     }
                 }
-            }
-            if (menuItem.menuItem().isClose()) {
-                inventory.close();
             }
         }
     }
