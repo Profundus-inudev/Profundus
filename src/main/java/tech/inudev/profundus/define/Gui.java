@@ -52,6 +52,9 @@ public class Gui implements Listener {
      */
     protected Inventory inventory;
 
+    @Setter
+    private boolean itemReturn = true;
+
     /**
      * コンストラクタ
      *
@@ -205,6 +208,7 @@ public class Gui implements Listener {
         return pos != null ? pos.menuItem().getIcon() : null;
     }
 
+
     /**
      * GUIを閉じたときにGCをするリスナー
      *
@@ -212,7 +216,18 @@ public class Gui implements Listener {
      */
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
+        Profundus.getInstance().getLogger().info("ほげ");
         if (e.getInventory().equals(inventory)) {
+            Profundus.getInstance().getLogger().info("ふが" + itemReturn);
+            if (itemReturn) {
+                menuItems.stream().filter(v -> v.menuItem().isReturnOnClose()).toList()
+                        .forEach(v -> {
+                            if (v.menuItem().getIcon() != null) {
+                                Profundus.getInstance().getLogger().info(v.menuItem.getIcon().getType().name());
+                                e.getPlayer().getInventory().addItem(v.menuItem().getIcon());
+                            }
+                        });
+            }
             // GC
             HandlerList.unregisterAll(this);
         }
@@ -252,9 +267,6 @@ public class Gui implements Listener {
             if (e.getSlot() != menuItem.x() - 1 + (menuItem.y() - 1) * 9) {
                 continue;
             }
-            if (menuItem.menuItem().isClose()) {
-                inventory.close();
-            }
             if (menuItem.menuItem().isDraggable()) {
                 e.setCancelled(false);
                 // 移動後のアイテムを取得するため1tick実行遅延
@@ -286,6 +298,9 @@ public class Gui implements Listener {
                         menuItem.menuItem().getOnClick().accept(menuItem.menuItem(), (Player) e.getWhoClicked());
                     }
                 }
+            }
+            if (menuItem.menuItem().isClose()) {
+                inventory.close();
             }
         }
     }

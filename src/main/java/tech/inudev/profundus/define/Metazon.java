@@ -53,6 +53,7 @@ public class Metazon {
                 null,
                 false,
                 Gui.isBedrock(player),
+                false,
                 false);
         result.add(new Gui.PosMenuItem(paper, 4, 1));
 
@@ -65,6 +66,7 @@ public class Metazon {
                 null,
                 false,
                 Gui.isBedrock(player),
+                false,
                 false);
         result.add(new Gui.PosMenuItem(sellMode, 6, 1));
 
@@ -93,14 +95,8 @@ public class Metazon {
         // 金額変動ボタン
         for (int i = 0; i < 3; i++) {
             int x = 5;
-            result.add(generatePriceChanger(
-                    gui,
-                    (int) Math.pow(10, i),
-                    x + (i + 1)));
-            result.add(generatePriceChanger(
-                    gui,
-                    (int) -Math.pow(10, i),
-                    x - (i + 1)));
+            result.add(generatePriceChanger(gui, (int) Math.pow(10, i), x + (i + 1)));
+            result.add(generatePriceChanger(gui, (int) -Math.pow(10, i), x - (i + 1)));
         }
 
         // 金額表示
@@ -110,6 +106,7 @@ public class Metazon {
                 null,
                 new ItemStack(Material.EMERALD),
                 null,
+                false,
                 false,
                 false,
                 false);
@@ -123,6 +120,7 @@ public class Metazon {
                 new ItemStack(Material.PAPER),
                 null,
                 sellItem != null,
+                false,
                 false,
                 false);
         result.add(new Gui.PosMenuItem(paper, EMERALD_X, EMERALD_Y + 1));
@@ -142,6 +140,7 @@ public class Metazon {
                 null,
                 false,
                 Gui.isBedrock(player),
+                false,
                 false);
         result.add(new Gui.PosMenuItem(backPage, 1, 3));
 
@@ -153,6 +152,7 @@ public class Metazon {
                 new ItemStack(Material.WRITTEN_BOOK),
                 null,
                 true,
+                false,
                 false,
                 false);
         result.add(new Gui.PosMenuItem(help, 9, EMERALD_Y + 2));
@@ -178,6 +178,7 @@ public class Metazon {
                 value,
                 false,
                 false,
+                false,
                 false);
         return new Gui.PosMenuItem(newItem, x, 1);
     }
@@ -188,6 +189,7 @@ public class Metazon {
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.3f, 1);
             return;
         }
+        gui.setItemReturn(false);
         openSellConfirm(player, goods);
     }
 
@@ -205,11 +207,11 @@ public class Metazon {
     // region sellConfirm
     private void openSellConfirm(Player player, ItemStack sellItem) {
         Gui gui = new Gui(METAZON_TITLE + " 販売確認");
-        gui.setMenuItems(generateSellConfirmMenu(player, sellItem));
+        gui.setMenuItems(generateSellConfirmMenu(gui, player, sellItem));
         gui.open(player, true);
     }
 
-    private List<Gui.PosMenuItem> generateSellConfirmMenu(Player player, ItemStack sellItem) {
+    private List<Gui.PosMenuItem> generateSellConfirmMenu(Gui gui, Player player, ItemStack sellItem) {
         List<Gui.PosMenuItem> result = new ArrayList<>();
 
         // 確認説明
@@ -220,6 +222,7 @@ public class Metazon {
                 null,
                 new ItemStack(Material.PAPER),
                 null,
+                false,
                 false,
                 false,
                 false);
@@ -234,6 +237,7 @@ public class Metazon {
                 null,
                 false,
                 false,
+                false,
                 false);
         result.add(new Gui.PosMenuItem(emerald, 5, 1));
 
@@ -243,16 +247,21 @@ public class Metazon {
                 null,
                 sellItem,
                 false,
-                false);
+                false,
+                true);
         result.add(new Gui.PosMenuItem(goods, 5, 2));
 
         // 戻るボタン
         MenuItem backPage = new MenuItem(
                 Component.text("前に戻る"),
                 null,
-                (menuItem, _player) -> openSellMode(_player, sellItem),
+                (menuItem, _player) -> {
+                    gui.setItemReturn(false);
+                    openSellMode(_player, sellItem);
+                },
                 new ItemStack(Material.PAPER),
                 null,
+                false,
                 false,
                 false,
                 false);
@@ -262,12 +271,16 @@ public class Metazon {
         MenuItem confirm = new MenuItem(
                 Component.text("販売を確定").color(TextColor.color(0x55FF55)),
                 null,
-                (menuItem, _player) -> DatabaseUtil.createGoodsRecord(
-                        sellItem, this.sellPrice, _player.getUniqueId().toString()),
+                (menuItem, _player) -> {
+                    gui.setItemReturn(false);
+                    DatabaseUtil.createGoodsRecord(
+                            sellItem, this.sellPrice, _player.getUniqueId().toString());
+                },
                 new ItemStack(Material.PAPER),
                 null,
                 true,
                 true,
+                false,
                 false);
         result.add(new Gui.PosMenuItem(confirm, 6, 3));
 
