@@ -206,9 +206,8 @@ public class Gui implements Listener {
      */
     public ItemStack cloneItemStack(int x, int y) {
         PosMenuItem pos = menuItems.stream().filter(v -> v.x() == x && v.y() == y).findFirst().orElse(null);
-        return pos != null ? pos.menuItem().getIcon() : null;
+        return pos != null ? pos.menuItem().getIcon().clone() : null;
     }
-
 
     /**
      * GUIを閉じたときにGCをするリスナー

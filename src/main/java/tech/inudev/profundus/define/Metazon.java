@@ -165,12 +165,12 @@ public class Metazon {
     }
 
     private void onSellPaperClick(Gui gui, Player player) {
-        ItemStack goods = gui.cloneItemStack(GOODS_X, GOODS_Y);
-        if (goods == null) {
+        ItemStack sellItem = gui.cloneItemStack(GOODS_X, GOODS_Y);
+        if (sellItem == null) {
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.3f, 1);
             return;
         }
-        openSellConfirm(player, goods);
+        openSellConfirm(player, sellItem);
     }
 
     private void onItemBoxClick(Gui gui, MenuItem menuItem) {
@@ -235,7 +235,7 @@ public class Metazon {
         MenuItem confirm = new MenuItem(
                 Component.text("販売を確定").color(TextColor.color(0x55FF55)),
                 null,
-                (menuItem, _player) -> DatabaseUtil.createGoodsRecord(sellItem, this.sellPrice, _player.getUniqueId().toString()),
+                (menuItem, _player) -> onConfirmPaperClick(sellItem, _player),
                 new ItemStack(Material.PAPER),
                 null,
                 true,
@@ -247,6 +247,12 @@ public class Metazon {
         result.addAll(generateDisuses(player, filledArray));
 
         return result;
+    }
+
+    private void onConfirmPaperClick(ItemStack sellItem, Player player) {
+        DatabaseUtil.createGoodsRecord(sellItem, this.sellPrice, player.getUniqueId().toString());
+        player.sendMessage(Component.text("アイテムの販売登録が完了しました。"));
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.3f, 1);
     }
     // endregion
 
