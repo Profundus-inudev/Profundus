@@ -2,6 +2,7 @@ package tech.inudev.profundus.define;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -16,9 +17,9 @@ import java.util.function.BiConsumer;
  *
  * @author kumitatepazuru
  */
-public class MenuItem {
+public class MenuItem implements Cloneable {
     @Getter
-    private final Component title;
+    private Component title;
     @Getter
     private List<Component> lore;
 
@@ -37,7 +38,7 @@ public class MenuItem {
     }
 
     @Getter
-    private final BiConsumer<MenuItem, Player> onClick;
+    private BiConsumer<MenuItem, Player> onClick;
     @Getter
     private ItemStack icon;
 
@@ -77,7 +78,7 @@ public class MenuItem {
     }
 
     @Getter
-    private final Object customData;
+    private Object customData;
     @Getter
     private boolean shiny;
 
@@ -138,6 +139,26 @@ public class MenuItem {
         this.returnOnClose = returnOnClose;
         this.cancelReturn = cancelReturn;
         setIcon(icon);
+    }
+
+    private static class CloneableObject implements Cloneable {
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            return super.clone();
+        }
+    }
+
+    @Override
+    public MenuItem clone() throws CloneNotSupportedException {
+        MenuItem clone = (MenuItem) super.clone();
+        clone.title = Component.text(((TextComponent) this.title).content());
+        clone.lore = this.lore.stream().map(c -> {
+            String content = ((TextComponent) c).content();
+            return (Component) Component.text(content);
+        }).toList();
+        clone.onClick = null;
+        clone.customData = ((CloneableObject) this.customData).clone();
+        return clone;
     }
 
     /**
