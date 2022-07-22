@@ -17,9 +17,9 @@ import java.util.function.BiConsumer;
  *
  * @author kumitatepazuru
  */
-public class MenuItem implements Cloneable {
+public class MenuItem {
     @Getter
-    private Component title;
+    private final Component title;
     @Getter
     private List<Component> lore;
 
@@ -38,7 +38,7 @@ public class MenuItem implements Cloneable {
     }
 
     @Getter
-    private BiConsumer<MenuItem, Player> onClick;
+    private final BiConsumer<MenuItem, Player> onClick;
     @Getter
     private ItemStack icon;
 
@@ -78,7 +78,7 @@ public class MenuItem implements Cloneable {
     }
 
     @Getter
-    private Object customData;
+    private final Object customData;
     @Getter
     private boolean shiny;
 
@@ -139,26 +139,6 @@ public class MenuItem implements Cloneable {
         this.returnOnClose = returnOnClose;
         this.cancelReturn = cancelReturn;
         setIcon(icon);
-    }
-
-    private static class CloneableObject implements Cloneable {
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            return super.clone();
-        }
-    }
-
-    @Override
-    public MenuItem clone() throws CloneNotSupportedException {
-        MenuItem clone = (MenuItem) super.clone();
-        clone.title = Component.text(((TextComponent) this.title).content());
-        clone.lore = this.lore.stream().map(c -> {
-            String content = ((TextComponent) c).content();
-            return (Component) Component.text(content);
-        }).toList();
-        clone.onClick = null;
-        clone.customData = ((CloneableObject) this.customData).clone();
-        return clone;
     }
 
     /**
