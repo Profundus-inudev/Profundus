@@ -103,15 +103,11 @@ public class Metazon {
 
         // 金額表示
         MenuItem emerald = new MenuItem(
-                Component.text("金額"),
+                "金額",
                 List.of(Component.text(this.sellPrice + "円")),
                 null,
                 new ItemStack(Material.EMERALD),
                 null,
-                false,
-                false,
-                false,
-                false,
                 false);
         result.add(new Gui.PosMenuItem(emerald, EMERALD_X, EMERALD_Y));
 
@@ -177,15 +173,11 @@ public class Metazon {
             gui.setItemLore(EMERALD_X, EMERALD_Y, List.of(Component.text(this.sellPrice + "円")));
         };
         MenuItem newItem = new MenuItem(
-                Component.text(Math.abs(value) + (value > 0 ? "円増やす" : "円減らす")),
+                Math.abs(value) + (value > 0 ? "円増やす" : "円減らす"),
                 null,
                 onClick,
                 new ItemStack(value > 0 ? Material.BLUE_WOOL : Material.RED_WOOL),
                 value,
-                false,
-                false,
-                false,
-                false,
                 false);
         return new Gui.PosMenuItem(newItem, x, 1);
     }
@@ -222,31 +214,19 @@ public class Metazon {
 
         // 確認説明
         MenuItem paper = new MenuItem(
-                Component.text("確認"),
+                "確認",
                 List.of(Component.text("こちらのアイテムを販売します。"),
                         Component.text("左：戻る 右：確定")),
                 null,
-                new ItemStack(Material.PAPER),
-                null,
-                false,
-                false,
-                false,
-                false,
-                false);
+                new ItemStack(Material.PAPER));
         result.add(new Gui.PosMenuItem(paper, 3, 1));
 
         // 販売金額表示
         MenuItem emerald = new MenuItem(
-                Component.text("金額"),
+                "金額",
                 List.of(Component.text(this.sellPrice + "円")),
                 null,
-                new ItemStack(Material.EMERALD),
-                null,
-                false,
-                false,
-                false,
-                false,
-                false);
+                new ItemStack(Material.EMERALD));
         result.add(new Gui.PosMenuItem(emerald, 5, 1));
 
         // 販売アイテム表示

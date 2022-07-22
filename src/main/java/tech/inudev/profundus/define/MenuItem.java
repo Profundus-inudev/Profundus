@@ -151,7 +151,7 @@ public class MenuItem {
      * @param shiny      ブロックをキラキラさせるか
      */
     public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny) {
-        this(title != null ? Component.text(title) : null, lore, onClick, icon, customData, shiny, true, false, false, false);
+        this(title != null ? Component.text(title) : null, lore, onClick, icon, customData, shiny, false, false, false, false);
     }
 
     /**
