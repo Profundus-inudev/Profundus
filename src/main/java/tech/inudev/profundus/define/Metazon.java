@@ -46,29 +46,21 @@ public class Metazon {
 
         // 購入するボタン
         MenuItem paper = new MenuItem(
-                Component.text("購入する"),
+                "購入する",
                 null,
                 (menuItem, _player) -> openBuyMode(_player),
                 new ItemStack(Material.GREEN_WOOL),
-                null,
-                false,
                 Gui.isBedrock(player),
-                false,
-                false,
                 false);
         result.add(new Gui.PosMenuItem(paper, 4, 1));
 
         // 販売するボタン
         MenuItem sellMode = new MenuItem(
-                Component.text("販売する"),
+                "販売する",
                 null,
                 (menuItem, _player) -> openSellMode(_player, null),
                 new ItemStack(Material.ORANGE_WOOL),
-                null,
-                false,
                 Gui.isBedrock(player),
-                false,
-                false,
                 false);
         result.add(new Gui.PosMenuItem(sellMode, 6, 1));
 
@@ -106,21 +98,17 @@ public class Metazon {
                 "金額",
                 List.of(Component.text(this.sellPrice + "円")),
                 null,
-                new ItemStack(Material.EMERALD),
-                null,
-                false);
+                new ItemStack(Material.EMERALD));
         result.add(new Gui.PosMenuItem(emerald, EMERALD_X, EMERALD_Y));
 
         // 販売するボタン
         MenuItem paper = new MenuItem(
-                Component.text("販売する"),
+                "販売する",
                 sellItem != null ? null : List.of(Component.text("下に売りたいアイテムをセットしてください")),
                 (menuItem, _player) -> onSellPaperClick(gui, _player),
                 new ItemStack(Material.PAPER),
                 null,
                 sellItem != null,
-                false,
-                false,
                 false,
                 true);
         result.add(new Gui.PosMenuItem(paper, EMERALD_X, EMERALD_Y + 1));
@@ -133,29 +121,23 @@ public class Metazon {
 
         // 戻るボタン
         MenuItem backPage = new MenuItem(
-                Component.text("前に戻る"),
+                "前に戻る",
                 null,
                 (menuItem, _player) -> open(_player),
                 new ItemStack(Material.PAPER),
-                null,
-                false,
                 Gui.isBedrock(player),
-                false,
-                false,
                 false);
         result.add(new Gui.PosMenuItem(backPage, 1, 3));
 
         // ヘルプボタン
         MenuItem help = new MenuItem(
-                Component.text("ヘルプ"),
+                "ヘルプ",
                 List.of(Component.text("Metazonのつかいかた")),
                 (menuItem, _player) -> HelpUtil.openHelp(_player.getUniqueId(), HelpUtil.HelpType.Sample),
                 new ItemStack(Material.WRITTEN_BOOK),
                 null,
                 true,
                 true,
-                false,
-                false,
                 false);
         result.add(new Gui.PosMenuItem(help, 9, EMERALD_Y + 2));
 
@@ -241,14 +223,10 @@ public class Metazon {
 
         // 戻るボタン
         MenuItem backPage = new MenuItem(
-                Component.text("前に戻る"),
+                "前に戻る",
                 null,
                 (menuItem, _player) -> openSellMode(_player, sellItem),
                 new ItemStack(Material.PAPER),
-                null,
-                false,
-                false,
-                false,
                 false,
                 true);
         result.add(new Gui.PosMenuItem(backPage, 4, 3));

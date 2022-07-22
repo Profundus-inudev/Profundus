@@ -238,6 +238,15 @@ public class MenuItem {
         this(title != null ? Component.text(title) : null, null, onClick, icon, null, false, close, draggable, returnOnClose, false);
     }
 
+    public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, boolean cancelReturn) {
+        this(title != null ? Component.text(title) : null, lore, onClick, icon, customData, shiny, close, false, false, cancelReturn);
+    }
+
+    public MenuItem(String title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean close, boolean cancelReturn) {
+        this(title, lore, onClick, icon, null, false, close, cancelReturn);
+    }
+
+
     /**
      * 不使用スロットを埋めるアイテムを生成する。
      *
