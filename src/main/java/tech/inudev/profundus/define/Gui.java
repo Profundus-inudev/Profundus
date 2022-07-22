@@ -210,20 +210,18 @@ public class Gui implements Listener {
     }
 
     /**
-     * GUIを閉じたときにGCをするリスナー
+     * GUIを閉じたときに、アイテムの返還、GCをするリスナー
      *
      * @param e イベント
      */
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
-        Profundus.getInstance().getLogger().info("ほげ");
         if (e.getInventory().equals(inventory)) {
-            Profundus.getInstance().getLogger().info("ふが" + itemReturn);
+            // アイテムの返還
             if (itemReturn) {
                 menuItems.stream().filter(v -> v.menuItem().isReturnOnClose()).toList()
                         .forEach(v -> {
                             if (v.menuItem().getIcon() != null) {
-                                Profundus.getInstance().getLogger().info(v.menuItem.getIcon().getType().name());
                                 ItemUtil.addItem(v.menuItem().getIcon(), e.getPlayer().getInventory(), (Player) e.getPlayer());
                             }
                         });

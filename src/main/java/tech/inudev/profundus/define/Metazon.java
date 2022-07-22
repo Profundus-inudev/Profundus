@@ -251,7 +251,7 @@ public class Metazon {
 
     private void onConfirmPaperClick(ItemStack sellItem, Player player) {
         DatabaseUtil.createGoodsRecord(sellItem, this.sellPrice, player.getUniqueId().toString());
-        player.sendMessage(Component.text("アイテムの販売登録が完了しました。"));
+        player.sendMessage(Component.text("Metazon : アイテムの販売登録が完了しました。"));
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.3f, 1);
     }
     // endregion
