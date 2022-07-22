@@ -183,25 +183,21 @@ public class MenuItem {
      * メニューのアイテム。
      *
      * @param title   アイテムのタイトル
+     * @param lore    アイテムの説明
      * @param onClick クリック時のイベント
      */
-    public MenuItem(Component title, BiConsumer<MenuItem, Player> onClick) {
-        this(title, null, onClick, new ItemStack(Material.STONE));
+    public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick) {
+        this(title, lore, onClick, new ItemStack(Material.STONE));
     }
 
     /**
      * メニューのアイテム。
      *
-     * @param title         アイテムのタイトル
-     * @param onClick       クリック時のイベント
-     * @param icon          アイテムのブロック
-     * @param shiny         ブロックをキラキラさせるか
-     * @param close         クリック時にGUIを閉じるか
-     * @param draggable     アイテムをドラッグできるか(統合版のFromAPIでは動作しない)
-     * @param returnOnClose GUIが閉じられたときにアイテムを返却するか
+     * @param title   アイテムのタイトル
+     * @param onClick クリック時のイベント
      */
-    public MenuItem(Component title, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean shiny, boolean close, boolean draggable, boolean returnOnClose) {
-        this(title, null, onClick, icon, null, shiny, close, draggable, returnOnClose, false);
+    public MenuItem(Component title, BiConsumer<MenuItem, Player> onClick) {
+        this(title, null, onClick);
     }
 
     /**
@@ -210,18 +206,7 @@ public class MenuItem {
      * @param title アイテムのタイトル
      */
     public MenuItem(Component title) {
-        this(title, null, null, new ItemStack(Material.STONE));
-    }
-
-    /**
-     * メニューのアイテム。
-     *
-     * @param title   アイテムのタイトル
-     * @param lore    アイテムの説明
-     * @param onClick クリック時のイベント
-     */
-    public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick) {
-        this(title, lore, onClick, new ItemStack(Material.STONE));
+        this(title, null);
     }
 
     /**
@@ -238,10 +223,32 @@ public class MenuItem {
         this(title, null, onClick, icon, null, false, close, draggable, returnOnClose, false);
     }
 
+    /**
+     * メニューのアイテム。
+     *
+     * @param title        アイテムのタイトル
+     * @param lore         アイテムの説明
+     * @param onClick      クリック時のイベント
+     * @param icon         アイテムのブロック
+     * @param customData   Itemにつける任意のデータ
+     * @param shiny        ブロックをキラキラさせるか
+     * @param close        クリック時にGUIを閉じるか
+     * @param cancelReturn クリック時にアイテム返却をキャンセルするか
+     */
     public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, Object customData, boolean shiny, boolean close, boolean cancelReturn) {
         this(title, lore, onClick, icon, customData, shiny, close, false, false, cancelReturn);
     }
 
+    /**
+     * メニューのアイテム。
+     *
+     * @param title        アイテムのタイトル
+     * @param lore         アイテムの説明
+     * @param onClick      クリック時のイベント
+     * @param icon         アイテムのブロック
+     * @param close        クリック時にGUIを閉じるか
+     * @param cancelReturn クリック時にアイテム返却をキャンセルするか
+     */
     public MenuItem(Component title, List<Component> lore, BiConsumer<MenuItem, Player> onClick, ItemStack icon, boolean close, boolean cancelReturn) {
         this(title, lore, onClick, icon, null, false, close, cancelReturn);
     }
