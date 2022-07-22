@@ -46,7 +46,7 @@ public class Metazon {
 
         // 購入するボタン
         MenuItem paper = new MenuItem(
-                "購入する",
+                Component.text("購入する"),
                 null,
                 (menuItem, _player) -> openBuyMode(_player),
                 new ItemStack(Material.GREEN_WOOL),
@@ -56,7 +56,7 @@ public class Metazon {
 
         // 販売するボタン
         MenuItem sellMode = new MenuItem(
-                "販売する",
+                Component.text("販売する"),
                 null,
                 (menuItem, _player) -> openSellMode(_player, null),
                 new ItemStack(Material.ORANGE_WOOL),
@@ -95,7 +95,7 @@ public class Metazon {
 
         // 金額表示
         MenuItem emerald = new MenuItem(
-                "金額",
+                Component.text("金額"),
                 List.of(Component.text(this.sellPrice + "円")),
                 null,
                 new ItemStack(Material.EMERALD));
@@ -103,7 +103,7 @@ public class Metazon {
 
         // 販売するボタン
         MenuItem paper = new MenuItem(
-                "販売する",
+                Component.text("販売する"),
                 sellItem != null ? null : List.of(Component.text("下に売りたいアイテムをセットしてください")),
                 (menuItem, _player) -> onSellPaperClick(gui, _player),
                 new ItemStack(Material.PAPER),
@@ -121,7 +121,7 @@ public class Metazon {
 
         // 戻るボタン
         MenuItem backPage = new MenuItem(
-                "前に戻る",
+                Component.text("前に戻る"),
                 null,
                 (menuItem, _player) -> open(_player),
                 new ItemStack(Material.PAPER),
@@ -131,7 +131,7 @@ public class Metazon {
 
         // ヘルプボタン
         MenuItem help = new MenuItem(
-                "ヘルプ",
+                Component.text("ヘルプ"),
                 List.of(Component.text("Metazonのつかいかた")),
                 (menuItem, _player) -> HelpUtil.openHelp(_player.getUniqueId(), HelpUtil.HelpType.Sample),
                 new ItemStack(Material.WRITTEN_BOOK),
@@ -155,7 +155,7 @@ public class Metazon {
             gui.setItemLore(EMERALD_X, EMERALD_Y, List.of(Component.text(this.sellPrice + "円")));
         };
         MenuItem newItem = new MenuItem(
-                Math.abs(value) + (value > 0 ? "円増やす" : "円減らす"),
+                Component.text(Math.abs(value) + (value > 0 ? "円増やす" : "円減らす")),
                 null,
                 onClick,
                 new ItemStack(value > 0 ? Material.BLUE_WOOL : Material.RED_WOOL),
@@ -196,7 +196,7 @@ public class Metazon {
 
         // 確認説明
         MenuItem paper = new MenuItem(
-                "確認",
+                Component.text("確認"),
                 List.of(Component.text("こちらのアイテムを販売します。"),
                         Component.text("左：戻る 右：確定")),
                 null,
@@ -205,7 +205,7 @@ public class Metazon {
 
         // 販売金額表示
         MenuItem emerald = new MenuItem(
-                "金額",
+                Component.text("金額"),
                 List.of(Component.text(this.sellPrice + "円")),
                 null,
                 new ItemStack(Material.EMERALD));
@@ -223,7 +223,7 @@ public class Metazon {
 
         // 戻るボタン
         MenuItem backPage = new MenuItem(
-                "前に戻る",
+                Component.text("前に戻る"),
                 null,
                 (menuItem, _player) -> openSellMode(_player, sellItem),
                 new ItemStack(Material.PAPER),
@@ -240,8 +240,6 @@ public class Metazon {
                 null,
                 true,
                 true,
-                false,
-                false,
                 true);
         result.add(new Gui.PosMenuItem(confirm, 6, 3));
 

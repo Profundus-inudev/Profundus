@@ -31,7 +31,7 @@ public class MultiPageGui extends Gui {
 
     @Getter
     @Setter
-    private MenuItem centerItem = new MenuItem("閉じる", null, null, new ItemStack(Material.BARRIER));
+    private MenuItem centerItem = new MenuItem(Component.text("閉じる"), null, null, new ItemStack(Material.BARRIER));
 
     @Getter
     private int page = 1;
