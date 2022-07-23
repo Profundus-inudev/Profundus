@@ -223,13 +223,13 @@ public class User extends PFAgent{
 		}
 		
 	}
-	/*
+	/**
 	 *  returns Bukkit Player. if player is offline, returns null (by Bukkit);
 	 */
 	public Player getPlayer() {
 		return getOfflinePlayer().getPlayer();
 	}
-	/*
+	/**
 	 * returns Bukkit OfflinePlayer
 	 */
 	public OfflinePlayer getOfflinePlayer() {
