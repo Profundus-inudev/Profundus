@@ -1,25 +1,25 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.utils.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.UUID;
-import java.util.logging.Level;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 import tech.inudev.profundus.Profundus;
-import tech.inudev.profundus.utils.TransactionHandler.Payment;
-import tech.inudev.profundus.utils.TransactionHandler.Result;
+import tech.inudev.profundus.utils.database.TransactionHandler.Payment;
+import tech.inudev.profundus.utils.database.TransactionHandler.Result;
+
 
 public class DBUTransaction extends DatabaseUtil {
 
-	/*
-	 * 
-	 * PLANNING TO MOVE CREATE TABLE STATEMENT INTO THIS CLASS
-	 * 
-	 * 
+	static final Table table = Table.TRANSACT;
+
+
+    static final String createStr = """
     				seqID INTEGER PRIMARY KEY AUTOINCREMENT,
     				mostSignificantPFID BIGINT NOT NULL,
     				leastSignificantPFID BIGINT NOT NULL,
@@ -34,11 +34,11 @@ public class DBUTransaction extends DatabaseUtil {
     				createdAt TIMESTAMP NOT NULL,
     				closedAt TIMESTAMP,
     				result VARCHAR
-	*/
+    		""";
 	
-	public static Boolean insert(TransactionHandler th) {	
+	public static boolean insert(TransactionHandler th) {	
     	StringBuilder sql = new StringBuilder();
-    	sql.append("INSERT INTO " + Table.TRANSACTION.toString());
+    	sql.append("INSERT INTO " + table.toString());
     	sql.append("""
     			(
     				mostSignificantPFID,
@@ -59,9 +59,9 @@ public class DBUTransaction extends DatabaseUtil {
 	    	
 	    	ps.setLong(1, th.transID.getMostSignificantBits());
 	    	ps.setLong(2, th.transID.getLeastSignificantBits());
-	    	ps.setLong(3, th.seller.pfid.getMostSignificantBits());
-	    	ps.setLong(4, th.seller.pfid.getLeastSignificantBits());
-	    	ps.setInt(5, th.getPrice());
+	    	ps.setLong(3, th.seller.getPfid().getMostSignificantBits());
+	    	ps.setLong(4, th.seller.getPfid().getLeastSignificantBits());
+	    	ps.setInt(5, th.price);
 	    	ps.setBoolean(6, th.onSale);
 	    	ps.setString(7, th.description);
 	    	ps.setTimestamp(8, Timestamp.from(th.createdAt));
@@ -71,17 +71,17 @@ public class DBUTransaction extends DatabaseUtil {
 	        ps.close();
 	        return true;
 	    } catch (SQLException e) {
-	    	Profundus.getInstance().getLogger().log(Level.WARNING,"DBUTransaction.insert: " + e);
+	    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e));
 	        try {
 	            con.rollback();
 	        } catch (SQLException e2) {
-		    	Profundus.getInstance().getLogger().log(Level.WARNING,"DBUTransaction.insert: " + e2);
+		    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e2));
 	        }
 	        return false;
       }
 	}
 	public static TransactionHandler fetch(TransactionHandler th) {
-		ResultSet rs = selectUUID(Table.TRANSACTION,"PFID",th.transID);
+		ResultSet rs = selectUUID(table,"PFID",th.transID);
 		try {
 			rs.next();
 			th.seller = PFAgent.getByPFID(new UUID(rs.getLong("mostSignificantSellerPFID"),rs.getLong("leastSignificantSellerPFID")));
@@ -108,30 +108,30 @@ public class DBUTransaction extends DatabaseUtil {
 			
 			
 		}catch(SQLException e) {
-			Profundus.getInstance().getLogger().log(Level.WARNING, e.toString());
+	    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e));
 		}
 		return th;
 	}
 	
-	public static Boolean isExist(TransactionHandler th) {
-		ResultSet rs = selectUUID(Table.TRANSACTION,"PFID",th.transID);
-		Boolean res = false;
+	public static boolean isExist(TransactionHandler th) {
+		ResultSet rs = selectUUID(table,"PFID",th.transID);
+		boolean res = false;
 		try{
 			res = rs.next();		
 			rs.close();
 		}catch(SQLException e){
-			Profundus.getInstance().getLogger().log(Level.WARNING, e.toString());
+	    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e));
 		}
 		return res;
 	}
 	
 	
 	
-	public static Boolean update(TransactionHandler th) {
+	public static boolean update(TransactionHandler th) {
 		return false;
 	}
 	
-	public static Boolean remove(TransactionHandler th) {
-		return deleteByPFID(Table.TRANSACTION,th.transID);
+	public static boolean remove(TransactionHandler th) {
+		return deleteByPFID(table,th.transID);
 	}
 }

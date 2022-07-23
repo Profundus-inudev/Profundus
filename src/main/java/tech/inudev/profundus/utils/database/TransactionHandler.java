@@ -1,9 +1,10 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.utils.database;
 
 import java.time.Instant;
 import java.util.UUID;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 物や土地の売買を行うクラス。
@@ -11,26 +12,24 @@ import lombok.Getter;
  * @author kidocchy
  *
  */
-public class TransactionHandler{
+class TransactionHandler{
+	UUID transID;		//DB=UUID
+	PFAgent seller;	//DB=UUID
+	PFAgent buyer;	//DB=UUID NULLABLE
+	int price;			//DB=INT
+	Payment payMethod;//DB=VARCHAR NULLABLE
+	Boolean onSale;	//DB=BIT
+	String description;//DB=VARCHAR
+	Instant createdAt;//DB=TIMESTAMP
+	Instant closedAt;	//DB=TIMESTAMP NULLABLE
+	Result transactionResult;//DB=TRANSACTION NULLABLE
 	
-	protected UUID transID;		//DB=UUID
-	protected PFAgent seller;	//DB=UUID
-	protected PFAgent buyer;	//DB=UUID NULLABLE
-	@Getter
-	private int price;			//DB=INT
-	protected Payment payMethod;//DB=VARCHAR NULLABLE
-	protected Boolean onSale;	//DB=BIT
-	protected String description;//DB=VARCHAR
-	protected Instant createdAt;//DB=TIMESTAMP
-	protected Instant closedAt;	//DB=TIMESTAMP NULLABLE
-	protected Result transactionResult;//DB=TRANSACTION NULLABLE
-	
-	enum Payment{
+	public enum Payment{
 		WALLET,
 		BANK
 	}
 	
-	enum Result{
+	public enum Result{
 		CLOSED_NORMALLY,
 		CANCELLED_BY_SELLER
 	}
@@ -54,11 +53,6 @@ public class TransactionHandler{
 		return th;		
 	}
 	
-	TransactionHandler setBuyer(PFAgent u) {
-		buyer = u;
-		return this;
-	}
-	
 	TransactionHandler setPrice(int amount) {
 		if(amount >= 0) {
 			price = amount;
@@ -70,9 +64,15 @@ public class TransactionHandler{
 		return this;
 	}
 	
-	Boolean setSale() {
+	TransactionHandler setBuyer(PFAgent nullable) {
+		buyer = nullable;
+		return this;
+	}
+	
+	boolean setSale() {
 		if(price>=0) {
 			onSale = true;
+			seller.sendMessage("Start to sale for" + price, false);
 			return true;
 		}
 		return false;
@@ -82,7 +82,7 @@ public class TransactionHandler{
 		onSale = false;
 	}
 	
-	void executeTransaction(Payment pay){
+	public void executeTransaction(Payment pay){
 		int buyerBalance = -1;
 		switch(pay){
 			case WALLET:

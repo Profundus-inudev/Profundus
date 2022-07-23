@@ -1,6 +1,7 @@
 package tech.inudev.profundus;
 
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.util.logging.Logger;
 
@@ -15,10 +16,10 @@ import tech.inudev.profundus.listener.BlockEvent;
 import tech.inudev.profundus.listener.CommandClass;
 import tech.inudev.profundus.listener.LoginEvent;
 import tech.inudev.profundus.scheduler.DatabasePingRunnable;
-import tech.inudev.profundus.utils.DatabaseUtil;
-import tech.inudev.profundus.utils.DatabaseUtil.Table;
 import tech.inudev.profundus.utils.HelpUtil;
 import tech.inudev.profundus.utils.StairSittingUtil;
+import tech.inudev.profundus.utils.database.DatabaseUtil;
+import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
 
 /**
  * メタバースプラグイン（仮）
@@ -52,15 +53,15 @@ public final class Profundus extends JavaPlugin {
         	DatabaseUtil.createTable(table,false);
         }
 
-        if (!Money.bankAccountExists(this.configHandler.getMasterBankName())) {
-            Money.createBankAccount(this.configHandler.getMasterBankName());
-        }
+       // if (!Money.bankAccountExists(this.configHandler.getMasterBankName())) {
+        //    Money.createBankAccount(this.configHandler.getMasterBankName());
+       // }
 
         registerSchedulers();
         registerListeners();
-        getCommand("sell_chunk").setExecutor(new CommandClass());
+        getCommand("sellChunk").setExecutor(new CommandClass());
         
-        HelpUtil.initializeHelp();
+        //HelpUtil.initializeHelp();
 
         getLogger().info("Profundus plugin enabled!");
     }
@@ -79,10 +80,8 @@ public final class Profundus extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-
+    	DatabaseUtil.disconnect();
         StairSittingUtil.removeSeatsOnServerDisable();
-
-        DatabaseUtil.disconnect();
 
         getLogger().info("Profundus plugin disabled!");
     }

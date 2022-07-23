@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.utils.database;
 
 import java.util.UUID;
 import java.util.logging.Level;
@@ -11,7 +11,7 @@ import java.sql.*;
 import java.time.Instant;
 
 import tech.inudev.profundus.Profundus;
-import tech.inudev.profundus.utils.DatabaseUtil.Table;
+import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
 /**
  * プラグインで管理するIDを実装するクラス
  * 細かい実装はサブクラスで。
@@ -50,7 +50,7 @@ public abstract class PFID{
 	static UUID newPFID(Table type) {
 		//とりあえず，ランダムで発行。
 		UUID yourID = UUID.randomUUID();
-		DatabaseUtil.insertPFIDEntry(yourID,type);
+		DBUPFID.insertPFIDEntry(yourID,type);
 		return yourID;
 	}
 	
@@ -62,7 +62,7 @@ public abstract class PFID{
 	static Table getType(UUID pfid){
 		ResultSet rs = DatabaseUtil.selectUUID(Table.PFID, "PFID", pfid);
 		try {
-			rs.first();
+			rs.next();
 			return Table.valueOf(rs.getString("type"));
 		}catch(SQLException e) {
 			Profundus.getInstance().getLogger().log(Level.WARNING,e.toString());

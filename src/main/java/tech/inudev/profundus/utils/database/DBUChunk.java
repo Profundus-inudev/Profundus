@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.utils.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,7 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.UUID;
-import java.util.logging.Level;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 import tech.inudev.profundus.Profundus;
 
@@ -14,11 +15,7 @@ public class DBUChunk extends DatabaseUtil {
 
 	final static Table table = Table.CHUNK;
 	
-	/*
-	 * 
-	 * PLANNING TO MOVE CREATE TABLE STATEMENT INTO THIS CLASS
-	 * 
-	 * 
+	static final String createStr = """
 	seqID INTEGER PRIMARY KEY AUTOINCREMENT,
 	mostSignificantWorldUUID BIGINT NOT NULL,
 	leastSignificantWorldUUID BIGINT NOT NULL,
@@ -34,9 +31,9 @@ public class DBUChunk extends DatabaseUtil {
 	saleSignZ INT,
 	mostSignificantTransactionPFID BIGINT,
 	leastSignificantTransactionPFID BIGINT
-	*/
+	""";
 	
-	public static Boolean insert(PFChunk c) {	
+	public static boolean insert(PFChunk c) {	
     	StringBuilder sql = new StringBuilder();
     	sql.append("INSERT INTO " + table.toString());
     	sql.append("""
@@ -58,18 +55,18 @@ public class DBUChunk extends DatabaseUtil {
 	    	ps.setLong(2, c.worldUUID.getLeastSignificantBits());
 	    	ps.setInt(3, c.chunkX);
 	    	ps.setInt(4, c.chunkZ);
-	    	ps.setTimestamp(4, Timestamp.from(c.timestamp) );
+	    	ps.setTimestamp(5, Timestamp.from(c.timestamp) );
 	    	
 	        ps.executeUpdate();
 	        con.commit();
 	        ps.close();
 	        return true;
 	    } catch (SQLException e) {
-	    	Profundus.getInstance().getLogger().log(Level.WARNING,"DBUChunk.insert: " + e);
+	    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e));
 	        try {
 	            con.rollback();
 	        } catch (SQLException e2) {
-		    	Profundus.getInstance().getLogger().log(Level.WARNING,"DBUChunk.insert: " + e2);
+		    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e2));
 	        }
 	        return false;
       }
@@ -98,19 +95,19 @@ public class DBUChunk extends DatabaseUtil {
 				insert(c);
 			}
 		}catch(SQLException e) {
-			Profundus.getInstance().getLogger().log(Level.WARNING, e.toString());
+	    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e));
 		}
 		return c;
 	}
 	
-	public static Boolean isExist(PFChunk c) {
+	public static boolean isExist(PFChunk c) {
 		ResultSet rs = select(c);
-		Boolean res = false;
+		boolean res = false;
 		try{
 			res = rs.next();		
 			rs.close();
 		}catch(SQLException e){
-			Profundus.getInstance().getLogger().log(Level.WARNING, e.toString());
+	    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e));
 		}
 		return res;
 	}
@@ -126,7 +123,7 @@ public class DBUChunk extends DatabaseUtil {
 		return rs;
 	}
 	
-	public static Boolean update(PFChunk c) {
+	public static boolean update(PFChunk c) {
 	      StringBuilder sql = new StringBuilder();
 	      sql.append("UPDATE " + table.toString());
 	      sql.append("""
@@ -142,9 +139,9 @@ public class DBUChunk extends DatabaseUtil {
 			mostSignificantTransactionPFID = ?,
 			leastSignificantTransactionPFID = ?
 			WHERE
-			mostSignificantWorldPFID = ?
+			mostSignificantWorldUUID = ?
 			AND
-			leastSignificantWorldPFID = ?
+			leastSignificantWorldUUID = ?
 			AND
 			chunkX = ?
 			AND
@@ -153,15 +150,23 @@ public class DBUChunk extends DatabaseUtil {
 	  	Connection con = getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(sql.toString());
-			ps.setLong(1, c.owner.pfid.getMostSignificantBits());
-			ps.setLong(2, c.owner.pfid.getLeastSignificantBits());
-			ps.setLong(3, c.editor.pfid.getMostSignificantBits());
-			ps.setLong(4, c.editor.pfid.getLeastSignificantBits());
-			ps.setInt(5, c.saleSign.getX());
-			ps.setInt(6, c.saleSign.getY());
-			ps.setInt(7, c.saleSign.getZ());
-			ps.setLong(8, c.trans.transID.getMostSignificantBits());
-			ps.setLong(9, c.trans.transID.getLeastSignificantBits());
+			if(c.owner !=null) {
+				ps.setLong(1, c.owner.pfid.getMostSignificantBits());
+				ps.setLong(2, c.owner.pfid.getLeastSignificantBits());
+			}
+			if(c.editor !=null) {
+				ps.setLong(3, c.editor.pfid.getMostSignificantBits());
+				ps.setLong(4, c.editor.pfid.getLeastSignificantBits());
+			}
+			if(c.saleSign !=null) {
+				ps.setInt(5, c.saleSign.getX());
+				ps.setInt(6, c.saleSign.getY());
+				ps.setInt(7, c.saleSign.getZ());
+			}
+			if(c.trans != null) {
+				ps.setLong(8, c.trans.transID.getMostSignificantBits());
+				ps.setLong(9, c.trans.transID.getLeastSignificantBits());
+			}
 			ps.setLong(10, c.worldUUID.getMostSignificantBits());
 			ps.setLong(11, c.worldUUID.getLeastSignificantBits());
 			ps.setInt(12, c.chunkX);
@@ -177,19 +182,19 @@ public class DBUChunk extends DatabaseUtil {
 				return false;
 			}
 		}catch(SQLException e) {
-	    	Profundus.getInstance().getLogger().log(Level.WARNING,"updateChunk:" + e);
+	    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e));
 
 			try {
 			    con.rollback();
 			} catch (SQLException e2) {
-		    	Profundus.getInstance().getLogger().log(Level.WARNING,"updateChunk:" + e2);
+		    	Profundus.getInstance().getLogger().warning(ExceptionUtils.getStackTrace(e));
 			}
 			return false;
 		}
 
 	}
 	
-	public static Boolean remove(PFChunk c) {
+	public static boolean remove(PFChunk c) {
 		return false;
 	}
 }

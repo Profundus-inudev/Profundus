@@ -1,10 +1,10 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.utils.database;
 
 import org.bukkit.entity.*;
 
 import lombok.Getter;
 import tech.inudev.profundus.Profundus;
-import tech.inudev.profundus.utils.DatabaseUtil.Table;
+import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -26,12 +26,9 @@ public class User extends PFAgent{
 	String mainLanguage;
 	String subLanguage;
 	
-	@Getter
-	private Instant lastLogin;
-	@Getter
-	private String source;
-	@Getter
-	private Player player;
+	Instant lastLogin;
+	String source;
+	Player player;
 
 	
 	private User(Player p) {
@@ -67,7 +64,7 @@ public class User extends PFAgent{
 	 * @param createIfNotExist エントリーがなければ新規作成するか
 	 * @return User Profundus User クラスインスタンス
 	 */
-	public static User getByPlayer(Player p,Boolean createIfNotExist) {
+	public static User getByPlayer(Player p,boolean createIfNotExist) {
 		UUID queryUUID = p.getUniqueId();
 		User u = getByUUID(queryUUID);
 		if(u == null) {
@@ -120,7 +117,7 @@ public class User extends PFAgent{
 	 * @param q UUID
 	 * @return exist?
 	 */
-	private static Boolean isExistOnDB(UUID q) {
+	private static boolean isExistOnDB(UUID q) {
 		try {
 			ResultSet rs = DatabaseUtil.selectUUID(Table.USER, "UUID", q);
 			if(rs == null) {return false;}
@@ -161,12 +158,12 @@ public class User extends PFAgent{
 	
 
 	protected void addToDB() {
-		DatabaseUtil.insertUserEntry(this);
+		DBUUser.insert(this);
 	}
 	
 
 	protected void updateDB() {
-		DatabaseUtil.updateUserEntry(this);
+		DBUUser.update(this);
 	}
 	
 
@@ -216,7 +213,7 @@ public class User extends PFAgent{
 	}
 
 	@Override
-	public void sendMessage(String str, Boolean sendOnLogin) {
+	public void sendMessage(String str, boolean sendOnLogin) {
 		if(player != null) {
 			player.sendMessage(str);
 		} else {
@@ -229,12 +226,12 @@ public class User extends PFAgent{
 	// TODO //
 	/*
 	 * 他に登録したい項目・プロフィールとかはないですかね。
-	 * public Boolean joinGroup(Group); グループに参加
-	 * public Boolean isMemberOf(Group); グループのメンバーであるかを判定
+	 * public boolean joinGroup(Group); グループに参加
+	 * public boolean isMemberOf(Group); グループのメンバーであるかを判定
 	 * public Group[] getGroups(); 所属するグループを取得
 	 * public String getRoleFor(Group); グループ内での役割情報を取得。使い道不明。
-	 * public Boolean canEditChunk(x, z); チャンクの編集権を判定
-	 * public Boolean canEditChunk(location); 同上。
+	 * public boolean canEditChunk(x, z); チャンクの編集権を判定
+	 * public boolean canEditChunk(location); 同上。
 	*/
 	
 }

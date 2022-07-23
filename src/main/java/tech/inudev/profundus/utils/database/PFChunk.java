@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.utils.database;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -16,7 +16,8 @@ import org.bukkit.block.data.Rotatable;
 import org.bukkit.entity.Player;
 
 import lombok.Getter;
-import tech.inudev.profundus.utils.DatabaseUtil.Table;
+import net.kyori.adventure.text.Component;
+import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
 
 public class PFChunk {
 		private static Map<String,PFChunk> storedList = new HashMap<String,PFChunk>();
@@ -55,9 +56,9 @@ public class PFChunk {
 			if(storedList.containsKey(r.toString())){
 				r = storedList.get(r.toString());
 			}else {
-				r.chunk = c;
-				r = DBUChunk.fetch(r); //return as is if no DB
+				r = DBUChunk.fetch(r); //return as is if none in DB
 				//TODO r.trans
+				storedList.put(r.toString(), r);
 			}
 			return r;
 		}
@@ -69,20 +70,22 @@ public class PFChunk {
 
 		
 		//Checking owner/editor
-		public Boolean isOwner(PFAgent u) {
+		public boolean isOwner(PFAgent u) {
+			if(owner == null) {return false;}
 			if(owner.getType() != Table.USER) {return false;}
 			return owner.getPfid() == u.getPfid();
 		}
-		public Boolean isOwner(Player p) {
+		public boolean isOwner(Player p) {
 			return isOwner(User.getByPlayer(p));
 		}
 		
-		public Boolean canEdit(PFAgent u) {
+		public boolean canEdit(PFAgent u) {
 			if(isOwner(u)) {return true;}
+			if(editor == null) {return false;}
 			if(editor.getType() != Table.USER) {return false;}
 			return editor.getPfid() == u.getPfid();
 		}
-		public Boolean canEdit(Player p) {
+		public boolean canEdit(Player p) {
 			return canEdit(User.getByPlayer(p));
 		}
 		
@@ -131,23 +134,34 @@ public class PFChunk {
 
 		
 		//Real estate Transaction Handling
-		public PFChunk createTransaction() {
-			if(trans == null) {trans = new TransactionHandler(PFID.getByPFID(owner.pfid),this.toString());}
+		public PFChunk createTransaction(PFAgent seller) {
+			if(trans == null) {
+				if(!isOwner(seller)) {
+					seller.sendMessage("You can't sell the chunk you don't own.", false);
+					return null;
+				}
+				trans = new TransactionHandler(seller,this.toString());
+				}
+			//may need to check trans.seller == seller
 			return this;
 		}
 		
 		public PFChunk setPrice(int amount) {
-			if(trans == null) {createTransaction();}
+			if(trans == null) {return null;}
 			trans.setPrice(amount);
 			return this;
 		}
 		
 		@SuppressWarnings("deprecation")
-		public Boolean startSelling(PFAgent nullable) {
+		public boolean sellTo(PFAgent nullable) {
 			trans.setBuyer(nullable);
 			if(!trans.setSale()) {return false;} //sell start check
 			updateSaleSign();
 			return true;
+		}
+		public void removeSale() {
+			trans.removeSale();
+			removeSellTarget();
 		}
 		
 		@SuppressWarnings("deprecation")
@@ -155,23 +169,23 @@ public class PFChunk {
 			
 			if(saleSign == null) {saleSign = chunk.getBlock(0, getHighestBlock3x3Y(), 0);}
 			saleSign.setType(Material.BIRCH_SIGN);
-			BlockState bs = saleSign.getState();
+			Sign bs = (Sign) saleSign.getState();
 			
 			if(!trans.setSale()) {
-				((Sign) bs).setLine(0, "SALE PENDING");
-				((Sign) bs).setLine(1, "");
-				((Sign) bs).setLine(2, "");
+				bs.setLine(0, "Pending");
+				bs.setLine(1, "");
+				bs.setLine(2, "");
 
 			} else {
-				((Sign) bs).setLine(0, ">> FOR SALE <<");
-				((Sign) bs).setLine(1, String.valueOf(trans.getPrice()));
+				bs.setLine(0, ">> FOR SALE <<");
+				bs.setLine(1, String.valueOf(trans.price));
 				if(trans.buyer != null) {
-					((Sign) bs).setLine(2, trans.buyer.screenName);
+					bs.setLine(2, trans.buyer.screenName);
 				}else {
-					((Sign) bs).setLine(2,"");
+					bs.setLine(2,"");
 				}
 			}
-			((Sign) bs).setEditable(false);
+			bs.setEditable(false);
 			((Rotatable) bs.getBlockData()).setRotation(BlockFace.NORTH_WEST);
 			bs.update(true);			
 		}
@@ -182,12 +196,12 @@ public class PFChunk {
 			saleSign = null;
 		}
 		
-		public Boolean isForSale() {
+		public boolean isForSale() {
 			return trans.onSale;
 		}
 		
 		void sold() {}
-
+		
 		private void updateDB() {
 			DBUChunk.update(this);
 		}

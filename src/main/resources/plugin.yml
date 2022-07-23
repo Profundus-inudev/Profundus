@@ -10,7 +10,6 @@ depend:
 #  - Geyser-Spigot
 
 commands:
-  sell_chunk:
-    aliases: [ sellchunk, sellChunk ]
+  sellChunk:
     description: sell chunk
-    usage: sell_chunk x y price [username]
+    usage: "Usage: /sellChunkStart [start|stop] x y price [username]

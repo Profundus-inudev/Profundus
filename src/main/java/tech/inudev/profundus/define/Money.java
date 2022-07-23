@@ -2,9 +2,10 @@ package tech.inudev.profundus.define;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import tech.inudev.profundus.utils.database.DBUMoney;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import tech.inudev.profundus.utils.DatabaseUtil;
 
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class Money {
      * @param playerUUID プレイヤーのUUID
      */
     public Money(UUID playerUUID) {
-        Integer amount = DatabaseUtil.loadMoneyAmount(playerUUID.toString());
+        Integer amount = DBUMoney.loadMoneyAmount(playerUUID.toString());
         if (amount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
@@ -47,7 +48,7 @@ public class Money {
             throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
         }
 
-        Integer amount = DatabaseUtil.loadMoneyAmount(bankName);
+        Integer amount = DBUMoney.loadMoneyAmount(bankName);
         if (amount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
@@ -114,7 +115,7 @@ public class Money {
     }
 
     private boolean remitMoney(String partnerName) {
-        Integer partnerAmount = DatabaseUtil.loadMoneyAmount(partnerName);
+        Integer partnerAmount = DBUMoney.loadMoneyAmount(partnerName);
         if (partnerAmount == null) {
             throw new IllegalArgumentException("引数に対応するデータが存在しません。");
         }
@@ -138,7 +139,7 @@ public class Money {
                 }
                 return false;
             }
-            DatabaseUtil.remitTransaction(
+            DBUMoney.remitTransaction(
                     bankName,
                     ownAmount + total,
                     partnerName,
@@ -151,7 +152,7 @@ public class Money {
                 }
                 return false;
             }
-            DatabaseUtil.remitTransaction(
+            DBUMoney.remitTransaction(
                     playerUUID.toString(),
                     ownAmount + total,
                     partnerName,
@@ -171,7 +172,7 @@ public class Money {
         if (playerWalletExists(playerUUID)) {
             throw new IllegalArgumentException("プレイヤーの所持金データが既に存在しています。");
         }
-        DatabaseUtil.createMoneyRecord(playerUUID.toString());
+        DBUMoney.createMoneyRecord(playerUUID.toString());
     }
 
     /**
@@ -183,7 +184,7 @@ public class Money {
         if (bankAccountExists(bankName)) {
             throw new IllegalArgumentException("同名の口座が既に存在しています。");
         }
-        DatabaseUtil.createMoneyRecord(bankName);
+        DBUMoney.createMoneyRecord(bankName);
     }
 
     /**
@@ -193,7 +194,7 @@ public class Money {
      * @return データベース上に所持金データが存在していればtrue、そうでなければfalseを返す。
      */
     public static boolean playerWalletExists(UUID playerUUID) {
-        return DatabaseUtil.loadMoneyAmount(playerUUID.toString()) != null;
+        return DBUMoney.loadMoneyAmount(playerUUID.toString()) != null;
     }
 
     /**
@@ -206,7 +207,7 @@ public class Money {
         if (isUUID(bankName)) {
             throw new IllegalArgumentException("UUID形式の文字列は引数に指定できません。");
         }
-        return DatabaseUtil.loadMoneyAmount(bankName) != null;
+        return DBUMoney.loadMoneyAmount(bankName) != null;
     }
 
     /**

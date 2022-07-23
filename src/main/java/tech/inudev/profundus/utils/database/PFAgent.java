@@ -1,7 +1,7 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.utils.database;
 
 import lombok.Getter;
-import tech.inudev.profundus.utils.DatabaseUtil.Table;
+import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
 
 /**
  * PFGROUPとUSERのスーパークラス。
@@ -33,5 +33,5 @@ public abstract class PFAgent extends PFID{
 	 * @param str 本文
 	 * @param sendOnLogin 記憶してログイン時に送れるようにしたいが，未実装。
 	 */
-	public abstract void sendMessage(String str, Boolean sendOnLogin);
+	public abstract void sendMessage(String str, boolean sendOnLogin);
 }
