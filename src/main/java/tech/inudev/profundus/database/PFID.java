@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.database;
 
 import java.util.UUID;
 import java.util.logging.Level;
@@ -11,7 +11,7 @@ import java.sql.*;
 import java.time.Instant;
 
 import tech.inudev.profundus.Profundus;
-import tech.inudev.profundus.utils.DatabaseUtil.Table;
+import tech.inudev.profundus.database.DatabaseUtil.Table;
 /**
  * プラグインで管理するIDを実装するクラス
  * 細かい実装はサブクラスで。

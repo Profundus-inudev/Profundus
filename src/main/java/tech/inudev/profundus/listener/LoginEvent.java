@@ -5,6 +5,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.Listener;
 
+import tech.inudev.profundus.database.User;
 import tech.inudev.profundus.utils.*;
 /**
  * Login関係listener実装クラス

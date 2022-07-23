@@ -1,6 +1,6 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.database;
 
-import tech.inudev.profundus.utils.DatabaseUtil.Table;
+import tech.inudev.profundus.database.DatabaseUtil.Table;
 
 /**
  * PFGROUPとUSERのスーパークラス。

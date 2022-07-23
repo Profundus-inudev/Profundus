@@ -1,10 +1,12 @@
-package tech.inudev.profundus.utils;
+package tech.inudev.profundus.database;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.*;
 
 import lombok.Getter;
 import tech.inudev.profundus.Profundus;
-import tech.inudev.profundus.utils.DatabaseUtil.Table;
+import tech.inudev.profundus.database.DatabaseUtil.Table;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -30,9 +32,6 @@ public class User extends PFAgent{
 	private Instant lastLogin;
 	@Getter
 	private String source;
-	@Getter
-	private Player player;
-
 	
 	private User(Player p) {
 		super(Table.USER,p.getName()); //getNewPFID
@@ -77,7 +76,6 @@ public class User extends PFAgent{
 			u.addToDB();
 			u.addToStoredList();
 		}
-		u.player = p;
 		return u;
 	}
 	
@@ -217,13 +215,25 @@ public class User extends PFAgent{
 
 	@Override
 	public void sendMessage(String str, Boolean sendOnLogin) {
-		if(player != null) {
-			player.sendMessage(str);
+		if(getPlayer() != null) {
+			getPlayer().sendMessage(str);
 		} else {
 			// TODO messageStore to send on Login
 			Profundus.getInstance().getLogger().log(Level.INFO,"Player is null");
 		}
 		
+	}
+	/*
+	 *  returns Bukkit Player. if player is offline, returns null (by Bukkit);
+	 */
+	public Player getPlayer() {
+		return getOfflinePlayer().getPlayer();
+	}
+	/*
+	 * returns Bukkit OfflinePlayer
+	 */
+	public OfflinePlayer getOfflinePlayer() {
+		return Bukkit.getOfflinePlayer(uuid);
 	}
 	
 	// TODO //
