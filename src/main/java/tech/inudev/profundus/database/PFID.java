@@ -50,7 +50,7 @@ public abstract class PFID{
 	static UUID newPFID(Table type) {
 		//とりあえず，ランダムで発行。
 		UUID yourID = UUID.randomUUID();
-		DatabaseUtil.insertPFIDEntry(yourID,type);
+		DBUPFID.insert(yourID,type);
 		return yourID;
 	}
 	

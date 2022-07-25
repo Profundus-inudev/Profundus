@@ -6,7 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import tech.inudev.profundus.database.DatabaseUtil;
+import tech.inudev.profundus.database.DBUGoods;
 import tech.inudev.profundus.utils.HelpUtil;
 
 import java.util.ArrayList;
@@ -250,7 +250,7 @@ public class Metazon {
     }
 
     private void onConfirmPaperClick(ItemStack sellItem, Player player) {
-        DatabaseUtil.createGoodsRecord(sellItem, this.sellPrice, player.getUniqueId().toString());
+        DBUGoods.createGoodsRecord(sellItem, this.sellPrice, player.getUniqueId().toString());
         player.sendMessage(Component.text("Metazon : アイテムの販売登録が完了しました。"));
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.3f, 1);
     }

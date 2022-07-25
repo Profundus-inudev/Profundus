@@ -1,5 +1,6 @@
 package tech.inudev.profundus.database;
 
+import lombok.Getter;
 import tech.inudev.profundus.database.DatabaseUtil.Table;
 
 /**
@@ -9,7 +10,7 @@ import tech.inudev.profundus.database.DatabaseUtil.Table;
  *
  */
 public abstract class PFAgent extends PFID{
-
+	@Getter
 	String screenName;//表示名
 	/**
 	 * コンストラクタ

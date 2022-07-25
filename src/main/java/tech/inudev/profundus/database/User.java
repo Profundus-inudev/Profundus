@@ -30,8 +30,7 @@ public class User extends PFAgent{
 	String mainLanguage;
 	String subLanguage;
 	
-	@Getter
-	private Instant lastLogin;
+	Instant lastLogin;
 	@Getter
 	private String source;
 	
@@ -122,7 +121,7 @@ public class User extends PFAgent{
 	 */
 	private static Boolean isExistOnDB(UUID q) {
 		try {
-			ResultSet rs = DatabaseUtil.selectUUID(Table.USER, "UUID", q);
+			ResultSet rs = DBUUser.selectUUID(Table.USER, "UUID", q);
 			if(rs == null) {return false;}
 			return rs.next();
 		}catch(SQLException e) {
@@ -141,7 +140,7 @@ public class User extends PFAgent{
 	 */
 	private static User fetchDB(UUID q, String ID) {
 		try {
-			ResultSet rs = DatabaseUtil.selectUUID(Table.USER, ID, q);
+			ResultSet rs = DBUUser.selectUUID(Table.USER, ID, q);
 			rs.next();
 			User ret = new User();
 			ret.uuid = new UUID(rs.getLong("mostSignificantUUID"),rs.getLong("leastSignificantUUID"));
@@ -161,17 +160,17 @@ public class User extends PFAgent{
 	
 
 	protected void addToDB() {
-		DatabaseUtil.insertUserEntry(this);
+		DBUUser.insert(this);
 	}
 	
 
 	protected void updateDB() {
-		DatabaseUtil.updateUserEntry(this);
+		DBUUser.update(this);
 	}
 	
 
 	protected void removeFromDB() {
-		DatabaseUtil.deleteByPFID(Table.USER, pfid);
+		DBUUser.deleteByPFID(Table.USER, pfid);
 	}
 	
 	/**
