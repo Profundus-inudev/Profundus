@@ -6,7 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import tech.inudev.profundus.utils.DatabaseUtil;
+import tech.inudev.profundus.database.DatabaseUtil;
 import tech.inudev.profundus.utils.HelpUtil;
 
 import java.util.ArrayList;
