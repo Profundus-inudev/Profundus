@@ -11,7 +11,11 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 import tech.inudev.profundus.Profundus;
 
-
+/**
+ * PFIDテーブルをいじるためのAPI的存在
+ * @author kidocchy
+ *
+ */
 public class DBUPFID extends DatabaseUtil {
 
 	final static Table table = Table.PFID;

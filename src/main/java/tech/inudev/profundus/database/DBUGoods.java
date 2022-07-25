@@ -9,7 +9,11 @@ import java.util.List;
 import org.bukkit.inventory.ItemStack;
 
 import tech.inudev.profundus.Profundus;
-
+/**
+ * goodsテーブルをいじるためのAPI的存在
+ * @author tererun
+ *
+ */
 public class DBUGoods extends DatabaseUtil{
 
 	final static Table table = Table.GOODS;

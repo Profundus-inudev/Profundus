@@ -72,7 +72,9 @@ public class DatabaseUtil {
             throw new RuntimeException(e);
         }
     }
-
+/**
+ * connection.commitするだけ
+ */
     protected static void commitTransaction() {
         try {
             connection.commit();

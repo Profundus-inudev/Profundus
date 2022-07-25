@@ -4,7 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
+/**
+ * MoneyテーブルをいじるためのAPI的存在
+ * @author kidocchy
+ *
+ */
 public class DBUMoney extends DatabaseUtil {
 
 	final static Table table = Table.MONEY;

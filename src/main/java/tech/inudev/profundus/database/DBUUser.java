@@ -9,7 +9,11 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 import tech.inudev.profundus.Profundus;
 
-
+/**
+ * UserテーブルをいじるためのAPI的存在
+ * @author kidocchy
+ *
+ */
 public class DBUUser extends DatabaseUtil {
 
 	final static Table table = Table.USER;
