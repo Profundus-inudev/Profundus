@@ -190,27 +190,6 @@ public class DatabaseUtil {
         }
     }
 
-    private static void createGoodsTable() {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement("""
-                    CREATE TABLE IF NOT EXISTS 'goods' (
-                            'id' INT AUTO_INCREMENT,
-                            'item' VARBINARY(511) NOT NULL,
-                            'price' INT NOT NULL,
-                            'seller' VARCHAR(36) NOT NULL,
-                            PRIMARY KEY ('id'))
-                            """);
-            preparedStatement.execute();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-                Profundus.getInstance().getLogger().info("rollback");
-            } catch (SQLException e2) {
-                throw new RuntimeException(e2);
-            }
-        }
-    }
 
     /**
      * Metazonの商品を新たに登録する。
@@ -224,7 +203,6 @@ public class DatabaseUtil {
             throw new IllegalArgumentException();
         }
         try {
-            createGoodsTable();
 
             PreparedStatement preparedStatement = connection.prepareStatement("""
                     INSERT INTO goods (item, price, seller)
@@ -265,7 +243,6 @@ public class DatabaseUtil {
      */
     public static List<GoodsData> loadGoodsList() {
         try {
-            createGoodsTable();
 
             PreparedStatement preparedStatement = connection.prepareStatement("""
                     SELECT * FROM goods
@@ -334,9 +311,13 @@ public class DatabaseUtil {
 	 */
 	PFID,	//Profundus ID
 	/**
-	 * SQLテーブル名:MONEY
+	 * SQLテーブル名:money
 	 */
-	MONEY;
+	MONEY,
+	/**
+	 * SQLテーブル名:goods
+	 */
+	GOODS;
     }
 
     /**
@@ -347,7 +328,7 @@ public class DatabaseUtil {
      * @return success?
      * TODO リリース時には第二引数dropIfExistsは削除。
      */
-    public static Boolean createTable(Table tableName, Boolean dropIfExists) {
+    public static boolean createTable(Table tableName, boolean dropIfExists) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("CREATE TABLE IF NOT EXISTS " + tableName.name() +" (");
 
@@ -397,7 +378,14 @@ public class DatabaseUtil {
                     PRIMARY KEY ('name')
     				""");
     		break;
-
+    	case GOODS:
+    		sql.append("""
+                    'id' INT AUTO_INCREMENT,
+                    'item' VARBINARY(511) NOT NULL,
+                    'price' INT NOT NULL,
+                    'seller' VARCHAR(36) NOT NULL,
+                    PRIMARY KEY ('id')
+                    """);
     	}
     	sql.append(");");
     	
@@ -434,7 +422,7 @@ public class DatabaseUtil {
      * @param type
      * @return success?
      */
-    static Boolean insertPFIDEntry(UUID pfid, Table type) {
+    static boolean insertPFIDEntry(UUID pfid, Table type) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("INSERT INTO " + Table.PFID.name());
     	sql.append("""
@@ -476,7 +464,7 @@ public class DatabaseUtil {
      * @param user
      * @return success?
      */
-    static Boolean insertUserEntry(User user) {
+    static boolean insertUserEntry(User user) {
     	StringBuilder sql = new StringBuilder();
     	sql.append("INSERT INTO " + Table.USER.name());
     	sql.append(" (mostSignificantPFID, leastSignificantPFID, screenName, mostSignificantUUID, leastSignificantUUID, createdAt, lastLogin) VALUES (?,?,?,?,?,?,?)");
@@ -595,7 +583,7 @@ public class DatabaseUtil {
      * @param user
      * @return
      */
-    static Boolean updateUserEntry(User user) {
+    static boolean updateUserEntry(User user) {
       StringBuilder sql = new StringBuilder();
       sql.append("UPDATE " + Table.USER.name());
       sql.append("""
@@ -646,7 +634,7 @@ public class DatabaseUtil {
      * @param pfid
      * @return
      */
-    static Boolean deleteByPFID(Table tableName, UUID pfid) {
+    static boolean deleteByPFID(Table tableName, UUID pfid) {
     	//PFIDエントリーを削除
     	if(tableName != Table.PFID) {deleteByPFID(Table.PFID,pfid);}
     	
