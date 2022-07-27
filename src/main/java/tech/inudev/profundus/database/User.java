@@ -28,7 +28,6 @@ public class User extends PFAgent{
 	
 	UUID uuid;
 	String mainLanguage;
-	String subLanguage;
 	
 	Instant lastLogin;
 	@Getter
@@ -40,7 +39,6 @@ public class User extends PFAgent{
 		createdAt = java.time.Instant.now();
 		lastLogin = java.time.Instant.now();
 		mainLanguage = "";
-		subLanguage = "";
 	}
 	private User() {};
 	
@@ -149,7 +147,6 @@ public class User extends PFAgent{
 			ret.createdAt = rs.getTimestamp("createdAt").toInstant();
 			ret.lastLogin = rs.getTimestamp("lastLogin").toInstant();
 			ret.mainLanguage = rs.getString("language1");
-			ret.subLanguage = rs.getString("language2");
 			ret.type = Table.USER;
 			return ret;
 		}catch(SQLException e) {
@@ -197,20 +194,11 @@ public class User extends PFAgent{
 	}
 	
 	/**
-	 * ユーザープロフィール「mainLanguage」を更新。出番があるかは不明。
-	 * @param lang 第１言語
+	 * ユーザープロフィール「mainLanguage」を更新。
+	 * @param lang 使用言語
 	 */
 	public void setMainLanguage(String lang) {
 		mainLanguage = lang;
-		updateDB();
-	}
-	
-	/**
-	 * ユーザープロフィール「subLanguage」を更新。出番があるかは不明。
-	 * @param lang 第２言語
-	 */
-	public void setSubLanguage(String lang) {
-		subLanguage = lang;
 		updateDB();
 	}
 

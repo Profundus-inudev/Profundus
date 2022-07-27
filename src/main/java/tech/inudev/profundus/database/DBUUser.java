@@ -28,7 +28,6 @@ public class DBUUser extends DatabaseUtil {
 			createdAt TIMESTAMP,
 			lastLogin TIMESTAMP,
 			language1 VARCHAR,
-			language2 VARCHAR,
 			note TEXT
 			""";
 
@@ -82,7 +81,6 @@ public class DBUUser extends DatabaseUtil {
 		screenName = ?,
 		lastLogin = ?,
 		language1 = ?,
-		language2 = ?
 		WHERE
 		mostSignificantPFID = ?
 		AND
@@ -94,9 +92,8 @@ public class DBUUser extends DatabaseUtil {
 		preparedStatement.setString(1,user.getScreenName());
 		preparedStatement.setTimestamp(2, Timestamp.from(user.lastLogin));
 		preparedStatement.setString(3, user.mainLanguage);
-		preparedStatement.setString(4, user.subLanguage);
-		preparedStatement.setLong(5, user.pfid.getMostSignificantBits());
-		preparedStatement.setLong(6, user.pfid.getLeastSignificantBits());
+		preparedStatement.setLong(4, user.pfid.getMostSignificantBits());
+		preparedStatement.setLong(5, user.pfid.getLeastSignificantBits());
 		if(preparedStatement.executeUpdate() == 1) {
 			con.commit();
 			preparedStatement.close();
