@@ -133,7 +133,7 @@ public class Metazon {
         MenuItem help = new MenuItem(
                 Component.text("ヘルプ"),
                 List.of(Component.text("Metazonのつかいかた")),
-                (menuItem, _player) -> HelpUtil.openHelp(_player.getUniqueId(), HelpUtil.HelpType.Sample),
+                (menuItem, _player) -> HelpUtil.openHelp(_player.getUniqueId(), HelpUtil.HelpType.MetazonSell),
                 new ItemStack(Material.WRITTEN_BOOK),
                 null,
                 true,

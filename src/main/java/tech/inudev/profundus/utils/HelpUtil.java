@@ -41,7 +41,8 @@ public class HelpUtil {
         /**
          * サンプル用ヘルプ
          */
-        Sample("sample.txt", "Sample");
+        Sample("sample.txt", "Sample"),
+        MetazonSell("metazon-sell.txt", "Metazon 販売する");
 
         private final String fileName;
         private final String title;
