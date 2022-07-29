@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.map.MinecraftFont;
+import org.bukkit.plugin.java.JavaPlugin;
 import tech.inudev.profundus.Profundus;
 
 import java.io.*;
@@ -56,16 +57,21 @@ public class HelpUtil {
      * ヘルプのテキストを本に表示するために整形し、別のtxtファイルとして保存する。
      * ヘルプ表示時はこのtxtファイルを読み込む。
      */
-    public static void initializeHelp() {
+    public static void initializeHelp(JavaPlugin plugin) {
         for (HelpType helpType : HelpType.values()) {
-            Profundus.getInstance().saveResource(HELP_DIR + "/" + helpType.fileName, true);
+            String resourcePath = "$help/$plugin/$file"
+                    .replace("$help", HELP_DIR)
+                    .replace("$plugin", plugin.getName())
+                    .replace("$file", helpType.fileName);
+            Profundus.getInstance().saveResource(resourcePath, true);
 
             // txtファイルからヘルプを読み込み
             List<String> helpLines;
             try {
-                String dirPath = "$data/$help"
+                String dirPath = "$data/$help/$plugin"
                         .replace("$data", Profundus.getInstance().getDataFolder().getPath())
-                        .replace("$help", HELP_DIR);
+                        .replace("$help", HELP_DIR)
+                        .replace("$plugin", plugin.getName());
                 Path path = Paths.get(dirPath, helpType.fileName);
                 helpLines = Files.readAllLines(path, StandardCharsets.UTF_8);
             } catch (IOException e) {

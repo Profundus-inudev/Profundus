@@ -57,7 +57,7 @@ public final class Profundus extends JavaPlugin {
         registerSchedulers();
         registerListeners();
 
-        HelpUtil.initializeHelp();
+        HelpUtil.initializeHelp(this);
 
         getLogger().info("Profundus plugin enabled!");
     }
