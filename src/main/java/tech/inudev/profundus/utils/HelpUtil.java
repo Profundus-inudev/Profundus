@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.map.MinecraftFont;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import tech.inudev.profundus.Profundus;
 
 import java.io.*;
@@ -21,7 +23,7 @@ import java.util.UUID;
 
 /**
  * ヘルプの表示するためのクラス。
- * ヘルプを追加する場合は、enum HelpTypeに追加していく。
+ * ヘルプを追加する場合は、ヘルプ用txtファイルを作成し、enum HelpTypeに追加していく。
  *
  * @author toru-toruto
  */
@@ -40,7 +42,12 @@ public class HelpUtil {
         /**
          * サンプル用ヘルプ
          */
-        Sample("sample.txt", "Sample");
+        Sample("sample.txt", "Sample"),
+
+        /**
+         * Metazon販売用のヘルプ
+         */
+        MetazonSell("metazon-sell.txt", "Metazon 販売する");
 
         private final String fileName;
         private final String title;
@@ -53,19 +60,31 @@ public class HelpUtil {
 
     /**
      * 初期化処理。
-     * ヘルプのテキストを本に表示するために整形し、別のtxtファイルとして保存する。
+     * プラグインに対応するヘルプを本に表示するために整形し、
+     * 「{@value HELP_DIR}/{@value BOOK_SHAPE_DIR}」に
+     * 別のtxtファイルとして保存する。
      * ヘルプ表示時はこのtxtファイルを読み込む。
+     *
+     * @param plugin 実行元のプラグイン
      */
-    public static void initializeHelp() {
+    public static void initializeHelp(@NotNull JavaPlugin plugin) {
         for (HelpType helpType : HelpType.values()) {
-            Profundus.getInstance().saveResource(HELP_DIR + "/" + helpType.fileName, true);
+            String resourcePath = "$help/$plugin/$file"
+                    .replace("$help", HELP_DIR)
+                    .replace("$plugin", plugin.getName())
+                    .replace("$file", helpType.fileName);
+            if (Profundus.getInstance().getResource(resourcePath) == null) {
+                continue;
+            }
+            Profundus.getInstance().saveResource(resourcePath, true);
 
             // txtファイルからヘルプを読み込み
             List<String> helpLines;
             try {
-                String dirPath = "$data/$help"
+                String dirPath = "$data/$help/$plugin"
                         .replace("$data", Profundus.getInstance().getDataFolder().getPath())
-                        .replace("$help", HELP_DIR);
+                        .replace("$help", HELP_DIR)
+                        .replace("$plugin", plugin.getName());
                 Path path = Paths.get(dirPath, helpType.fileName);
                 helpLines = Files.readAllLines(path, StandardCharsets.UTF_8);
             } catch (IOException e) {
