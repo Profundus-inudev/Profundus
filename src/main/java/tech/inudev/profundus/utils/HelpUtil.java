@@ -22,7 +22,7 @@ import java.util.UUID;
 
 /**
  * ヘルプの表示するためのクラス。
- * ヘルプを追加する場合は、enum HelpTypeに追加していく。
+ * ヘルプを追加する場合は、ヘルプ用txtファイルを作成し、enum HelpTypeに追加していく。
  *
  * @author toru-toruto
  */
@@ -55,8 +55,12 @@ public class HelpUtil {
 
     /**
      * 初期化処理。
-     * ヘルプのテキストを本に表示するために整形し、別のtxtファイルとして保存する。
+     * プラグインに対応するヘルプを本に表示するために整形し、
+     * 「resources/{@value HELP_DIR}/{@value BOOK_SHAPE_DIR}」に
+     * 別のtxtファイルとして保存する。
      * ヘルプ表示時はこのtxtファイルを読み込む。
+     *
+     * @param plugin 実行元のプラグイン
      */
     public static void initializeHelp(JavaPlugin plugin) {
         for (HelpType helpType : HelpType.values()) {
