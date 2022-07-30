@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.map.MinecraftFont;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import tech.inudev.profundus.Profundus;
 
 import java.io.*;
@@ -62,7 +63,7 @@ public class HelpUtil {
      *
      * @param plugin 実行元のプラグイン
      */
-    public static void initializeHelp(JavaPlugin plugin) {
+    public static void initializeHelp(@NotNull JavaPlugin plugin) {
         for (HelpType helpType : HelpType.values()) {
             String resourcePath = "$help/$plugin/$file"
                     .replace("$help", HELP_DIR)
