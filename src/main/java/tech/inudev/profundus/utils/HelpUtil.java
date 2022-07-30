@@ -73,6 +73,9 @@ public class HelpUtil {
                     .replace("$help", HELP_DIR)
                     .replace("$plugin", plugin.getName())
                     .replace("$file", helpType.fileName);
+            if (Profundus.getInstance().getResource(resourcePath) == null) {
+                continue;
+            }
             Profundus.getInstance().saveResource(resourcePath, true);
 
             // txtファイルからヘルプを読み込み
