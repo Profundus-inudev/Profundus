@@ -43,6 +43,10 @@ public class HelpUtil {
          * サンプル用ヘルプ
          */
         Sample("sample.txt", "Sample"),
+
+        /**
+         * Metazon販売用のヘルプ
+         */
         MetazonSell("metazon-sell.txt", "Metazon 販売する");
 
         private final String fileName;
