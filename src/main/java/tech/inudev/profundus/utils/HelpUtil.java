@@ -57,7 +57,7 @@ public class HelpUtil {
     /**
      * 初期化処理。
      * プラグインに対応するヘルプを本に表示するために整形し、
-     * 「resources/{@value HELP_DIR}/{@value BOOK_SHAPE_DIR}」に
+     * 「{@value HELP_DIR}/{@value BOOK_SHAPE_DIR}」に
      * 別のtxtファイルとして保存する。
      * ヘルプ表示時はこのtxtファイルを読み込む。
      *
