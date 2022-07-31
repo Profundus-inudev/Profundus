@@ -28,7 +28,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@5c54c528391d07343539f7d665a2af08c9bfd64f
+      uses: gradle/gradle-build-action@35da154adf84e1be0afb04338556870a50943714
       with:
         arguments: build
 
