@@ -2,10 +2,7 @@ package tech.inudev.profundus;
 
 import lombok.Getter;
 
-import java.util.logging.Logger;
-
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import tech.inudev.profundus.config.ConfigHandler;
 import tech.inudev.profundus.config.StairsHandler;
@@ -14,8 +11,9 @@ import tech.inudev.profundus.database.DatabaseUtil.Table;
 import tech.inudev.profundus.define.Money;
 import tech.inudev.profundus.listener.StairSittingListener;
 import tech.inudev.profundus.listener.LoginEvent;
-import tech.inudev.profundus.scheduler.DatabasePingRunnable;
-import tech.inudev.profundus.utils.HelpUtil;
+import tech.inudev.profundus.profundusLib.interfaces.JavaPluginWithConfigHandler;
+import tech.inudev.profundus.profundusLib.scheduler.DatabasePingRunnable;
+import tech.inudev.profundus.profundusLib.utils.HelpUtil;
 import tech.inudev.profundus.utils.StairSittingUtil;
 
 /**
@@ -23,7 +21,7 @@ import tech.inudev.profundus.utils.StairSittingUtil;
  *
  * @author kumitatepazuru, tererun, toru-toruto
  */
-public final class Profundus extends JavaPlugin {
+public final class Profundus extends JavaPluginWithConfigHandler {
 
     @Getter
     private static Profundus instance;
@@ -33,16 +31,17 @@ public final class Profundus extends JavaPlugin {
     @Getter
     private StairsHandler stairsHandler;
     private DatabasePingRunnable databasePingRunnable;
-    
+
     @Override
     public void onEnable() {
         // Plugin startup logic
         instance = this;
-        
+
         this.configHandler = new ConfigHandler(instance);
         this.stairsHandler = new StairsHandler(instance);
         this.databasePingRunnable = new DatabasePingRunnable();
 
+        DatabaseUtil.init(this);
         DatabaseUtil.connect();
         for(Table table : Table.values()) {
             //ここの第二引数をtrueにすると，テーブル再作成（データ消える）
