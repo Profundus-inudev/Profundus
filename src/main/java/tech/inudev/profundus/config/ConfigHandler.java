@@ -15,6 +15,10 @@ public class ConfigHandler extends BaseConfigHandler {
     @Getter
     private String masterBankName;
 
+    /**
+     * コンストラクタ
+     * @param plugin プラグイン
+     */
     public ConfigHandler(Plugin plugin) {
         super(plugin);
     }
