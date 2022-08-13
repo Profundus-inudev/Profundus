@@ -37,7 +37,7 @@ public class DatabaseUtil extends BaseDatabaseUtil {
 	/**
 	 * SQLテーブル名:goods
 	 */
-	GOODS;
+	GOODS
     }
 
     /**
@@ -52,19 +52,12 @@ public class DatabaseUtil extends BaseDatabaseUtil {
     	StringBuilder sql = new StringBuilder();
     	sql.append("CREATE TABLE IF NOT EXISTS " + tableName.name() +" (");
 
-    	switch(tableName) {
-    	case USER:
-    		sql.append(DBUUser.createStr);
-    		break;
-    	case PFID:
-    		sql.append(DBUPFID.createStr);
-    		break;
-    	case MONEY:
-    		sql.append(DBUMoney.createStr);
-    		break;
-    	case GOODS:
-    		sql.append(DBUGoods.createStr);
-    	}
+		switch (tableName) {
+			case USER -> sql.append(DBUUser.createStr);
+			case PFID -> sql.append(DBUPFID.createStr);
+			case MONEY -> sql.append(DBUMoney.createStr);
+			case GOODS -> sql.append(DBUGoods.createStr);
+		}
     	sql.append(");");
 
     	Connection con = getConnection();
