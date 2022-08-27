@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils.database;
+package tech.inudev.profundus.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import tech.inudev.profundus.Profundus;
-import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
+import tech.inudev.profundus.database.DatabaseUtil.Table;
 
 
 public class DBUPFID extends DatabaseUtil {

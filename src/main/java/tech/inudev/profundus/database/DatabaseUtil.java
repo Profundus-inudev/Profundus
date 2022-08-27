@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils.database;
+package tech.inudev.profundus.database;
 
 import tech.inudev.profundus.Profundus;
 import tech.inudev.profundus.config.ConfigHandler;

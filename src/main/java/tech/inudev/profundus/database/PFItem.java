@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils.database;
+package tech.inudev.profundus.database;
 
 import java.util.List;
 import java.util.Set;
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.kyori.adventure.text.Component;
-import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
+import tech.inudev.profundus.database.DatabaseUtil.Table;
 /**
  * Profundus Wrapper class for Item
  * 基本的にはItemにそのままメソッドを投げている。

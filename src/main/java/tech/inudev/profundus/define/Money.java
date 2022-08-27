@@ -2,7 +2,7 @@ package tech.inudev.profundus.define;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import tech.inudev.profundus.utils.database.DBUMoney;
+import tech.inudev.profundus.database.DBUMoney;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

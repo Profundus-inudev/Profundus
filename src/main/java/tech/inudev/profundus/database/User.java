@@ -1,10 +1,10 @@
-package tech.inudev.profundus.utils.database;
+package tech.inudev.profundus.database;
 
 import org.bukkit.entity.*;
 
 import lombok.Getter;
 import tech.inudev.profundus.Profundus;
-import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
+import tech.inudev.profundus.database.DatabaseUtil.Table;
 
 import java.util.*;
 import java.util.logging.Level;

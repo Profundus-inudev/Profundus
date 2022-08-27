@@ -8,8 +8,8 @@ import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.Listener;
 
+import tech.inudev.profundus.database.PFChunk;
 import tech.inudev.profundus.utils.*;
-import tech.inudev.profundus.utils.database.PFChunk;
 /**
  * Login関係listener実装クラス
  * @author kidocchy

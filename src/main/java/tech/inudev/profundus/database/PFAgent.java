@@ -1,7 +1,7 @@
-package tech.inudev.profundus.utils.database;
+package tech.inudev.profundus.database;
 
 import lombok.Getter;
-import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
+import tech.inudev.profundus.database.DatabaseUtil.Table;
 
 /**
  * PFGROUPとUSERのスーパークラス。

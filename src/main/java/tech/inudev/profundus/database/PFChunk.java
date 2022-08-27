@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils.database;
+package tech.inudev.profundus.database;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import tech.inudev.profundus.utils.database.DatabaseUtil.Table;
+import tech.inudev.profundus.database.DatabaseUtil.Table;
 
 public class PFChunk {
 		private static Map<String,PFChunk> storedList = new HashMap<String,PFChunk>();

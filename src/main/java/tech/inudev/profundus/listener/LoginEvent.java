@@ -6,9 +6,8 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.Listener;
 
-import tech.inudev.profundus.utils.*;
-import tech.inudev.profundus.utils.database.PFChunk;
-import tech.inudev.profundus.utils.database.User;
+import tech.inudev.profundus.database.PFChunk;
+import tech.inudev.profundus.database.User;
 /**
  * Login関係listener実装クラス
  * @author kidocchy

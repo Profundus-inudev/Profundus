@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils.database;
+package tech.inudev.profundus.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,8 +10,8 @@ import java.util.UUID;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import tech.inudev.profundus.Profundus;
-import tech.inudev.profundus.utils.database.TransactionHandler.Payment;
-import tech.inudev.profundus.utils.database.TransactionHandler.Result;
+import tech.inudev.profundus.database.TransactionHandler.Payment;
+import tech.inudev.profundus.database.TransactionHandler.Result;
 
 
 public class DBUTransaction extends DatabaseUtil {

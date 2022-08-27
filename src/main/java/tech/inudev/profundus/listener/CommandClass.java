@@ -12,8 +12,8 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import tech.inudev.profundus.utils.database.PFChunk;
-import tech.inudev.profundus.utils.database.User;
+import tech.inudev.profundus.database.PFChunk;
+import tech.inudev.profundus.database.User;
 
 public class CommandClass implements CommandExecutor,TabCompleter {
 

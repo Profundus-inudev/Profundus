@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils.database;
+package tech.inudev.profundus.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,21 +16,21 @@ public class DBUChunk extends DatabaseUtil {
 	final static Table table = Table.CHUNK;
 	
 	static final String createStr = """
-	seqID INTEGER PRIMARY KEY AUTOINCREMENT,
-	mostSignificantWorldUUID BIGINT NOT NULL,
-	leastSignificantWorldUUID BIGINT NOT NULL,
-	chunkX INT NOT NULL,
-	chunkZ INT NOT NULL,
-	mostSignificantOwnerPFID BIGINT,
-	leastSignificantOwnerPFID BIGINT,
-	mostSignificantEditorPFID BIGINT,
-	leastSignificantEditorPFID BIGINT,
-	createdAt TIMESTAMP NOT NULL,
-	saleSignX INT,
-	saleSignY INT,
-	saleSignZ INT,
-	mostSignificantTransactionPFID BIGINT,
-	leastSignificantTransactionPFID BIGINT
+		seqID INTEGER PRIMARY KEY AUTOINCREMENT,
+		mostSignificantWorldUUID BIGINT NOT NULL,
+		leastSignificantWorldUUID BIGINT NOT NULL,
+		chunkX INT NOT NULL,
+		chunkZ INT NOT NULL,
+		mostSignificantOwnerPFID BIGINT,
+		leastSignificantOwnerPFID BIGINT,
+		mostSignificantEditorPFID BIGINT,
+		leastSignificantEditorPFID BIGINT,
+		createdAt TIMESTAMP NOT NULL,
+		saleSignX INT,
+		saleSignY INT,
+		saleSignZ INT,
+		mostSignificantTransactionPFID BIGINT,
+		leastSignificantTransactionPFID BIGINT
 	""";
 	
 	public static boolean insert(PFChunk c) {	

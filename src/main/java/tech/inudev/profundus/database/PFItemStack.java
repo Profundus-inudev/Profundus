@@ -1,4 +1,4 @@
-package tech.inudev.profundus.utils.database;
+package tech.inudev.profundus.database;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

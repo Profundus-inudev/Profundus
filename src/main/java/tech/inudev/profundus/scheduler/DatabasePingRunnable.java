@@ -2,7 +2,7 @@ package tech.inudev.profundus.scheduler;
 
 import org.bukkit.scheduler.BukkitRunnable;
 
-import tech.inudev.profundus.utils.database.DatabaseUtil;
+import tech.inudev.profundus.database.DatabaseUtil;
 
 /**
  * DatabaseのConnectionが切断されないように定期的にPingを送るためのクラス
