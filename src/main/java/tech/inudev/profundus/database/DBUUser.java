@@ -80,7 +80,7 @@ public class DBUUser extends DatabaseUtil {
 		SET
 		screenName = ?,
 		lastLogin = ?,
-		language1 = ?,
+		language1 = ?
 		WHERE
 		mostSignificantPFID = ?
 		AND
