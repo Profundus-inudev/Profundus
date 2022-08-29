@@ -1,16 +1,14 @@
 package tech.inudev.profundus;
 
 import lombok.Getter;
-
 import org.bukkit.plugin.PluginManager;
-
 import tech.inudev.profundus.config.ConfigHandler;
 import tech.inudev.profundus.config.StairsHandler;
 import tech.inudev.profundus.database.DatabaseUtil;
 import tech.inudev.profundus.database.DatabaseUtil.Table;
 import tech.inudev.profundus.define.Money;
-import tech.inudev.profundus.listener.StairSittingListener;
 import tech.inudev.profundus.listener.LoginEvent;
+import tech.inudev.profundus.listener.StairSittingListener;
 import tech.inudev.profundus.profundusLib.interfaces.JavaPluginWithConfigHandler;
 import tech.inudev.profundus.profundusLib.scheduler.DatabasePingRunnable;
 import tech.inudev.profundus.profundusLib.utils.HelpUtil;
@@ -43,10 +41,10 @@ public final class Profundus extends JavaPluginWithConfigHandler {
 
         DatabaseUtil.init(this);
         DatabaseUtil.connect();
-        for(Table table : Table.values()) {
+        for (Table table : Table.values()) {
             //ここの第二引数をtrueにすると，テーブル再作成（データ消える）
-        	//TODO リリース時には第二引数は削除
-        	DatabaseUtil.createTable(table,false);
+            //TODO リリース時には第二引数は削除
+            DatabaseUtil.createTable(table, false);
         }
 
         if (!Money.bankAccountExists(this.configHandler.getMasterBankName())) {

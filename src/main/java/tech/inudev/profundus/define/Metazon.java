@@ -43,7 +43,7 @@ public class Metazon {
      */
     public void open(Player player) {
         this.sellPrice = 1;
-        Gui gui = new Gui(METAZON_TITLE,plugin);
+        Gui gui = new Gui(METAZON_TITLE, plugin);
         gui.setMenuItems(generateTopMenu(player));
         gui.open(player, false);
     }
@@ -85,7 +85,7 @@ public class Metazon {
 
     // region sellMode
     private void openSellMode(Player player, ItemStack sellItem) {
-        Gui gui = new Gui(METAZON_TITLE + " 販売する",plugin);
+        Gui gui = new Gui(METAZON_TITLE + " 販売する", plugin);
         gui.setMenuItems(generateSellMenu(gui, player, sellItem));
         gui.open(player, true);
     }
@@ -140,7 +140,7 @@ public class Metazon {
         MenuItem help = new MenuItem(
                 Component.text("ヘルプ"),
                 List.of(Component.text("Metazonのつかいかた")),
-                (menuItem, _player) -> HelpUtil.openHelp(plugin,_player.getUniqueId(), HelpUtil.HelpType.MetazonSell),
+                (menuItem, _player) -> HelpUtil.openHelp(plugin, _player.getUniqueId(), HelpUtil.HelpType.MetazonSell),
                 new ItemStack(Material.WRITTEN_BOOK),
                 null,
                 true,
@@ -193,7 +193,7 @@ public class Metazon {
 
     // region sellConfirm
     private void openSellConfirm(Player player, ItemStack sellItem) {
-        Gui gui = new Gui(METAZON_TITLE + " 販売確認",plugin);
+        Gui gui = new Gui(METAZON_TITLE + " 販売確認", plugin);
         gui.setMenuItems(generateSellConfirmMenu(player, sellItem));
         gui.open(player, true);
     }

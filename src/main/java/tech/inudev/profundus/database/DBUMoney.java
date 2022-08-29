@@ -3,21 +3,22 @@ package tech.inudev.profundus.database;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 /**
  * MoneyテーブルをいじるためのAPI的存在
- * @author kidocchy
  *
+ * @author kidocchy
  */
 public class DBUMoney extends DatabaseUtil {
 
-	final static Table table = Table.MONEY;
-	
-	static final String createStr = """
+    final static Table table = Table.MONEY;
+
+    static final String createStr = """
             'name' VARCHAR(36) NOT NULL,
             'amount' INT NOT NULL,
             PRIMARY KEY ('name')
-			""";
+            """;
 
 
     /**
@@ -60,8 +61,8 @@ public class DBUMoney extends DatabaseUtil {
     public static Integer loadMoneyAmount(String name) {
         try {
 
-            ResultSet resultSet = select(table,"name='"+name+"'");
-            Integer result = resultSet.next() ? resultSet.getInt("amount") : null;
+            ResultSet resultSet = select(table, "name='" + name + "'");
+            Integer result = Objects.requireNonNull(resultSet).next() ? resultSet.getInt("amount") : null;
             resultSet.close();
             return result;
         } catch (SQLException e) {
@@ -109,7 +110,7 @@ public class DBUMoney extends DatabaseUtil {
             preparedStatement.close();
         } catch (SQLException e) {
             try {
-            	getConnection().rollback();
+                getConnection().rollback();
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
             }

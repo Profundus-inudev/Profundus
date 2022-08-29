@@ -1,7 +1,6 @@
 package tech.inudev.profundus.config;
 
 import lombok.Getter;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import tech.inudev.profundus.profundusLib.config.BaseConfigHandler;
 
@@ -17,6 +16,7 @@ public class ConfigHandler extends BaseConfigHandler {
 
     /**
      * コンストラクタ
+     *
      * @param plugin プラグイン
      */
     public ConfigHandler(Plugin plugin) {
