@@ -1,31 +1,31 @@
 package tech.inudev.profundus.database;
 
+import org.bukkit.inventory.ItemStack;
+import tech.inudev.profundus.Profundus;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.inventory.ItemStack;
-
-import tech.inudev.profundus.Profundus;
 /**
  * goodsテーブルをいじるためのAPI的存在
- * @author tererun
  *
+ * @author tererun
  */
-public class DBUGoods extends DatabaseUtil{
+public class DBUGoods extends DatabaseUtil {
 
-	final static Table table = Table.GOODS;
-	
-	static final String createStr = """
+    final static Table table = Table.GOODS;
+
+    static final String createStr = """
             'id' INT AUTO_INCREMENT,
             'item' VARBINARY(511) NOT NULL,
             'price' INT NOT NULL,
             'seller' VARCHAR(36) NOT NULL,
             PRIMARY KEY ('id')
             """;
-	
+
     /**
      * Metazonの商品を新たに登録する。
      *
@@ -52,7 +52,7 @@ public class DBUGoods extends DatabaseUtil{
             commitTransaction();
         } catch (SQLException e) {
             try {
-            	getConnection().rollback();
+                getConnection().rollback();
                 Profundus.getInstance().getLogger().info("rollback");
             } catch (SQLException e2) {
                 throw new RuntimeException(e2);
@@ -95,7 +95,7 @@ public class DBUGoods extends DatabaseUtil{
             return result;
         } catch (SQLException e) {
             try {
-            	getConnection().rollback();
+                getConnection().rollback();
                 Profundus.getInstance().getLogger().info("rollback");
                 return null;
             } catch (SQLException e2) {
@@ -103,6 +103,6 @@ public class DBUGoods extends DatabaseUtil{
             }
         }
     }
-	
+
 
 }

@@ -2,7 +2,8 @@ package tech.inudev.profundus.listener;
 
 import com.destroystokyo.paper.event.block.BlockDestroyEvent;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -127,8 +128,7 @@ public class StairSittingListener implements Listener {
         if (brokenSeatEntity == null) {
             return;
         }
-        Player player = (Player) brokenSeatEntity.getPassengers()
-                .stream().findFirst().orElse(null);
+        Player player = (Player) brokenSeatEntity.getPassengers().stream().findFirst().orElse(null);
         if (player == null) {
             return;
         }
@@ -147,8 +147,7 @@ public class StairSittingListener implements Listener {
         if (brokenSeatEntity == null) {
             return;
         }
-        Player player = (Player) brokenSeatEntity.getPassengers()
-                .stream().findFirst().orElse(null);
+        Player player = (Player) brokenSeatEntity.getPassengers().stream().findFirst().orElse(null);
         if (player == null) {
             return;
         }
@@ -167,8 +166,7 @@ public class StairSittingListener implements Listener {
         if (brokenSeatEntity == null) {
             return;
         }
-        Player player = (Player) brokenSeatEntity.getPassengers()
-                .stream().findFirst().orElse(null);
+        Player player = (Player) brokenSeatEntity.getPassengers().stream().findFirst().orElse(null);
         if (player == null) {
             return;
         }
@@ -187,8 +185,7 @@ public class StairSittingListener implements Listener {
         if (brokenSeatEntity == null) {
             return;
         }
-        Player player = (Player) brokenSeatEntity.getPassengers()
-                .stream().findFirst().orElse(null);
+        Player player = (Player) brokenSeatEntity.getPassengers().stream().findFirst().orElse(null);
         if (player == null) {
             return;
         }
@@ -211,8 +208,7 @@ public class StairSittingListener implements Listener {
             if (brokenSeatEntity == null) {
                 return;
             }
-            Player player = (Player) brokenSeatEntity.getPassengers()
-                    .stream().findFirst().orElse(null);
+            Player player = (Player) brokenSeatEntity.getPassengers().stream().findFirst().orElse(null);
             if (player == null) {
                 return;
             }
@@ -236,8 +232,7 @@ public class StairSittingListener implements Listener {
             if (brokenSeatEntity == null) {
                 return;
             }
-            Player player = (Player) brokenSeatEntity.getPassengers()
-                    .stream().findFirst().orElse(null);
+            Player player = (Player) brokenSeatEntity.getPassengers().stream().findFirst().orElse(null);
             if (player == null) {
                 return;
             }

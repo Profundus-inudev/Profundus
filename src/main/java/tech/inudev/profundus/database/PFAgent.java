@@ -6,32 +6,36 @@ import tech.inudev.profundus.database.DatabaseUtil.Table;
 /**
  * PFGROUPとUSERのスーパークラス。
  * どちらも，土地などの所有者になれる。
- * @author kidocchy
  *
+ * @author kidocchy
  */
-public abstract class PFAgent extends PFID{
-	@Getter
-	String screenName;//表示名
-	/**
-	 * コンストラクタ
-	 * @param type Table
-	 * @param name 表示名
-	 */
-	public PFAgent(Table type,String name) {
-		super(type);
-		screenName = name;
-	}
-	
-	/**
-	 * からのコンストラクタ
-	 */
-	public PFAgent() {}
-	/**
-	 * チャットメッセージ送信。グループ宛に送ると，メンバー全員に送信する想定。
-	 * 
-	 * @param str 本文
-	 * @param sendOnLogin 記憶してログイン時に送れるようにしたいが，未実装。
-	 */
-	public abstract void sendMessage(String str, Boolean sendOnLogin);
+public abstract class PFAgent extends PFID {
+    @Getter
+    String screenName;//表示名
+
+    /**
+     * コンストラクタ
+     *
+     * @param type Table
+     * @param name 表示名
+     */
+    public PFAgent(Table type, String name) {
+        super(type);
+        screenName = name;
+    }
+
+    /**
+     * からのコンストラクタ
+     */
+    public PFAgent() {
+    }
+
+    /**
+     * チャットメッセージ送信。グループ宛に送ると，メンバー全員に送信する想定。
+     *
+     * @param str         本文
+     * @param sendOnLogin 記憶してログイン時に送れるようにしたいが，未実装。
+     */
+    public abstract void sendMessage(String str, Boolean sendOnLogin);
 
 }

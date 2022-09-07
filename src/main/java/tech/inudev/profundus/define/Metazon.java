@@ -1,13 +1,17 @@
 package tech.inudev.profundus.define;
 
+import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import tech.inudev.profundus.database.DBUGoods;
-import tech.inudev.profundus.utils.HelpUtil;
+import tech.inudev.profundus.profundusLib.gui.Gui;
+import tech.inudev.profundus.profundusLib.gui.MenuItem;
+import tech.inudev.profundus.profundusLib.utils.HelpUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +23,7 @@ import java.util.function.BiConsumer;
  *
  * @author toru-toruto
  */
+@RequiredArgsConstructor
 public class Metazon {
     private static final String METAZON_TITLE = "Metazon";
     private static final int EMERALD_X = 5;
@@ -26,6 +31,8 @@ public class Metazon {
     private static final int GOODS_X = 5;
     private static final int GOODS_Y = 3;
     private int sellPrice = 1;
+
+    private final JavaPlugin plugin;
 
     // region top
 
@@ -36,7 +43,7 @@ public class Metazon {
      */
     public void open(Player player) {
         this.sellPrice = 1;
-        Gui gui = new Gui(METAZON_TITLE);
+        Gui gui = new Gui(METAZON_TITLE, plugin);
         gui.setMenuItems(generateTopMenu(player));
         gui.open(player, false);
     }
@@ -78,7 +85,7 @@ public class Metazon {
 
     // region sellMode
     private void openSellMode(Player player, ItemStack sellItem) {
-        Gui gui = new Gui(METAZON_TITLE + " 販売する");
+        Gui gui = new Gui(METAZON_TITLE + " 販売する", plugin);
         gui.setMenuItems(generateSellMenu(gui, player, sellItem));
         gui.open(player, true);
     }
@@ -133,7 +140,7 @@ public class Metazon {
         MenuItem help = new MenuItem(
                 Component.text("ヘルプ"),
                 List.of(Component.text("Metazonのつかいかた")),
-                (menuItem, _player) -> HelpUtil.openHelp(_player.getUniqueId(), HelpUtil.HelpType.MetazonSell),
+                (menuItem, _player) -> HelpUtil.openHelp(plugin, _player.getUniqueId(), HelpUtil.HelpType.MetazonSell),
                 new ItemStack(Material.WRITTEN_BOOK),
                 null,
                 true,
@@ -186,12 +193,12 @@ public class Metazon {
 
     // region sellConfirm
     private void openSellConfirm(Player player, ItemStack sellItem) {
-        Gui gui = new Gui(METAZON_TITLE + " 販売確認");
-        gui.setMenuItems(generateSellConfirmMenu(gui, player, sellItem));
+        Gui gui = new Gui(METAZON_TITLE + " 販売確認", plugin);
+        gui.setMenuItems(generateSellConfirmMenu(player, sellItem));
         gui.open(player, true);
     }
 
-    private List<Gui.PosMenuItem> generateSellConfirmMenu(Gui gui, Player player, ItemStack sellItem) {
+    private List<Gui.PosMenuItem> generateSellConfirmMenu(Player player, ItemStack sellItem) {
         List<Gui.PosMenuItem> result = new ArrayList<>();
 
         // 確認説明
